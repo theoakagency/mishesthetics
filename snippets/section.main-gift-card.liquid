@@ -1,0 +1,501 @@
+{% doc %}
+  Copyright © 2025 Archetype Themes LP. All rights reserved.
+
+  Gift card template displaying card code and redemption details.
+
+  @example
+  {% render 'section.main-gift-card' %}
+{% enddoc %}
+
+{% stylesheet %}
+  .template-giftcard,
+  .template-giftcard body {
+    background: var(--root-color-secondary);
+
+    & a {
+      text-decoration: none;
+    }
+  }
+
+  .template-giftcard .page-width {
+    max-width: 588px;
+  }
+
+  .template-giftcard .shop-url {
+    display: none;
+  }
+
+  .giftcard__border {
+    padding: 1.5em;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+  }
+
+  .giftcard__content {
+    background-color: var(--root-color-secondary);
+    color: var(--root-color-primary);
+  }
+
+  .giftcard__header {
+    padding: calc(var(--gutter) / 2);
+  }
+
+  .giftcard__title {
+    float: left;
+    margin-bottom: 0;
+  }
+
+  .giftcard__tag {
+    display: block;
+    float: right;
+    background-color: var(--root-color-primary);
+    border: 1px solid transparent;
+    color: var(--root-color-secondary);
+    padding: calc(var(--gutter) / 3);
+    border-radius: 4px;
+    font-size: 0.75em;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    line-height: 1;
+  }
+
+  .giftcard__tag--active {
+    background: transparent;
+    color: var(--root-color-primary);
+    border: 1px solid;
+    border-color: color-mix(in srgb, var(--color-primary) var(--shade-12), var(--color-secondary));
+  }
+
+  .giftcard__wrap {
+    position: relative;
+    margin: calc(var(--gutter) / 2) calc(var(--gutter) / 2) var(--gutter);
+
+    & img {
+      position: relative;
+      display: block;
+      border-radius: 10px;
+      z-index: 2;
+    }
+  }
+
+  .giftcard__code {
+    position: absolute;
+    bottom: var(--gutter);
+    text-align: center;
+    width: 100%;
+    z-index: 50;
+  }
+
+  .giftcard__code--medium {
+    font-size: 0.875em;
+  }
+
+  .giftcard__code--small {
+    font-size: 0.75em;
+  }
+
+  .giftcard__code__inner {
+    display: inline-block;
+    vertical-align: baseline;
+    background-color: #fff;
+    padding: 0.5em;
+    border-radius: 4px;
+    max-width: 450px;
+    -webkit-box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.1);
+
+    .giftcard__code--small & {
+      overflow: auto;
+    }
+  }
+
+  .giftcard__code__text {
+    font-weight: 400;
+    font-size: 1.875em;
+    text-transform: uppercase;
+    border-radius: 2px;
+    border: 1px dashed;
+    border-color: color-mix(in srgb, var(--color-primary) var(--shade-12), var(--color-secondary));
+    padding: 0.4em 0.5em;
+    display: inline-block;
+    vertical-align: baseline;
+    color: var(--root-color-primary);
+    line-height: 1;
+
+    .disabled & {
+      color: #999;
+      text-decoration: line-through;
+    }
+  }
+
+  .giftcard__amount {
+    position: absolute;
+    top: 0;
+    right: 0;
+    color: #fff;
+    font-size: 2.75em;
+    line-height: 1.2;
+    padding: calc(var(--gutter) / 2);
+    z-index: 50;
+
+    & strong {
+      display: block;
+      text-shadow: 3px 3px 0 rgba(0, 0, 0, 0.1);
+    }
+  }
+
+  .giftcard__amount--medium {
+    font-size: 2em;
+  }
+
+  .tooltip {
+    display: block;
+    position: absolute;
+    top: -50%;
+    right: 50%;
+    margin-top: 16px;
+    z-index: 3;
+    color: #fff;
+    text-align: center;
+    white-space: nowrap;
+
+    &:before {
+      content: '';
+      display: block;
+      position: absolute;
+      left: 100%;
+      bottom: 0;
+      width: 0;
+      height: 0;
+      margin-left: -5px;
+      margin-bottom: -5px;
+      border-left: 8px solid transparent;
+      border-right: 8px solid transparent;
+      border-top: 5px solid #333;
+      border-top: 5px solid rgba(51, 51, 51, 0.9);
+    }
+  }
+
+  .tooltip__label {
+    display: block;
+    position: relative;
+    right: -50%;
+    border: none;
+    border-radius: 4px;
+    background: #333;
+    background: rgba(51, 51, 51, 0.9);
+    min-height: 14px;
+    font-weight: 400;
+    font-size: 12px;
+    text-decoration: none;
+    line-height: 16px;
+    text-shadow: none;
+    padding: 0.5em 0.75em;
+    margin-left: 0.25em;
+
+    & small {
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      color: #b3b3b3;
+      font-size: 0.875em;
+    }
+  }
+
+  .giftcard__instructions {
+    text-align: center;
+    margin: 0 calc(var(--gutter) / 2) var(--gutter);
+  }
+
+  .giftcard__actions {
+    position: relative;
+    text-align: center;
+    overflow: hidden;
+    padding-bottom: 1em;
+  }
+
+  .template-giftcard .action-link {
+    position: absolute;
+    left: calc(var(--gutter) / 2);
+    top: 50%;
+    font-size: 0.875em;
+    font-weight: var(--element-text-font-weight--heading);
+    display: block;
+    padding-top: 4px;
+    text-transform: uppercase;
+    letter-spacing: 0.2em;
+    margin-top: -10px;
+
+    &:hover,
+    &:focus {
+      color: var(--root-color-primary);
+    }
+  }
+
+  .template-giftcard .action-link__print {
+    display: inline-block;
+    vertical-align: baseline;
+    width: 17px;
+    height: 17px;
+    vertical-align: middle;
+    margin-right: 10px;
+    opacity: 1;
+    background-image: url('//cdn.shopify.com/s/assets/gift-card/icon-print-164daa1ae32d10d1f9b83ac21b6f2c70.png');
+    background-repeat: no-repeat;
+    background-position: 0 0;
+  }
+
+  .giftcard__footer {
+    text-align: center;
+    padding: calc(var(--gutter) * 2) 0;
+  }
+
+  #QrCode {
+    & img {
+      padding: var(--gutter);
+      border: 1px solid;
+      border-color: color-mix(in srgb, var(--color-primary) var(--shade-12), var(--color-secondary));
+      border-radius: 4px;
+      margin: 0 auto var(--gutter);
+    }
+  }
+
+  @media only screen and (max-width: 768px) {
+    .giftcard {
+      font-size: 12px;
+    }
+
+    .giftcard-header {
+      padding: var(--gutter) 0;
+    }
+
+    .header-logo {
+      font-size: 2em;
+    }
+
+    .giftcard__border {
+      padding: calc(var(--gutter) / 2);
+    }
+
+    .giftcard__actions {
+      padding: calc(var(--gutter) / 2);
+    }
+
+    .giftcard__actions .btn {
+      width: 100%;
+      padding-left: 0;
+      padding-right: 0;
+    }
+
+    .template-giftcard .action-link {
+      display: none;
+    }
+  }
+
+  /*================ Small width ================*/
+  @media screen and (max-width: 400px) {
+    .giftcard__amount strong {
+      text-shadow: 2px 2px 0 rgba(0, 0, 0, 0.1);
+    }
+
+    .giftcard__wrap:before,
+    .giftcard__wrap:after {
+      display: none;
+    }
+
+    .giftcard__code {
+      font-size: 0.75em;
+    }
+
+    .giftcard__code--medium {
+      font-size: 0.65em;
+    }
+
+    .giftcard__code--small {
+      font-size: 0.55em;
+    }
+  }
+
+  /*================ Small height ================*/
+  @media screen and (max-height: 800px) {
+    .header-logo img {
+      max-height: 90px;
+    }
+  }
+
+  @media print {
+    @page {
+      margin: 0.5cm;
+    }
+
+    p,
+    h2,
+    h3 {
+      orphans: 3;
+      widows: 3;
+    }
+
+    h2,
+    h3 {
+      page-break-after: avoid;
+    }
+
+    html,
+    body {
+      background-color: #fff;
+    }
+
+    .giftcard-header {
+      padding: 10px 0;
+    }
+
+    .giftcard__content,
+    .giftcard__border {
+      border: 0 none;
+    }
+
+    .site-header__logo-link img:nth-child(2),
+    .giftcard__actions,
+    .giftcard__wrap:before,
+    .giftcard__wrap:after,
+    .tooltip,
+    .add-to-apple-wallet {
+      display: none;
+    }
+
+    .giftcard__title {
+      float: none;
+      text-align: center;
+    }
+
+    .giftcard__code__text {
+      color: #555;
+    }
+
+    .template-giftcard .shop-url {
+      display: block;
+    }
+
+    .template-giftcard .logo {
+      color: #58686f;
+    }
+  }
+{% endstylesheet %}
+
+{%- assign formatted_initial_value = gift_card.initial_value | money_without_trailing_zeros: gift_card.currency -%}
+
+<div class="giftcard__border{% if gift_card.expired or gift_card.enabled != true %} disabled{% endif %}">
+  <div class="giftcard__content clearfix">
+    <div class="giftcard__header clearfix">
+      <h2 class="heading-sm giftcard__title">
+        {% render 'utility.translate', key: 'info.gift_card_description', fallback: "Here's your gift card!" %}
+      </h2>
+      {% unless gift_card.enabled %}
+        <span class="giftcard__tag">
+          {% render 'utility.translate', key: 'info.disabled', fallback: 'Disabled' -%}
+        </span>
+      {% endunless %}
+      {%- assign gift_card_expiry_date = gift_card.expires_on | date: '%d/%m/%y' -%}
+      {% if gift_card.expired and gift_card.enabled %}
+        <span class="giftcard__tag">
+          {%- assign info_gift_card_expired_on = 'info.gift_card_expired_on' | t: expiry: gift_card_expiry_date %}
+          {%- capture fallback_info_gift_card_expired_on -%}
+            Expired on {{ gift_card_expiry_date }}
+          {%- endcapture -%}
+          {% render 'utility.translate', t: info_gift_card_expired_on, fallback: fallback_info_gift_card_expired_on -%}
+        </span>
+      {% endif %}
+      {% if gift_card.expired != true and gift_card.expires_on and gift_card.enabled %}
+        <span class="giftcard__tag giftcard__tag--active">
+          {% assign info_gift_card_expires_on = 'info.gift_card_expires_on' | t: expiry: gift_card_expiry_date %}
+          {%- capture fallback_info_gift_card_expires_on -%}
+            Expires on {{ gift_card_expiry_date }}
+          {%- endcapture -%}
+          {% render 'utility.translate', t: info_gift_card_expires_on, fallback: fallback_info_gift_card_expires_on %}
+        </span>
+      {% endif %}
+    </div>
+
+    <div class="giftcard__wrap">
+      {%- render 'element.image',
+        asset: 'gift-card/card.jpg',
+        type: 'asset',
+        alt: 'Gift card illustration',
+        sizeVariable: '588px'
+      -%}
+
+      {%- assign initial_value_size = formatted_initial_value | size -%}
+      <div class="heading-xl giftcard__amount{% if initial_value_size > 6 %} giftcard__amount--medium{% endif %}">
+        {% if gift_card.balance != gift_card.initial_value %}
+          <span class="tooltip">
+            <span class="tooltip__label">
+              {{- gift_card.balance | money }}
+              <small>left</small></span
+            >
+          </span>
+        {% endif %}
+        <strong>{{ formatted_initial_value }}</strong>
+      </div>
+
+      {%- assign code_size = gift_card.code | format_code | size -%}
+      <div
+        class="giftcard__code{% if code_size <= 25 %} giftcard__code--large{% elsif code_size > 25 and code_size <= 30 %} giftcard__code--medium{% else %} giftcard__code--small{% endif %}"
+        onclick="selectText('GiftCardDigits');"
+      >
+        <div class="giftcard__code__inner">
+          <strong class="giftcard__code__text" id="GiftCardDigits">{{ gift_card.code | format_code }}</strong>
+        </div>
+      </div>
+    </div>
+
+    <p class="giftcard__instructions">
+      {% assign info_gift_card_redeem = 'info.gift_card_redeem' | t %}
+      {% render 'utility.translate',
+        t: info_gift_card_redeem,
+        fallback: 'Use this code at checkout to redeem your gift card'
+      %}
+    </p>
+
+    <div id="QrCode"></div>
+    <script>
+      new QRCode(document.getElementById('QrCode'), {
+        text: '{{ gift_card.qr_identifier }}',
+        width: 120,
+        height: 120
+      })
+    </script>
+
+    <div class="giftcard__actions">
+      <a href="{{ shop.url }}" class="btn" target="_blank">
+        {% render 'utility.translate', key: 'actions.start_shopping', fallback: 'Start shopping' -%}
+      </a>
+      <a href="#" class="action-link" onclick="window.print();">
+        <i class="action-link__print"></i>
+        {% render 'utility.translate', key: 'actions.print', fallback: 'Print' %}
+      </a>
+    </div>
+  </div>
+</div>
+
+<script type="text/javascript">
+  /*============================================================================
+    Auto-select gift card code on click, based on ID passed to the function
+      - Use a different method depending on IE or others
+  ==============================================================================*/
+  function selectText(element) {
+    var doc = document,
+      text = doc.getElementById(element)
+
+    if (doc.body.createTextRange) {
+      // ms
+      var range = doc.body.createTextRange()
+      range.moveToElementText(text)
+      range.select()
+    } else if (window.getSelection) {
+      // moz, opera, webkit
+      var selection = window.getSelection(),
+        range = doc.createRange()
+      range.selectNodeContents(text)
+      selection.removeAllRanges()
+      selection.addRange(range)
+    }
+  }
+</script>

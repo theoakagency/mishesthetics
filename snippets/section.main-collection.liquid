@@ -1,0 +1,167 @@
+{% doc %}
+  Copyright © 2025 Archetype Themes LP. All rights reserved.
+
+  Main collection template with filtering, sorting, and product grid.
+
+  @param {object} [collection] - Collection object
+  @param {number} [paginate_by] - Products per page
+  @param {string} [slot_product_items] - Product items slot
+  @param {string} [slot_additional_content] - Additional content slot
+  @param {string} [active_tags_location_desktop] - ('filterbar'|'sidebar') Filter placement
+  @param {string} [filter_variant] - ('checkbox'|'pill') Filter style
+  @param {string} [price_range_style] - ('slider'|'text') Price filter style
+  @param {boolean} [enable_reset_all_filters] - Show reset all button
+  @param {boolean} [enable_reset_price_filter] - Show reset price button
+  @param {boolean} [enable_scroll_to_top] - Show scroll to top button
+  @param {string} [color_scheme] - ('none'|'1'|'2'|'3') Color scheme
+  @param {boolean} [collapse_filters] - Collapse filters by default
+  @param {boolean} [enable_show_more_filters] - Show more filters button
+  @param {string} [product_grid_content_align] - Product grid content alignment
+
+  @example
+  {% render 'section.main-collection', paginate_by: 24, filter_variant: 'checkbox' %}
+{% enddoc %}
+
+{% stylesheet %}
+  section-main-content {
+    display: block;
+    padding-block: var(--index-section-padding);
+  }
+
+  .rte--collection-desc {
+    display: block;
+    padding-block-end: var(--size-9);
+  }
+{% endstylesheet %}
+
+{%- liquid
+  assign paginate_by = paginate_by | default: section.settings.paginate_by | default: 40
+  assign collapse_filters = collapse_filters | default: section.settings.collapse_filters, allow_false: true | default: true, allow_false: true
+  assign active_tags_location_desktop = active_tags_location_desktop | default: 'sidebar'
+  assign filter_variant = filter_variant | default: 'checkbox'
+  assign price_range_style = price_range_style | default: 'slider'
+  assign enable_reset_all_filters = enable_reset_all_filters | default: false, allow_false: true
+  assign enable_reset_price_filter = enable_reset_price_filter | default: false, allow_false: true
+  assign color_scheme = color_scheme | default: section.settings.color_scheme | default: 'none'
+  assign enable_show_more_filters = enable_show_more_filters | default: false, allow_false: true
+  assign enable_scroll_to_top = enable_scroll_to_top | default: true, allow_false: true
+  assign product_grid_content_align = product_grid_content_align | default: settings.product_grid_content_align | default: 'start'
+  assign current_filter_size = 0
+  for filter in collection.filters
+    assign current_filter_size = current_filter_size | plus: filter.active_values.size
+  endfor
+
+  if cart.attributes.product_view != blank and request.design_mode == false
+    assign grid_style = cart.attributes.product_view
+  endif
+-%}
+
+{% capture no_products %}
+  <div class="index-section">
+    {% render 'utility.translate', key: 'info.collection_no_products', fallback: 'Sorry, there are no products in this collection.' %}
+  </div>
+{% endcapture %}
+
+{%- liquid
+  # Get product card content
+  capture product_items
+    if slot_product_items != blank
+      echo slot_product_items
+    elsif collection.products.size == 0
+      echo no_products
+    else
+      paginate collection.products by paginate_by
+        for item in collection.products
+          render 'list.product-card', product: item, product_grid_content_align: product_grid_content_align, disabled_high_variants: false
+        endfor
+
+        if paginate.pages > 1
+          render 'element.pagination', paginate: paginate
+        endif
+      endpaginate
+    endif
+  endcapture
+-%}
+
+{%- capture collection_content -%}
+  {%- if slot_additional_content != blank -%}
+      {{ slot_additional_content }}
+  {%- else -%}
+    {%- for block in section.blocks -%}
+      {%- case block.type -%}
+        {%- when 'collection_description' -%}
+          <div {{ block.shopify_attributes }}>
+            {%- if collection.description != blank and current_filter_size == 0 -%}
+              {%- render 'element.text',
+                text: collection.description,
+                variant: 'rte',
+                classlist: 'rte--collection-desc',
+                style: '--element-text-font-size--rte-body: var(--element-text-font-size--body-lg);'
+              -%}
+            {%- endif -%}
+          </div>
+        {%- when 'subcollections' -%}
+          {%- paginate collection.products by paginate_by -%}
+            {%- if paginate.current_page == 1 and current_filter_size == 0 -%}
+              <div {{ block.shopify_attributes }}>
+                {%- render 'subcollection-list', menu: linklists['main-menu'] -%}
+              </div>
+            {%- endif -%}
+          {%- endpaginate -%}
+        {%- when 'product_grid' -%}
+          {%- if block.settings.grid_style != blank -%}
+            {%- assign grid_style = grid_style | default: block.settings.grid_style -%}
+          {%- endif -%}
+          {%- render 'list.filter-grid.controls',
+            context: collection,
+            grid_style: grid_style,
+            active_tags_location_desktop: active_tags_location_desktop,
+            enable_reset_all_filters: enable_reset_all_filters,
+            enable_reset_price_filter: enable_reset_price_filter
+          -%}
+          <div class="new-grid product-grid collection-grid" data-view="{{ grid_style }}" data-scroll-to>
+            {{ product_items }}
+          </div>
+      {%- endcase -%}
+    {%- endfor -%}
+  {%- endif -%}
+{%- endcapture -%}
+
+<section-main-content class="color-scheme-{{ color_scheme }}">
+  <div class="page-width">
+    {%- render 'list.filter-grid',
+      context: collection,
+      grid_style: grid_style,
+      slot: collection_content,
+      paginate_by: paginate_by,
+      active_tags_location_desktop: active_tags_location_desktop,
+      filter_variant: filter_variant,
+      price_range_style: price_range_style,
+      enable_reset_all_filters: enable_reset_all_filters,
+      enable_reset_price_filter: enable_reset_price_filter,
+      enable_show_more_filters: enable_show_more_filters,
+      collapse_filters: collapse_filters,
+      enable_scroll_to_top: enable_scroll_to_top
+    -%}
+  </div>
+</section-main-content>
+
+<script type="application/ld+json">
+  {
+    "@context": "http://schema.org",
+    "@type": "CollectionPage",
+    {% if collection.description != blank %}
+      "description": {{ collection.description | strip_html | json }},
+    {% endif %}
+    {% if page_image %}
+      {% assign image_size = page_image.width %}
+      "image": {
+        "@type": "ImageObject",
+        "height": {{ page_image.height | json }},
+        "url": {{ page_image | image_url: width: image_size | prepend: "https:" | json }},
+        "width": {{ page_image.width | json }}
+      },
+    {% endif %}
+    "name": {{ collection.title | json }}
+  }
+</script>

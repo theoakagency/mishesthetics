@@ -1,0 +1,169 @@
+{% doc %}
+  Copyright © 2025 Archetype Themes LP. All rights reserved.
+
+  Customer login template with email and password inputs.
+
+  @param {string} [hydration] - Hydration strategy
+
+  @example
+  {% render 'section.main-login' %}
+{% enddoc %}
+
+{%- liquid
+  assign hydration = hydration | default: 'on:visible'
+
+  capture login_input_email_label
+    render 'utility.translate', key: 'labels.email', fallback: 'Email'
+  endcapture
+
+  capture login_input_password_label
+    render 'utility.translate', key: 'labels.password', fallback: 'Password'
+  endcapture
+
+  capture login_button_label
+    render 'utility.translate', key: 'actions.sign_in', fallback: 'Sign In'
+  endcapture
+
+  capture recover_button_label
+    render 'utility.translate', key: 'actions.submit', fallback: 'Submit'
+  endcapture
+
+  capture recover_input_email_label
+    render 'utility.translate', key: 'labels.email', fallback: 'Email'
+  endcapture
+-%}
+
+{%- capture login_input_email_attributes -%}
+  autocorrect="off"
+  autocapitalize="off"
+  autofocus
+  {% if form.errors contains 'email' %}
+    aria-invalid="true"
+  {% endif %}
+{%- endcapture -%}
+
+<is-land {{ hydration }}>
+  <section-main-login>
+    <div class="page-width page-width--tiny page-content">
+      <header class="section-header">
+        <h1 class="section-header__title">
+          {% render 'utility.translate', key: 'actions.login', fallback: 'Login' %}
+        </h1>
+      </header>
+
+      <div class="note note--success hide" id="ResetSuccess">
+        {% render 'utility.translate',
+          key: 'info.recovery_email_sent',
+          fallback: "We've sent you an email with a link to update your password."
+        %}
+      </div>
+
+      <div id="CustomerLoginForm" class="form-vertical">
+        {%- form 'customer_login' -%}
+          {{ form.errors | default_errors }}
+
+          {%- render 'element.input',
+            classlist: 'field__input recipient-form__email ',
+            id: 'CustomerEmail',
+            type: 'email',
+            placeholder: login_input_email_label,
+            label: login_input_email_label,
+            name: 'customer[email]',
+            attributes: login_input_email_attributes
+          -%}
+
+          {%- if form.password_needed -%}
+            <div class="float-grid clearfix">
+              <div class="grid__item text-right">
+                <small class="label-info">
+                  <a href="#recover" id="RecoverPassword">
+                    {% render 'utility.translate', key: 'actions.forgot_password', fallback: 'Forgot password?' %}
+                  </a>
+                </small>
+              </div>
+            </div>
+
+            {%- render 'element.input',
+              classlist: 'field__input recipient-form__email ',
+              id: 'CustomerPassword',
+              type: 'password',
+              name: 'customer[password]',
+              placeholder: login_input_password_label,
+              label: login_input_password_label,
+              value: ''
+            -%}
+          {%- endif -%}
+
+          <p>
+            {%- render 'element.button', type: 'submit', text: login_button_label, full: true -%}
+          </p>
+          <p>
+            <a href="{{ routes.account_register_url }}">
+              {% render 'utility.translate', key: 'actions.create_account', fallback: 'Create account' -%}
+            </a>
+          </p>
+        {%- endform -%}
+      </div>
+
+      <div id="RecoverPasswordForm" class="hide">
+        <div class="form-vertical">
+          <h2>
+            {% render 'utility.translate', key: 'actions.reset_your_password', fallback: 'Reset your password' %}
+          </h2>
+          <p>
+            {% render 'utility.translate',
+              key: 'info.email_to_reset_password',
+              fallback: 'We will send you an email to reset your password.'
+            %}
+          </p>
+
+          {%- form 'recover_customer_password' -%}
+            {{ form.errors | default_errors }}
+
+            {%- if form.posted_successfully? -%}
+              <span class="hide reset-password-success"></span>
+            {%- endif -%}
+
+            {%- render 'element.input',
+              classlist: 'field__input recipient-form__email ',
+              id: 'RecoverEmail',
+              type: 'email',
+              name: 'email',
+              placeholder: recover_input_email_label,
+              label: recover_input_email_label,
+              attributes: login_input_email_attributes
+            -%}
+
+            <p>
+              {%- render 'element.button', type: 'submit', text: recover_button_label -%}
+            </p>
+            <button type="button" id="HideRecoverPasswordLink">
+              {% render 'utility.translate', key: 'actions.cancel', fallback: 'Cancel' %}
+            </button>
+          {%- endform -%}
+        </div>
+      </div>
+
+      {%- if shop.checkout.guest_login -%}
+        <hr class="hr--clear">
+
+        <h1>
+          {% render 'utility.translate', key: 'actions.continue_as_guest', fallback: 'Continue as a guest' %}
+        </h1>
+        <hr class="hr--small">
+
+        {%- form 'guest_login' -%}
+          <button type="submit" class="button">
+            {% render 'utility.translate', key: 'actions.continue', fallback: 'Continue' %}
+          </button>
+        {%- endform -%}
+      {%- endif -%}
+    </div>
+  </section-main-login>
+
+  <template data-island>
+    <script type="module">
+      import 'section.main-login'
+    </script>
+  </template>
+</is-land>

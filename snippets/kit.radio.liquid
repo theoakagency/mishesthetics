@@ -1,0 +1,170 @@
+{%- doc -%}
+  Radio button for selecting a single option from a group.
+
+  @param {string} name - Groups radio buttons together
+  @param {string} value - Value submitted with the form
+  @param {string} [label] - Text label displayed next to the radio
+  @param {string} [content] - Custom HTML replacing the default indicator and label
+  @param {boolean} [checked] - Pre-selected state. Default: false
+  @param {boolean} [disabled] - Disabled state. Default: false
+  @param {string} [classes] - Additional CSS classes
+  @param {string} [style] - Inline style overrides
+  @param {string} [id] - HTML id attribute
+  @param {string} [attr] - Additional HTML attributes
+
+  @example
+  {% render 'kit.radio', name: 'size', value: 'sm', label: 'Small' %}
+  @example
+  {% render 'kit.radio', name: 'color', value: 'red', content: swatch_html %}
+{%- enddoc -%}
+
+{%- render 'kit.tokens' -%}
+
+{%- liquid
+  assign checked = checked | default: false, allow_false: true
+  assign disabled = disabled | default: false, allow_false: true
+
+  assign class_list = 'kit-radio'
+
+  if classes != blank
+    assign class_list = class_list | append: ' ' | append: classes
+  endif
+-%}
+
+<label
+  class="{{ class_list }}"
+  {%- if style != blank %}
+    style="{{ style | escape }}"
+  {% endif %}
+  {%- if id != blank %}
+    id="{{ id }}"
+  {% endif %}
+  {%- if attr != blank %}
+    {{ attr -}}
+  {% endif %}
+>
+  <input
+    type="radio"
+    class="kit-radio__input"
+    {%- if name != blank %}
+      name="{{ name }}"
+    {% endif %}
+    {%- if value != blank %}
+      value="{{ value }}"
+    {% endif %}
+    {%- if checked %}
+      checked
+    {% endif %}
+    {%- if disabled %}
+      disabled
+    {% endif %}
+  >
+
+  {%- if content != blank -%}
+    {{ content }}
+  {%- else -%}
+    <span class="kit-radio__indicator"></span>
+    {%- if label != blank -%}
+      <span class="kit-radio__label">{{ label }}</span>
+    {%- endif -%}
+  {%- endif -%}
+</label>
+
+{% stylesheet %}
+  .kit-radio {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    gap: var(--kit-control-gap);
+    margin: 0;
+    cursor: pointer;
+  }
+
+  .kit-radio__input {
+    position: absolute;
+    opacity: 0;
+    inset: 0;
+    cursor: pointer;
+    margin: 0;
+  }
+
+  .kit-radio__indicator {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 1.25rem;
+    height: 1.25rem;
+    border-radius: 50%;
+    box-shadow: inset 0 0 0 1px var(--kit-color-border, color-mix(in srgb, var(--kit-color-primary) var(--kit-color-mix-border), var(--kit-color-secondary)));
+    background-color: var(--kit-color-secondary);
+    flex-shrink: 0;
+    transition: box-shadow var(--kit-transition-normal), background-color var(--kit-transition-normal);
+  }
+
+  .kit-radio__indicator::before {
+    content: '';
+    width: 0.5rem;
+    height: 0.5rem;
+    border-radius: 50%;
+    background-color: var(--kit-color-secondary);
+    opacity: 0;
+    transition: opacity var(--kit-transition-normal);
+  }
+
+  .kit-radio__label {
+    font-family: var(--kit-font-family-body);
+    font-size: var(--kit-font-size-base);
+    line-height: var(--kit-body-line-height);
+    letter-spacing: var(--kit-body-letter-spacing);
+  }
+
+  /* Hover */
+  .kit-radio:not(:has(input:disabled)):not(:has(input:checked)):hover .kit-radio__indicator {
+    background-color: var(--kit-color-border, color-mix(in srgb, var(--kit-color-primary) var(--kit-color-mix-border), var(--kit-color-secondary)));
+  }
+
+  /* Checked */
+  .kit-radio:has(input:checked) .kit-radio__indicator {
+    background-color: var(--kit-color-primary);
+  }
+
+  .kit-radio:has(input:checked):not(:hover) .kit-radio__indicator {
+    box-shadow: none;
+  }
+
+  .kit-radio:has(input:checked) .kit-radio__indicator::before {
+    opacity: 1;
+  }
+
+  /* Focus */
+  .kit-radio:has(input:focus-visible) .kit-radio__indicator {
+    outline: var(--kit-focus-ring);
+    outline-offset: var(--kit-focus-ring-offset);
+  }
+
+  /* Disabled */
+  .kit-radio:has(input:disabled) {
+    cursor: not-allowed;
+  }
+
+  .kit-radio:has(input:disabled) .kit-radio__indicator {
+    box-shadow: none;
+    background-color: var(--kit-color-border, color-mix(in srgb, var(--kit-color-primary) var(--kit-color-mix-border), var(--kit-color-secondary)));
+  }
+
+  .kit-radio:has(input:disabled) .kit-radio__indicator::before {
+    opacity: 0;
+  }
+
+  .kit-radio:has(input:disabled:checked) .kit-radio__indicator {
+    background-color: var(--kit-color-primary);
+  }
+
+  .kit-radio:has(input:disabled:checked) .kit-radio__indicator::before {
+    opacity: 1;
+  }
+
+  .kit-radio:has(input:disabled) .kit-radio__input {
+    cursor: not-allowed;
+  }
+{% endstylesheet %}

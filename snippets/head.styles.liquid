@@ -1,0 +1,48 @@
+{% doc %}
+  Copyright © 2025 Archetype Themes LP. All rights reserved.
+
+  Orchestrates loading of all theme styles including primitives, tokens, base styles, and utilities.
+
+  @example
+  {% render 'head.styles' %}
+{% enddoc %}
+
+{%- liquid
+  # First we load primitives tokens that convert static values into CSS variables
+  render 'head.styles.primitives'
+
+  # Then we load global design tokens that control styles across components
+  render 'head.styles.tokens'
+
+  # Style components that set tokens to theme editor settings
+  render 'head.styles.settings-font-face'
+  render 'head.styles.settings-font-scales'
+  render 'head.styles.settings-color'
+  render 'head.styles.settings-elements'
+
+  # Base styles
+  render 'head.styles.base.document'
+  render 'head.styles.vendor.modern-normalize'
+  render 'head.styles.base.typography'
+
+  # Utility styles
+  render 'head.styles.util.keyframes'
+  render 'head.styles.util.animations'
+  render 'head.styles.util.color-schemes'
+  render 'head.styles.util.media'
+  render 'head.styles.util.buttons'
+  render 'head.styles.util.forms'
+  render 'head.styles.util.links'
+  render 'head.styles.util.lists'
+  render 'head.styles.util.tables'
+  render 'head.styles.util.helpers'
+  render 'head.styles.util.grid'
+
+  # Components (TODO: Refactor to components)
+  render 'head.styles.component.rte'
+  render 'head.styles.component.slideshow'
+  render 'head.styles.component.modal'
+  render 'head.styles.component.misc'
+  render 'head.styles.component.section-main-cart'
+  render 'head.styles.component.flickity'
+-%}

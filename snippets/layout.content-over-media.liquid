@@ -1,0 +1,244 @@
+{% doc %}
+  Copyright © 2025 Archetype Themes LP. All rights reserved.
+
+  Overlay layout for positioning content over images or videos.
+
+  @param {string} [slot_media] - Media content (image or video)
+  @param {string} [slot_content] - Overlaid content
+  @param {string} [media_size] - Media height ('small', 'medium', 'large')
+  @param {string} [mobile_content_position] - Content position on mobile
+  @param {string} [desktop_content_position] - Content position on desktop
+  @param {boolean} [overlay] - Enable overlay background
+  @param {string} [wrapper_class] - Additional wrapper classes
+
+  @example
+  {% render 'layout.content-over-media', slot_media: hero_image, slot_content: hero_text, overlay: true %}
+{% enddoc %}
+
+{%- liquid
+  assign media_size = media_size | default: section.settings.media_size | default: 'small'
+  assign mobile_content_position = mobile_content_position | default: section.settings.mobile_content_position | default: 'center'
+  assign desktop_content_position = desktop_content_position | default: section.settings.desktop_content_position | default: 'end-start'
+  assign overlay = overlay | default: section.settings.overlay, allow_false: true | default: false, allow_false: true
+  assign wrapper_class = wrapper_class | default: blank
+-%}
+
+<div
+  class="content-over-media{% if wrapper_class %} {{ wrapper_class }}{% endif %}"
+  data-overlay="{{ overlay }}"
+  data-height="{{ media_size }}"
+>
+  {{ slot_media }}
+
+  <div
+    class="content-over-media__content"
+    data-mobile-content-position="{{ mobile_content_position }}"
+    data-desktop-content-position="{{ desktop_content_position }}"
+  >
+    {{ slot_content }}
+  </div>
+</div>
+
+{% stylesheet %}
+  .content-over-media {
+    --container-max-width: calc(var(--page-width) - var(--page-width-padding) * 2);
+    --container-gutter: 40px;
+    --content-over-media-gap: var(--container-gutter);
+    --content-over-media-column-gap: var(--content-over-media-gap);
+    --content-over-media-row-gap: var(--content-over-media-gap);
+    --overlay: 0 0 0;
+    --color-text: white;
+
+    display: grid;
+    grid-template-columns:
+      minmax(0, 1fr)
+      minmax(0, min(var(--container-max-width), 100% - var(--content-over-media-column-gap) * 2))
+      minmax(0, 1fr);
+    grid-template-rows: 0 minmax(0, 1fr) 0;
+    gap: var(--content-over-media-row-gap) var(--content-over-media-column-gap);
+    place-items: center;
+    position: relative;
+    overflow: hidden;
+
+    &.color-scheme-1 {
+      --color-text: var(--color-scheme-1-primary);
+      --overlay: var(--color-scheme-1-secondary);
+    }
+
+    &.color-scheme-2 {
+      --color-text: var(--color-scheme-2-primary);
+      --overlay: var(--color-scheme-2-secondary);
+    }
+
+    &.color-scheme-3 {
+      --color-text: var(--color-scheme-3-primary);
+      --overlay: var(--color-scheme-3-secondary);
+    }
+
+    &.color-scheme-none {
+      --color-text: var(--root-color-primary);
+      --overlay: var(--root-color-secondary);
+    }
+  }
+
+  .content-over-media[data-overlay='true']:before {
+    content: '';
+    background-color: color-mix(in srgb, var(--overlay) 30%, transparent);
+    pointer-events: none;
+    position: absolute;
+    inset: 0;
+    z-index: 1;
+  }
+
+  .content-over-media > :not(.content-over-media__content) {
+    position: relative;
+    grid-area: 1 / 1 / span 3 / span 3;
+    place-self: stretch;
+    width: 100%;
+    height: var(--content-over-media-height);
+    min-height: 100%;
+    max-height: 100%;
+    object-fit: cover;
+    object-position: center;
+    overflow-wrap: anywhere;
+    transform-origin: top;
+    user-select: none;
+  }
+
+  .content-over-media__content {
+    color: var(--color-text);
+    position: relative;
+    grid-row-start: 2;
+    grid-column-start: 2;
+    grid-row-end: auto;
+    grid-column-end: span 1;
+    max-width: var(--content-over-media-content-max-width, 650px);
+    z-index: 1;
+  }
+
+  .content-over-media[data-height='small'] {
+    --content-over-media-height: 400px;
+  }
+
+  .content-over-media[data-height='medium'] {
+    --content-over-media-height: 600px;
+  }
+
+  .content-over-media[data-height='large'] {
+    --content-over-media-height: 800px;
+  }
+
+  .content-over-media[data-height='full'] {
+    /* TODO: figure out logic for when we create new header with transparency */
+    /* --content-over-media-height: calc(100vh - var(--safe-sticky-height) ; */
+    --content-over-media-height: 100vh;
+  }
+
+  /* TODO: this should be part of a more generalized media file */
+  picture img {
+    width: 100%;
+    max-height: 100%;
+    min-height: inherit;
+  }
+
+  /* TODO: this should be part of a more generalized media file */
+  .content-over-media iframe {
+    position: absolute;
+    top: 50%;
+    width: 100%;
+    transform: translateY(-50%);
+    aspect-ratio: 16 / 9;
+  }
+
+  .content-over-media__content[data-mobile-content-position='start'] {
+    place-self: start;
+    text-align: start;
+  }
+
+  .content-over-media__content[data-mobile-content-position='top-center'] {
+    place-self: start center;
+    text-align: center;
+  }
+
+  .content-over-media__content[data-mobile-content-position='top-end'] {
+    place-self: start end;
+    text-align: end;
+  }
+
+  .content-over-media__content[data-mobile-content-position='center-start'] {
+    place-self: center start;
+    text-align: start;
+  }
+
+  .content-over-media__content[data-mobile-content-position='center'] {
+    place-self: center center;
+    text-align: center;
+  }
+
+  .content-over-media__content[data-mobile-content-position='center-end'] {
+    place-self: center end;
+    text-align: end;
+  }
+
+  .content-over-media__content[data-mobile-content-position='end-start'] {
+    place-self: end start;
+    text-align: start;
+  }
+
+  .content-over-media__content[data-mobile-content-position='end-center'] {
+    place-self: end center;
+    text-align: center;
+  }
+
+  .content-over-media__content[data-mobile-content-position='end'] {
+    place-self: end end;
+    text-align: end;
+  }
+
+  @media only screen and (min-width: 769px) {
+    .content-over-media__content[data-desktop-content-position='start'] {
+      place-self: start;
+      text-align: start;
+    }
+
+    .content-over-media__content[data-desktop-content-position='top-center'] {
+      place-self: start center;
+      text-align: center;
+    }
+
+    .content-over-media__content[data-desktop-content-position='top-end'] {
+      place-self: start end;
+      text-align: end;
+    }
+
+    .content-over-media__content[data-desktop-content-position='center-start'] {
+      place-self: center start;
+      text-align: start;
+    }
+
+    .content-over-media__content[data-desktop-content-position='center'] {
+      place-self: center center;
+      text-align: center;
+    }
+
+    .content-over-media__content[data-desktop-content-position='center-end'] {
+      place-self: center end;
+      text-align: end;
+    }
+
+    .content-over-media__content[data-desktop-content-position='end-start'] {
+      place-self: end start;
+      text-align: start;
+    }
+
+    .content-over-media__content[data-desktop-content-position='end-center'] {
+      place-self: end center;
+      text-align: center;
+    }
+
+    .content-over-media__content[data-desktop-content-position='end'] {
+      place-self: end end;
+      text-align: end;
+    }
+  }
+{% endstylesheet %}

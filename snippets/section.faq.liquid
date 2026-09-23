@@ -1,0 +1,92 @@
+{% doc %}
+  Copyright © 2025 Archetype Themes LP. All rights reserved.
+
+  FAQ accordion section with collapsible question and answer blocks.
+
+  @param {string} [title] - Section heading
+  @param {string} [heading_size] - ('sm'|'md'|'lg'|'xl') Heading size
+  @param {string} [heading_position] - ('left'|'center'|'right') Heading alignment
+  @param {boolean} [divider] - Show divider above section
+
+  @example
+  {% render 'section.faq', heading_size: 'lg', heading_position: 'center' %}
+{% enddoc %}
+
+{%- liquid
+  assign title = title | default: section.settings.title
+  assign heading_size = heading_size | default: section.settings.heading_size | default: 'md'
+  assign heading_position = heading_position | default: section.settings.heading_position | default: 'left'
+  assign divider = divider | default: section.settings.divider, allow_false: true | default: true, allow_false: true
+-%}
+
+{%- if divider -%}<div class="section--divider">{%- endif -%}
+
+<div class="page-width page-width--narrow">
+  {%- if title != blank -%}
+    <header class="section-header text-{{ heading_position }}">
+      <h2 class="section-header__title heading-{{ heading_size }}">
+        {{ title | escape }}
+      </h2>
+    </header>
+  {%- endif -%}
+
+  {%- for block in section.blocks -%}
+    <div {{ block.shopify_attributes }}>
+      {%- case block.type -%}
+        {%- when 'rich-text' -%}
+          <div class="index-section">
+            <div class="text-{{ block.settings.align_text }}">
+              {%- if block.settings.title != blank -%}
+                <p class="heading-lg">
+                  {{ block.settings.title | escape }}
+                </p>
+              {%- endif -%}
+              {%- if block.settings.text != blank -%}
+                <div class="rte clearfix">
+                  {%- if block.settings.enlarge_text %}<div class="enlarge-text">{% endif -%}
+                  {{ block.settings.text }}
+                  {%- if block.settings.enlarge_text %}</div>{% endif -%}
+                </div>
+              {%- endif -%}
+            </div>
+          </div>
+
+        {%- when 'question' -%}
+          {%- render 'element.accordion', title: block.settings.title, slot: block.settings.text -%}
+      {%- endcase -%}
+    </div>
+  {%- endfor -%}
+
+  {%- assign question_blocks = section.blocks | where: 'type', 'question' -%}
+  {%- if question_blocks.size > 0 -%}
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@type": "FAQPage",
+        "mainEntity": [
+          {%- for block in question_blocks -%}
+            {
+              "@type": "Question",
+              "name": {{ block.settings.title | json }},
+              "acceptedAnswer": {
+                "@type": "Answer",
+                "text": {{ block.settings.text | json }}
+              }
+            }{%- unless forloop.last -%},{%- endunless -%}
+          {%- endfor -%}
+        ]
+      }
+    </script>
+  {%- endif -%}
+
+  {%- if section.blocks.size == 0 -%}
+    <div class="placeholder-noblocks" style="text-align: center; padding: 40px;">
+      {% render 'utility.translate',
+        key: 'info.section_no_content',
+        fallback: "This section doesn't currently include any content. Add content to this section using the sidebar."
+      %}
+    </div>
+  {%- endif -%}
+</div>
+
+{%- if divider -%}</div>{%- endif -%}

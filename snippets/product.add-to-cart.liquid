@@ -1,0 +1,179 @@
+{% doc %}
+  Copyright © 2025 Archetype Themes LP. All rights reserved.
+
+  Quick add-to-cart component with expandable quantity selector.
+
+  @param {product} product - Product object
+  @param {string} [class_name] - Additional CSS classes
+
+  @example
+  {% render 'product.add-to-cart', product: product %}
+{% enddoc %}
+
+{% stylesheet %}
+  .at-add-to-cart {
+    position: relative;
+
+    &.is-added {
+      pointer-events: none;
+    }
+
+    .element-input {
+      /* Override input styles based on the state of the input */
+      &:not(:focus) {
+        --input-drop-shadow: none;
+      }
+    }
+  }
+
+  .at-add-to-cart__content {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    display: none;
+
+    .at-add-to-cart__button[aria-expanded='true'] + & {
+      display: flex;
+    }
+
+    .element-quantity-selector {
+      width: 100%;
+      .is-added & {
+        display: none;
+      }
+    }
+
+    .element-quantity-selector__input {
+      width: calc(100% - 2 * var(--element-input-padding-inline));
+    }
+  }
+
+  .at-add-to-cart__message {
+    display: none;
+    position: absolute;
+    top: 0;
+    left: 0;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    width: 100%;
+    height: 100%;
+    border-radius: var(--element-button-radius);
+    cursor: default;
+    background-color: var(--color-button-primary, var(--color-primary));
+    color: var(--color-button-primary-text, var(--color-secondary));
+    z-index: 2;
+
+    .is-added & {
+      display: flex;
+    }
+  }
+{% endstylesheet %}
+
+{%- liquid
+  assign class_name = class_name | default: '' | append: ' at-add-to-cart' | strip
+  assign variant = product.selected_or_first_available_variant
+  assign min = 0
+  assign count = cart | item_count_for_variant: variant.id
+  assign max = null
+
+  if variant.inventory_management
+    assign max = variant.inventory_quantity
+  endif
+-%}
+
+<at-add-to-cart
+  class="{{ class_name }}"
+  data-section-id="{{ section.id }}"
+  data-variant-id="{{ variant.id }}"
+  data-count="{{ count }}"
+  data-variants-size="{{ product.variants_count }}"
+  data-available="{{ product.available }}"
+>
+  {% if product.variants_count == 1 %}
+    {%- if product.available -%}
+      {% liquid
+        assign expanded = false
+        assign is_disabled = false
+
+        if count > 0
+          assign expanded = true
+          assign is_disabled = true
+        endif
+
+        capture button_text
+          render 'utility.translate', key: 'actions.add_to_cart', fallback: 'Add to cart'
+        endcapture
+
+        capture button_attributes
+          echo 'aria-controls="AddToCart-' | append: section.id | append: '-' | append: product.id | append: '" '
+          echo 'aria-expanded="' | append: expanded | append: '"'
+        endcapture
+
+        capture quantity_selector_id
+          render 'utility.id', name: 'quantity-selector', index: product.id
+        endcapture
+      %}
+
+      {% render 'element.button',
+        type: 'button',
+        inverted: true,
+        transparent: true,
+        classlist: 'at-add-to-cart__button at-add-to-cart__button--add js-add-to-cart',
+        attributes: button_attributes,
+        disabled: is_disabled,
+        text: button_text,
+        full: true
+      %}
+
+      <div id="AddToCart-{{ section.id }}-{{ product.id }}" class="at-add-to-cart__content">
+        {% capture quantity_selector_attributes %}
+          for="{{ quantity_selector_id }}"
+        {% endcapture -%}
+
+        {%- render 'element.text',
+          as: 'label',
+          locale: 'labels.quantity',
+          text: 'Quantity',
+          attributes: quantity_selector_attributes,
+          visually_hidden: true
+        -%}
+        {%- render 'element.quantity-selector', id: quantity_selector_id, min: min, max: max, value: count -%}
+      </div>
+
+      <div class="at-add-to-cart__message js-added" tabindex="-1">
+        {%- liquid
+          render 'utility.translate', key: 'info.added', fallback: 'Added'
+          render 'element.icon', name: 'checkmark'
+        -%}
+      </div>
+    {%- else -%}
+      {%- capture button_text -%}
+        {% render 'utility.translate', key: 'info.sold_out', fallback: 'Sold out' %}
+      {%- endcapture -%}
+      {%- render 'element.button', text: button_text, full: true, disabled: true, inverted: true, transparent: true -%}
+    {%- endif -%}
+  {% else %}
+    {%- capture quick_shop_button -%}
+      {%- capture button_text -%}
+        {%- render 'utility.translate', key: 'actions.show_options', fallback: 'Show options' -%}
+      {%- endcapture -%}
+
+      {%- assign button_attributes = 'data-handle="' | append: product.handle | append: '"' -%}
+      {% render 'element.button', type: 'button', text: button_text, inverted: true, transparent: true, full: true, attributes: button_attributes %}
+    {%- endcapture -%}
+
+    {%- liquid
+      capture content
+        render 'overlay.tool-tip.trigger', context: 'QuickShop', button: quick_shop_button, wrapper_class: 'quick-shop-modal'
+      endcapture
+
+      render 'overlay.quick-shop', content: content
+    -%}
+  {% endif %}
+</at-add-to-cart>
+
+<script type="module">
+  import 'product.add-to-cart'
+</script>

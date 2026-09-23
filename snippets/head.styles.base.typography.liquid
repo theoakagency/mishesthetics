@@ -1,0 +1,288 @@
+{% stylesheet %}
+	html {
+	  font-size: var(--root-font-size);
+	}
+	
+	body,
+	.body-font-stack {
+	  font-family: var(--element-text-font-family--body), var(--element-text-font-family-fallback--body);
+	  font-weight: var(--element-text-font-weight--body);
+	  letter-spacing: var(--element-text-letter-spacing--body);
+	  text-transform: var(--element-text-text-transform--body);
+	  line-height: var(--element-text-line-height--body);
+	  -webkit-font-smoothing: antialiased;
+	
+	  &:not(.body-font-stack) {
+	    font-size: var(--element-text-font-size--body-md);
+	  }
+	}
+	
+	small {
+	  font-size: var(--element-text-font-size--body-sm)
+	}
+	
+	.accent-font-stack {
+	  font-family: var(--element-text-font-family--accent), var(--element-text-font-family-fallback--accent);
+	  font-weight: var(--element-text-font-weight--accent);
+	  letter-spacing: var(--element-text-letter-spacing--accent);
+	  text-transform: var(--element-text-text-transform--accent);
+	  line-height: var(--element-text-line-height--accent);
+	  font-size: var(--element-text-font-size--accent);
+	}
+	
+	.h0, h1, .h1, h2, .h2, h3, .h3, h4, .h4, h5, .h5, h6, .h6 {
+	    margin: 0 0 var(--size-4);
+	}
+	
+	@media only screen and (min-width: 769px) {
+	  .h0, h1, .h1, h2, .h2, h3, .h3, h4, .h4, h5, .h5, h6, .h6 {
+	      margin: 0 0 var(--size-5);
+	  }
+	}
+	
+	.heading-font-stack,
+	:where(h1, h2, h3, h4, h5, h6),
+	:is(.heading-2xl, .heading-xl, .heading-lg, .heading-md, .heading-sm, .heading-xs),
+	:is(.heading-h0, .h0, .heading-h1, .h1, .heading-h2, .h2, .heading-h3, .h3, .heading-h4, .h4, .heading-h5, .h5) {
+	  font-family: var(--element-text-font-family--heading), var(--element-text-font-family-fallback--heading);
+	  font-weight: var(--element-text-font-weight--heading);
+	  letter-spacing: var(--element-text-letter-spacing--heading);
+	  text-transform: var(--element-text-text-transform--heading); 
+	
+	  &:not(.heading-font-stack) {
+	    display: block;
+	
+	    & a {
+	      text-decoration: none;
+	      font-weight: inherit;
+	    }
+	  }
+	
+	  /* Use higher specificity for class styles so they can override element styles */
+	  &:is(.heading-2xl),
+	  &:is(.heading-h0, .h0) {
+	    font-size: var(--element-text-font-size--heading-2xl);
+	    line-height: var(--element-text-line-height--heading-2xl);
+	  }
+	
+	  &:where(h1),
+	  &:is(.heading-xl),
+	  &:is(.heading-h1, .h1) {
+	    font-size: var(--element-text-font-size--heading-xl);
+	    line-height: var(--element-text-line-height--heading-xl);
+	  }
+	
+	  &:where(h2),
+	  &:is(.heading-lg),
+	  &:is(.heading-h2, .h2) {
+	    font-size: var(--element-text-font-size--heading-lg);
+	    line-height: var(--element-text-line-height--heading-lg);
+	  }
+	
+	  &:where(h3),
+	  &:is(.heading-md),
+	  &:is(.heading-h3, .h3) {
+	    font-size: var(--element-text-font-size--heading-md);
+	    line-height: var(--element-text-line-height--heading-md);
+	  }
+	
+	  &:where(h4),
+	  &:is(.heading-sm),
+	  &:is(.heading-h4, .h4) {
+	    font-size: var(--element-text-font-size--heading-sm);
+	    line-height: var(--element-text-line-height--heading-sm);
+	  }
+	
+	  &:where(h5),
+	  &:is(.heading-xs),
+	  &:is(.heading-h5, .h5) {
+	    font-size: var(--element-text-font-size--heading-xs);
+	    line-height: var(--element-text-line-height--heading-xs);
+	  }
+
+		&:where(h6),
+	  &:is(.heading-2xs),
+	  &:is(.heading-h6, .h6) {
+	    font-size: var(--element-text-font-size--heading-2xs);
+	    line-height: var(--element-text-line-height--heading-2xs);
+	  }
+	}
+	
+	.slideshow-slide {
+	  --element-text-font-size--heading-2xl: var(--text-size-scale-n{{ 11 |  plus: block.heading_modifier }});
+	}
+	
+	
+	p {
+	  margin: 0 0 calc(var(--gutter) / 2) 0;
+	}
+	
+	p:last-child {
+	  margin-bottom: 0;
+	}
+	
+	blockquote,
+	.rte blockquote {
+	  margin: 0;
+	  padding: calc(var(--gutter) / 2) var(--gutter) 40px;
+	
+	  & p {
+	    margin-bottom: 0;
+	
+	    & + cite {
+	      margin-top: calc(var(--gutter) / 2);
+	    }
+	  }
+	
+	  & cite {
+	    display: block;
+	  }
+	}
+	
+	code,
+	pre {
+	  background-color: #faf7f5;
+	  font-family: Consolas, monospace;
+	  font-size: 1em;
+	  border: 0 none;
+	  padding: 0 2px;
+	  color: #51ab62;
+	}
+	
+	pre {
+	  overflow: auto;
+	  padding: calc(var(--gutter) / 2);
+	  margin: 0 0 var(--gutter);
+	}
+	
+	.text-label a {
+	  text-decoration: underline;
+	  text-underline-offset: 2px;
+	}
+	
+	.label-info {
+	  display: block;
+	  margin-bottom: 10px;
+	}
+	
+	.accent-subtitle {
+	  letter-spacing: 0.07em;
+	  margin: 0 0 20px;
+	}
+	
+	/*Standardize text spacing sometimes*/
+	.text-spacing,
+	.text-spacing.rte:last-child {
+	  margin-bottom: 15px;
+	
+	  @media only screen and (min-width: 769px) {
+	    margin-bottom: 25px;
+	  }
+	}
+	
+	.enlarge-text {
+	  font-size: calc(var(--element-text-font-size--body-md) + 2px);
+	
+	  @media only screen and (min-width: 769px) {
+	    font-size: calc(var(--element-text-font-size--body-md) + 4px);
+	  }
+	}
+	
+	@media only screen and (min-width: 769px) {
+	  .table--small-text {
+	    font-size: calc(var(--element-text-font-size--body-md) * 0.85);
+	  }
+	}
+	
+	.index-section--footer {
+	  & h3 {
+	    font-size: 1.5em;
+	  }
+	}
+	
+	/*================ RTL overrides ================*/
+	html[dir='rtl'] {
+	  & .text-left {
+	    text-align: right !important;
+	  }
+	
+	  & .text-right {
+	    text-align: left !important;
+	  }
+	}
+	
+	/*Icon + text element that prevents awkward line wrapping*/
+	.icon-and-text {
+	  display: flex;
+	  flex-wrap: nowrap;
+	  align-items: center;
+	
+	  & .element-icon {
+	    flex: 0 0 auto;
+	  }
+	}
+	
+	/* Text Highlights */
+	
+	.text-highlight {
+	  & em {
+	    font-style: normal;
+	  }
+	
+	  &.heading-2xl a,
+	  &.heading-xl a,
+	  &.heading-lg a,
+	  &.heading-md a,
+	  &.heading-sm a,
+	  &.heading-xs a {
+	    text-decoration: underline;
+	    text-underline-offset: 2px;
+	  }
+	}
+	
+	.text-highlight--outline {
+	  & em {
+	    -webkit-text-stroke-width: 1px;
+	    -webkit-text-stroke-color: inherit;
+	    -webkit-text-fill-color: var(--root-color-secondary);
+	
+	    .color-scheme-1 & {
+	      -webkit-text-fill-color: var(--color-scheme-1-secondary);
+	    }
+	
+	    .color-scheme-2 & {
+	      -webkit-text-fill-color: var(--color-scheme-2-secondary);
+	    }
+	
+	    .color-scheme-3 & {
+	      -webkit-text-fill-color: var(--color-scheme-3-secondary);
+	    }
+	  }
+	}
+	
+	.text-highlight--regular {
+	  & em {
+	    font-style: italic;
+	  }
+	}
+	
+	.text-highlight--serif {
+	  & em {
+	    font-family: serif;
+	    font-style: italic;
+	  }
+	}
+	
+	.text-highlight--handwrite {
+	  & em {
+	    font-family: cursive;
+	    font-style: italic;
+	  }
+	}
+	
+	.text-highlight--accent-color {
+	  & em {
+	    color: var(--color-sale-tag);
+	  }
+	}
+{% endstylesheet %}

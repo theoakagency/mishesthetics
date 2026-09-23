@@ -1,0 +1,153 @@
+{% doc %}
+  Copyright © 2025 Archetype Themes LP. All rights reserved.
+
+  Product inquiry contact form in collapsible accordion format.
+
+  @param {object} [block] - Block object
+
+  @example
+  {% render 'block.product-contact', block: block %}
+{% enddoc %}
+
+{%- liquid
+  assign product = section.settings.product | default: product
+
+  capture input_name_label
+    render 'utility.translate', key: 'labels.name', fallback: 'Name'
+  endcapture
+
+  capture input_name_value
+    if form.name
+      echo form.name
+    elsif customer
+      echo customer.name
+    endif
+  endcapture
+
+  capture input_name_attributes
+    echo 'autocapitalize="words"'
+  endcapture
+
+  capture input_email_label
+    render 'utility.translate', key: 'labels.email', fallback: 'Email'
+  endcapture
+
+  capture input_email_value
+    if form.email
+      echo form.email
+    elsif customer
+      echo customer.email
+    endif
+  endcapture
+
+  capture input_email_attributes
+    echo 'autocorrect="off"'
+    echo 'autocapitalize="off"'
+  endcapture
+
+  capture input_phone_label
+    render 'utility.translate', key: 'labels.phone_number', fallback: 'Phone number'
+  endcapture
+
+  capture input_phone_value
+    if form.phone
+      echo form.phone
+    elsif customer
+      echo customer.phone
+    endif
+  endcapture
+
+  capture input_phone_attributes
+    echo 'pattern="[0-9\-]*"'
+  endcapture
+
+  capture input_message_label
+    render 'utility.translate', key: 'labels.message', fallback: 'Message'
+  endcapture
+
+  capture button_text
+    render 'utility.translate', key: 'actions.send', fallback: 'Send'
+  endcapture
+-%}
+
+<div {{ block.shopify_attributes }}>
+  {%- form 'contact', id: contact_form_id -%}
+    {%- capture accordion_content -%}
+      <div class="form-vertical">
+        <input
+          type="hidden"
+          name="contact[product]"
+          value="Product question for: {{ shop.secure_url }}{{ product.url }}"
+        >
+
+        <div class="float-grid grid--small clearfix">
+          <div class="grid__item medium-up--one-half">
+            {%- render 'element.input',
+              type: 'text',
+              name: 'contact[name]',
+              placeholder: input_name_label,
+              label: input_name_label,
+              value: input_name_value,
+              attributes: input_name_attributes
+            -%}
+          </div>
+
+          <div class="grid__item medium-up--one-half">
+            {%- render 'element.input',
+              type: 'email',
+              name: 'contact[email]',
+              placeholder: input_email_label,
+              label: input_email_label,
+              value: input_email_value,
+              attributes: input_email_attributes
+            -%}
+          </div>
+        </div>
+
+        {%- if block.settings.phone -%}
+          {%- render 'element.input',
+            type: 'tel',
+            name: 'contact[phone]',
+            placeholder: input_phone_label,
+            label: input_phone_label,
+            value: input_phone_value,
+            attributes: input_phone_attributes
+          -%}
+        {%- endif -%}
+
+        {%- render 'element.input',
+          multiline: 5,
+          name: 'contact[body]',
+          placeholder: input_message_label,
+          label: input_message_label,
+          value: form.body
+        -%}
+
+        {%- render 'element.button', text: button_text, type: 'submit' -%}
+
+        {% comment %}
+          Remove the following three lines of code to remove the note
+          about being protected by Google's reCAPTCHA service.
+          By removing it, the small reCAPTCHA widget will appear in the
+          bottom right corner of the page.
+        {% endcomment %}
+        {{ 'shopify.online_store.spam_detection.disclaimer_html' | t }}
+      </div>
+    {%- endcapture -%}
+
+    {%- render 'element.accordion', title: block.settings.title, slot: accordion_content -%}
+
+    {%- if form.posted_successfully? -%}
+      <p class="note note--success">
+        {% render 'utility.translate',
+          key: 'info.contact_confirmation',
+          fallback: "Thanks for contacting us. We'll get back to you as soon as possible."
+        %}
+      </p>
+    {%- endif -%}
+
+    {%- if form.product -%}
+      {{ form.errors | default_errors }}
+    {%- endif -%}
+  {%- endform -%}
+</div>

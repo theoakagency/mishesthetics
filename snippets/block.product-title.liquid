@@ -1,0 +1,65 @@
+{% doc %}
+  Copyright © 2025 Archetype Themes LP. All rights reserved.
+
+  Product title with optional vendor name and SKU display.
+
+  @param {object} [block] - Block object
+  @param {object} [product] - Product object
+  @param {boolean} [vendor_enable] - Display vendor name, default: false
+  @param {boolean} [sku_enable] - Display SKU code, default: false
+
+  @example
+  {% render 'block.product-title', product: product, vendor_enable: true, sku_enable: true %}
+{% enddoc %}
+
+{%- liquid
+  assign product = section.settings.product | default: product
+  assign title_default = 'labels.example_product' | t
+  assign title = product.title | default: title_default
+  assign current_variant = product.selected_or_first_available_variant
+  assign vendor_enable = vendor_enable | default: block.settings.vendor_enable, allow_false: true
+  assign sku_enable = sku_enable | default: block.settings.sku_enable, allow_false: true
+  assign collection_handle = product.vendor | handleize
+  assign collection_for_vendor = collections[collection_handle]
+  assign vendor_url_default = product.vendor | url_for_vendor
+  assign vendor_url = collection_for_vendor.url | default: vendor_url_default
+  assign heading_size = heading_size | default: block.settings.heading_size | default: 'xl'
+-%}
+
+{%- capture vendor_and_sku -%}
+  {%- if vendor_enable or sku_enable -%}
+    {%- if vendor_enable -%}
+      <a href="{{ vendor_url }}">
+        {%- render 'element.text', text: product.vendor, text_decoration: 'underline', variant: 'body-sm' -%}
+      </a>
+    {%- endif -%}
+
+    {%- if sku_enable -%}
+      <variant-sku data-product-id="{{ product.id }}" data-section-id="{{ section.id }}">
+        {%- if current_variant.sku != blank -%}
+          {%- assign sku = 'SKU: ' | append: current_variant.sku -%}
+          {%- render 'element.text', text: sku, variant: 'body-sm' -%}
+        {%- endif -%}
+      </variant-sku>
+    {%- endif -%}
+  {%- endif -%}
+{%- endcapture -%}
+
+{%- capture content -%}
+  {%- render 'element.text', as: 'h1', variant: 'heading', size: heading_size, text: title -%}
+  {%- render 'layout.stack', slot: vendor_and_sku, gap: 'sm',  align: 'baseline', horizontal: true -%}
+{%- endcapture -%}
+
+<div {{ block.shopify_attributes }}>
+  {%- render 'layout.stack', slot: content, gap: 'xs' -%}
+</div>
+
+{%- stylesheet -%}
+  variant-sku {
+    opacity: 0.65;
+  }
+{%- endstylesheet -%}
+
+<script type="module">
+  import 'block.product-title'
+</script>

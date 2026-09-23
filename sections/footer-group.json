@@ -1,0 +1,100 @@
+/*
+ * ------------------------------------------------------------
+ * IMPORTANT: The contents of this file are auto-generated.
+ *
+ * This file may be updated by the Shopify admin theme editor
+ * or related systems. Please exercise caution as any changes
+ * made to this file may be overwritten.
+ * ------------------------------------------------------------
+ */
+{
+  "type": "footer",
+  "name": "t:labels.footer_group",
+  "sections": {
+    "footer-promotions": {
+      "type": "footer-promotions",
+      "blocks": {
+        "promotion-3": {
+          "type": "promotion",
+          "settings": {
+            "enable_image": false,
+            "image_mask": "landscape",
+            "title": "Local Pickup",
+            "text": "<p>Mon - Fri: 10am - 6pm<br/>Sat: 10am - 4pm</p>",
+            "button_label": "View locations",
+            "button_link": "",
+            "color_scheme": "2"
+          }
+        }
+      },
+      "block_order": [
+        "promotion-3"
+      ],
+      "disabled": true,
+      "settings": {
+        "hide_homepage": false
+      }
+    },
+    "footer": {
+      "type": "footer",
+      "blocks": {
+        "menu-1": {
+          "type": "menu",
+          "settings": {
+            "title": "Explore",
+            "menu": "main-menu-202609",
+            "enable_account_link": false
+          }
+        },
+        "menu-2": {
+          "type": "menu",
+          "settings": {
+            "title": "",
+            "menu": "footer",
+            "enable_account_link": false
+          }
+        },
+        "contact": {
+          "type": "contact",
+          "settings": {
+            "phone": "",
+            "contact": "contact-us",
+            "chat": "contact-us",
+            "enable_social": true
+          }
+        },
+        "payment": {
+          "type": "payment",
+          "settings": {
+            "show_payment_icons": true,
+            "show_locale_selector": true,
+            "show_currency_selector": true,
+            "show_currency_flags": true
+          }
+        }
+      },
+      "block_order": [
+        "menu-1",
+        "menu-2",
+        "contact",
+        "payment"
+      ],
+      "custom_css": [
+        ".footer__block--mobile:has(.footer__menu:empty) {display: none;}"
+      ],
+      "settings": {
+        "color_scheme": "3",
+        "show_newsletter": true,
+        "newsletter_richtext": "<p>Subscribe today and get 10% off your first purchase</p>",
+        "footer_main_menu": false,
+        "show_copyright": true,
+        "copyright_text": "",
+        "policies_menu": ""
+      }
+    }
+  },
+  "order": [
+    "footer-promotions",
+    "footer"
+  ]
+}

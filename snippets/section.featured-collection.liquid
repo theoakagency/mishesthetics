@@ -1,0 +1,284 @@
+{% doc %}
+  Copyright © 2025 Archetype Themes LP. All rights reserved.
+
+  Featured collection product grid or carousel with customizable layout.
+
+  @param {boolean} [divider] - Show divider above section
+  @param {object} [collection] - Collection to display
+  @param {boolean} [carousel_layout] - Use carousel layout
+  @param {string} [content_position] - Content positioning
+  @param {number} [count] - Number of products to display
+  @param {number} [products_per_row] - Products per row in grid
+  @param {string} [product_tile_layout] - Product card layout style
+  @param {boolean} [mobile_scrollable] - Enable mobile horizontal scroll
+  @param {string} [hydration] - Hydration strategy
+
+  @example
+  {% render 'section.featured-collection', products_per_row: 3, carousel_layout: true %}
+{% enddoc %}
+
+{% stylesheet %}
+  .featured-collection__carousel {
+    display: flex;
+
+    @media only screen and (max-width: 959px) {
+      flex-direction: column;
+    }
+
+    .grid-product__actions {
+      top: var(--product-grid-margin);
+      right: 0;
+    }
+  }
+
+  .featured-collection__carousel .featured-collection__block-wrapper {
+    display: flex;
+    flex-direction: column;
+    flex: 0 0 25%;
+    padding-right: 20px;
+
+    @media only screen and (max-width: 959px) {
+      padding-right: var(--page-width-padding);
+    }
+  }
+
+  .featured-collection__block-wrapper-content-position--top {
+    justify-content: flex-start;
+  }
+
+  .featured-collection__block-wrapper-content-position--center {
+    justify-content: center;
+  }
+
+  .featured-collection__block-wrapper-content-position--bottom {
+    justify-content: flex-end;
+  }
+
+  .featured-collection__block {
+    padding-bottom: 20px;
+
+    &:last-child {
+      padding-bottom: 0;
+
+      @media only screen and (max-width: 959px) {
+        padding-bottom: 20px;
+      }
+    }
+  }
+
+  .featured-collection__carousel-grid-items {
+    display: flex;
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    width: 100%;
+  }
+
+  .featured-collection__carousel .grid-item {
+    flex: 1 0 40%;
+    margin-bottom: 0;
+
+    @media only screen and (max-width: 959px) {
+      flex: 1 0 60%;
+    }
+  }
+
+  .svg-mask--disabled-mobile {
+    @media only screen and (max-width: 959px) {
+      .image-element {
+        mask-image: none !important;
+      }
+    }
+  }
+
+  .medium-down--banner-image {
+    @media only screen and (max-width: 959px) {
+      .image-wrap {
+        padding-bottom: 35% !important;
+      }
+
+      .image-element {
+        height: 100%;
+      }
+    }
+  }
+
+  .page-width--no-right-padding {
+    &.page-width {
+      padding-right: 0;
+    }
+  }
+{% endstylesheet %}
+
+{%- liquid
+  assign divider = divider | default: section.settings.divider, allow_false: true | default: false, allow_false: true
+  assign product_tile_layout = product_tile_layout | default: section.settings.product_grid_layout
+  assign collection = section.settings.home_featured_products | default: collection
+  assign carousel_layout = carousel_layout | default: false, allow_false: true
+  assign content_position = content_position | default: section.settings.content_position | default: 'center'
+  assign count = count | default: section.settings.count | default: 6
+  assign products_per_row = products_per_row | default: section.settings.products_per_row | default: 3 | times: 1
+  assign mobile_scrollable = mobile_scrollable | default: section.settings.mobile_scrollable, allow_false: true | default: true, allow_false: true
+  assign hydration = hydration | default: 'on:visible'
+  assign product_grid_content_align = product_grid_content_align | default: settings.product_grid_content_align | default: 'start'
+
+  assign product_limit = count | plus: 1
+
+  if mobile_scrollable
+    assign product_limit = count
+  endif
+-%}
+
+{%- if divider -%}<div class="section--divider">{%- endif -%}
+
+<is-land {{ hydration }}>
+  <div
+    id="CollectionSection-{{ section.id }}"
+    data-section-id="{{ section.id }}"
+    data-section-type="collection-template"
+  >
+    {%- render 'layout.section-heading', url: collection.url, wrapper_class: 'page-width' -%}
+    {%- liquid
+      if mobile_scrollable
+        assign fallback = '45vw'
+      else
+        assign fallback = 'variable'
+      endif
+    -%}
+
+    {% if carousel_layout %}
+      <div class="page-width page-width--no-right-padding">
+        <div class="featured-collection__carousel">
+          <div class="featured-collection__block-wrapper featured-collection__block-wrapper-content-position--{{ content_position }}">
+            {% for block in section.blocks %}
+              {% if block.type == 'heading' %}
+                <div
+                  class="featured-collection__block featured-collection__{{ block.type }}-block"
+                  {{ block.shopify_attributes }}
+                >
+                  {% if block.settings.title != blank %}
+                    <p class="heading-{{ block.settings.heading_size }}">{{ block.settings.title | escape }}</p>
+                  {% endif %}
+                </div>
+              {% endif %}
+              {% if block.type == 'text' %}
+                <div
+                  class="featured-collection__block featured-collection__{{ block.type }}-block"
+                  {{ block.shopify_attributes }}
+                >
+                  {%- if block.settings.text != blank -%}
+                    <div class="rte">{{ block.settings.text }}</div>
+                  {%- endif -%}
+                </div>
+              {% endif %}
+              {% if block.type == 'image' %}
+                {% if block.settings.image != blank %}
+                  {%- assign block_image = block.settings.image -%}
+                {% else %}
+                  {%- assign block_image = collection.image -%}
+                {% endif %}
+                <div
+                  class="featured-collection__block featured-collection__{{ block.type }}-block {% if mobile_banner_image %}svg-mask--disabled-mobile medium-down--banner-image{% endif %}"
+                  {{ block.shopify_attributes }}
+                >
+                  {%- if block_image != blank -%}
+                    <div
+                      class="image-wrap {% if block.settings.image_mask != 'none' %}svg-mask svg-mask--{{ block.settings.image_mask }}{% endif %}"
+                      style="height: 0; padding-bottom: {{ 100 | divided_by: block_image.aspect_ratio }}%;"
+                    >
+                      {%- render 'element.image', img: block_image -%}
+                    </div>
+                  {%- else -%}
+                    <div class="image-wrap {% if block.settings.image_mask != 'none' %}svg-mask svg-mask--{{ block.settings.image_mask }}{% endif %}">
+                      {%- render 'element.placeholder', name: 'lifestyle-1', no_padding: true -%}
+                    </div>
+                  {%- endif -%}
+                </div>
+              {% endif %}
+              {% if block.type == 'button' %}
+                <div
+                  class="featured-collection__block featured-collection__{{ block.type }}-block"
+                  {{ block.shopify_attributes }}
+                >
+                  <a href="{{ collection.url }}" class="section-header__link">
+                    {% if block.settings.label == blank %}
+                      {% render 'utility.translate', key: 'actions.view_all', fallback: 'View all' %}
+                    {% else %}
+                      {{ block.settings.label }}
+                    {% endif %}
+                  </a>
+                </div>
+              {% endif %}
+            {% endfor %}
+          </div>
+
+          <div class="featured-collection__carousel-grid-items">
+            {% if collection != blank %}
+              {% for product in collection.products limit: count %}
+                {% render 'list.product-card',
+                  product: product,
+                  collection: collection,
+                  sizeVariable: products_per_row,
+                  fallback: fallback,
+                  product_tile_layout: product_tile_layout,
+                  product_grid_content_align: product_grid_content_align,
+                  disabled_high_variants: false
+                %}
+              {% endfor %}
+            {% else %}
+              {% for i in (1..count) %}
+                {% render 'list.product-card.placeholder', product_tile_layout: product_tile_layout %}
+              {% endfor %}
+            {% endif %}
+          </div>
+        </div>
+      </div>
+    {% endif %}
+
+    {% if carousel_layout == false %}
+      <div class="page-width{% if mobile_scrollable %} page-width--flush-small{% endif %}">
+        <div
+          class="new-grid product-grid{% if mobile_scrollable %} scrollable-grid--small{% endif %}"
+          {% render 'utility.grid-view-type' %}
+        >
+          {%- if collection == blank or collection.empty? or collection.products_count == 0 -%}
+            {%- liquid
+              for index in (1..product_limit)
+                unless mobile_scrollable
+                  assign item_classes = ''
+                  if forloop.index > count
+                    assign item_classes = 'hide'
+                    assign mod = forloop.index | modulo: 2
+                    if mod == 0
+                      assign item_classes = 'medium-up--hide'
+                    endif
+                  endif
+                endunless
+
+                render 'list.product-card.placeholder', index: index, wrapper_class: item_classes, product_tile_layout: product_tile_layout
+              endfor
+            -%}
+          {%- else -%}
+            {%- liquid
+              for product in collection.products limit: product_limit
+                assign item_classes = ''
+                unless mobile_scrollable
+                  if forloop.index > count
+                    assign item_classes = 'hide'
+                    assign mod = forloop.index | modulo: 2
+                    if mod == 0
+                      assign item_classes = 'medium-up--hide'
+                    endif
+                  endif
+                endunless
+
+                render 'list.product-card', product: product, collection: collection, classes: item_classes, sizeVariable: products_per_row, fallback: fallback, product_tile_layout: product_tile_layout, product_grid_content_align: product_grid_content_align, disabled_high_variants: false
+              endfor
+            -%}
+          {%- endif -%}
+        </div>
+      </div>
+    {% endif %}
+  </div>
+</is-land>
+
+{%- if divider -%}</div>{%- endif -%}

@@ -1,0 +1,20 @@
+{% doc %}
+  Copyright © 2025 Archetype Themes LP. All rights reserved.
+
+  Polyfills ES Module import maps in browsers that don't natively support them.
+
+  Uses es-module-shims 1.8.2
+  https://github.com/guybedford/es-module-shims/releases/tag/1.8.2
+
+  @example
+  {% render 'head.es-module-shims' %}
+{% enddoc %}
+
+<script>
+  if (!(HTMLScriptElement.supports && HTMLScriptElement.supports('importmap'))) {
+    const el = document.createElement('script')
+    el.async = true
+    el.src = "{{ 'es-module-shims.min.js' | asset_url }}"
+    document.head.appendChild(el)
+  }
+</script>

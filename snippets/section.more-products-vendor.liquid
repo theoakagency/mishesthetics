@@ -1,0 +1,77 @@
+{% doc %}
+  Copyright © 2025 Archetype Themes LP. All rights reserved.
+
+  Additional products grid from the same vendor or brand.
+
+  @param {object} [product] - Product context for vendor
+  @param {number} [max_products] - Maximum number of products to display
+  @param {string} [product_grid_content_align] - Product grid content alignment ('start'|'center'|'end')
+  @param {string} [hydration] - Hydration strategy
+
+  @example
+  {% render 'section.more-products-vendor' %}
+{% enddoc %}
+
+{%- liquid
+  assign product = product | default: section.settings.product
+  assign max_products = max_products | default: section.settings.max_products | default: 5
+  assign product_grid_content_align = product_grid_content_align | default: settings.product_grid_content_align | default: 'start'
+  assign hydration = hydration | default: 'on:visible'
+-%}
+
+{%- if product.vendor -%}
+  {%- capture vendor_link -%}
+    {{ product.vendor | link_to_vendor }}
+  {%- endcapture -%}
+
+  <is-land {{ hydration }}>
+    <vendor-products
+      data-subsection
+      data-section-id="{{ section.id }}"
+      data-section-type="vendor-products"
+      data-product-id="{{ product.id }}"
+      data-vendor-url="{{ product.vendor | url_for_vendor }}"
+      data-max-products="{{ max_products }}"
+    >
+      <div class="index-section index-section--sub-product">
+        <div class="page-width">
+          <header class="section-header">
+            <div class="heading-md section-header__title">
+              {% assign labels_more_from_html = 'labels.more_from_html' | t: link: vendor_link %}
+              {%- capture fallback_labels_more_from_html -%}
+                More from: {{ vendor_link }}
+              {%- endcapture -%}
+              {% render 'utility.translate', t: labels_more_from_html, fallback: fallback_labels_more_from_html %}
+            </div>
+          </header>
+        </div>
+
+        <div class="page-width page-width--flush-small">
+          <div
+            id="VendorProducts-{{ section.id }}"
+            class="new-grid product-grid scrollable-grid--small"
+            {% render 'utility.grid-view-type' %}
+          >
+            {% comment %}
+              This content is visually hidden and replaced when recommended
+              products show up
+            {% endcomment %}
+            <div class="visually-invisible">
+              {%- render 'list.product-card',
+                product: product,
+                product_grid_content_align: product_grid_content_align,
+                disabled_high_variants: false
+              -%}
+            </div>
+          </div>
+        </div>
+      </div>
+    </vendor-products>
+
+    <template data-island>
+      <script type="module">
+        import 'section.more-products-vendor'
+      </script>
+    </template>
+  </is-land>
+{%- endif -%}

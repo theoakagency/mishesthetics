@@ -1,0 +1,26 @@
+{% doc %}
+  Copyright © 2025 Archetype Themes LP. All rights reserved.
+
+  Search toggle button that opens search overlay when predictive search is enabled.
+
+  @param {boolean} [predictive_search_enabled] - Enable predictive search overlay, defaults to theme setting
+  @param {string} [search_link] - Custom search link HTML
+
+  @example
+  {% render 'header.toggle-search', predictive_search_enabled: true %}
+{% enddoc %}
+
+{%- liquid
+  assign predictive_search_enabled = predictive_search_enabled | default: settings.predictive_search_enabled, allow_false: true
+-%}
+
+{%- if predictive_search_enabled -%}
+  <toggle-search>
+    {{- search_link -}}
+  </toggle-search>
+  <script type="module">
+    import 'header.toggle-search'
+  </script>
+{%- else -%}
+  {{- search_link -}}
+{%- endif -%}

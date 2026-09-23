@@ -1,0 +1,368 @@
+{%- doc -%}
+  Copyright © 2025 Archetype Themes LP. All rights reserved.
+
+  Renders a product's media, including images and videos.
+
+  @param {media} media - The media object
+  @param {product} product - The product object
+  @param {boolean} product_zoom_enable - Whether the product zoom is enabled
+  @param {string} product_zoom_size - Size of the zoomed image
+  @param {boolean} video_looping - Whether the video should loop
+  @param {string} video_style - Style of the video
+  @param {string} mobile_layout - Layout for mobile
+  @param {string} image_size - Size of the image
+  @param {string} animation - Animation for the image
+
+  @example
+  {% render 'product.gallery.media' %}
+{%- enddoc -%}
+
+{%- liquid
+  assign product = section.settings.product | default: product
+  assign product_zoom_enable = product_zoom_enable | default: section.settings.product_zoom_enable, allow_false: true
+  assign product_zoom_size = product_zoom_size | default: '1800x1800'
+  assign video_looping = video_looping | default: section.settings.enable_video_looping, allow_false: true
+  assign video_style = video_style | default: section.settings.product_video_style | default: 'muted'
+  assign mobile_layout = mobile_layout | default: section.settings.mobile_layout | default: 'partial'
+  assign image_size = image_size | default: section.settings.product_image_size | default: 'square'
+  assign animation = animation | default: 'image-fade-in'
+
+  assign hydration_strategy = 'on:interaction="select"'
+  if product.media.size == 1
+    assign hydration_strategy = 'on:idle'
+  endif
+
+  assign autoplay = true
+  if video_style == 'unmuted'
+    assign autoplay = false
+  endif
+
+  assign is_featured = false
+  if featured_media == media
+    assign is_featured = true
+  endif
+
+  assign has_video = false
+  assign video_type = ''
+  assign video_modal = false
+
+  assign image_set = false
+  assign image_set_group = ''
+  if media.alt contains '#'
+    assign image_set_full = media.alt | split: '#' | last
+    if image_set_full contains '_'
+      assign image_set = true
+      assign image_set_group = image_set_full | split: '_' | first
+    endif
+  endif
+
+  case media.media_type
+    when 'external_video'
+      assign has_video = true
+      assign video_type = media.host
+      assign video_id = media.external_id
+    when 'video'
+      assign has_video = true
+      assign video_type = 'mp4'
+  endcase
+
+  if has_video and video_style == 'unmuted'
+    assign video_modal = true
+  endif
+
+  assign media_aspect_ratio = media.aspect_ratio
+  assign media_width = media.width
+  assign media_height = media.height
+
+  if media.media_type != 'image'
+    assign media_width = media.preview_image.width
+    assign media_height = media.preview_image.height
+  endif
+
+  assign set_image_size = false
+  if image_size != 'natural'
+    assign set_image_size = true
+  endif
+-%}
+
+<div
+  class="product-main-slide {% if is_featured %}starting-slide{% else %}secondary-slide{% endif %}"
+  data-index="{{ loopIndex0 }}"
+  data-media-id="{{ media.id }}"
+  {% if image_set %}
+    data-set-name="{{ image_set_group }}"
+    data-group="{{ image_set_full }}"
+  {% endif %}
+>
+  {% stylesheet %}
+    .product-image-main {
+      position: relative;
+
+      &[data-size] img {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        object-fit: contain;
+      }
+
+      &[data-size='square'] .image-wrap {
+        padding-bottom: 100% !important;
+      }
+
+      &[data-size='landscape'] .image-wrap {
+        padding-bottom: 75% !important;
+      }
+
+      &[data-size='portrait'] .image-wrap {
+        padding-bottom: 150% !important;
+      }
+
+      &:has(button.product__photo-zoom:focus-visible) {
+        box-shadow: inset 0 0 0 3px var(--color-focus);
+
+        img {
+          position: relative;
+          z-index: -1;
+        }
+      }
+    }
+
+    .product__model-wrapper {
+      model-viewer {
+        width: 100%;
+        height: 100%;
+      }
+    }
+
+    .product__video-wrapper {
+      /*Put overlay on muted videos because they cannot be interacted with*/
+      &[data-video-style='muted'].loaded:before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        z-index: 1;
+      }
+
+      /*Unless low power mode requires them to be touched to start*/
+      &.video-interactable:before {
+        display: none;
+      }
+
+      /*Make sure states don't overlap*/
+      &.loaded:after {
+        display: none;
+      }
+
+      &.loading iframe {
+        opacity: 0.01; /*sneaky way to avoid talking to an invisible YT iframe*/
+      }
+
+      &.loaded iframe {
+        opacity: 1;
+      }
+    }
+
+    .product__video-wrapper__grippy {
+      position: absolute;
+      left: 0;
+      width: calc(50% - 50px);
+      top: 32px;
+      bottom: 40px;
+      z-index: 3;
+
+      &:before {
+        position: absolute;
+        display: block;
+        content: '';
+        width: 60%;
+        height: 35%;
+        top: 0;
+        left: 100%;
+      }
+
+      & + & {
+        left: auto;
+        right: 0;
+
+        &:before {
+          bottom: 0;
+          top: auto;
+          right: 100%;
+          left: auto;
+        }
+      }
+    }
+
+    .product-video-trigger {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+    }
+
+    /*Zoom button*/
+    .product__photo-zoom {
+      position: absolute !important;
+      bottom: 0;
+      right: 0;
+      cursor: zoom-in;
+      border: 0;
+
+      /*Only show active slide's zoom button (mobile)*/
+      @media only screen and (max-width: 768px) {
+        box-shadow: 0 3px 6px rgba(0, 0, 0, 0.15);
+        padding: 8px;
+
+        & .element-icon {
+          width: 21px;
+          height: 21px;
+        }
+
+        .product__main-photos & {
+          margin-bottom: 10px;
+          margin-right: 10px;
+        }
+
+        /*Hide zoom button on all slides*/
+        .product-slideshow & {
+          opacity: 0;
+          transition: opacity 0.5s ease-out;
+        }
+
+        .product-slideshow .is-selected & {
+          opacity: 1;
+        }
+      }
+
+      /*Visually hidden, covers full image on desktop*/
+      @media only screen and (min-width: 769px) {
+        opacity: 0;
+        width: 100%;
+        top: 0;
+        left: 0;
+        margin: 0;
+        border-radius: 0;
+
+        & svg,
+        & span {
+          display: none;
+        }
+      }
+    }
+
+    .product-single__close-media {
+      position: absolute;
+      top: 10px;
+      right: 10px;
+      z-index: 2;
+    }
+  {% endstylesheet %}
+
+  <div
+    data-product-image-main
+    class="product-image-main"
+    {% if set_image_size %}
+      data-size="{{ image_size }}"
+    {% endif %}
+  >
+    {%- if media.media_type == 'model' -%}
+      <div class="product__model-wrapper">
+        {%- render 'element.model',
+          product: product,
+          media: media,
+          hydration: hydration_strategy,
+          autoplay: autoplay
+        -%}
+
+        {%- capture image_classes -%}
+          hide {% if product_zoom_enable %}photoswipe__image{% endif %}
+        {%- endcapture -%}
+        {%- assign media_alt = media.alt | escape | split: '#' | first -%}
+        {%- render 'element.image',
+          img: media.preview_image,
+          type: 'photoswipe',
+          classlist: image_classes,
+          alt: media_alt,
+          widths: '900',
+          product_zoom_size: product_zoom_size,
+          loopIndex: loopIndex,
+          media: media,
+          media_width: media_width,
+          media_height: media_height,
+          sizes: sizes,
+          loading: loading,
+          sizeVariable: sizeVariable,
+          fallback: fallback,
+          animation: animation
+        -%}
+      </div>
+      <button class="hide btn btn--circle btn--static product-single__close-media">
+        {% render 'element.icon', name: 'close' %}
+      </button>
+    {%- else -%}
+      {%- liquid
+        if has_video and video_style == 'unmuted'
+          assign media_aspect_ratio = media.preview_image.aspect_ratio
+        endif
+      -%}
+      <div
+        class="image-wrap{% if has_video %} hide{% endif %}"
+        style="height: 0; padding-bottom: {{ 100 | divided_by: media_aspect_ratio }}%;"
+      >
+        {%- capture image_classes -%}
+          {% if product_zoom_enable %}photoswipe__image{% endif %}
+        {%- endcapture -%}
+
+        {%- liquid
+          if mobile_layout == 'partial'
+            assign fallback = '75vw'
+          endif
+          assign media_alt = media.alt | escape | split: '#' | first
+        -%}
+        {%-
+          render 'element.image',
+          img: media.preview_image,
+          type: 'photoswipe',
+          classlist: image_classes,
+          alt: media_alt,
+          widths: '360, 540, 720, 900, 1080',
+          product_zoom_size: product_zoom_size,
+          loopIndex: loopIndex,
+          media: media,
+          media_width: media_width,
+          media_height: media_height,
+          sizes: sizes,
+          loading: loading,
+          sizeVariable: sizeVariable,
+          fallback: fallback,
+          animation: animation
+        -%}
+
+        {%- if product_zoom_enable and media.media_type == 'image' -%}
+          <button
+            type="button"
+            class="btn btn--secondary btn--circle js-photoswipe__zoom product__photo-zoom"
+            aria-label="Zoom"
+          >
+            {% render 'element.icon', name: 'search' %}
+          </button>
+        {%- endif -%}
+      </div>
+
+      {%- if has_video -%}
+        <div class="product__video-wrapper">
+          {%- if media.media_type == 'video' -%}
+            {%- render 'element.video', video: media, hydration: hydration_strategy, autoplay: autoplay -%}
+          {%- elsif media.media_type == 'external_video' -%}
+            {%- render 'element.video', external_video: media, hydration: hydration_strategy, autoplay: autoplay -%}
+          {%- endif -%}
+        </div>
+      {%- endif -%}
+    {%- endif -%}
+  </div>
+</div>

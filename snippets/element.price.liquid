@@ -1,0 +1,69 @@
+{% doc %}
+  Copyright © 2025 Archetype Themes LP. All rights reserved.
+
+  Formatted price displays with currency formatting for products and variants.
+
+  @param {boolean} [superscript_decimals] - Whether to superscript decimals (default: true)
+  @param {number} [price] - Price to be formatted
+  @param {boolean} [strikethrough] - Whether to use the strikethrough price style (default: false)
+  @param {string} [classlist] - Optional CSS class for the price wrapper
+  @param {string} [style] - Optional CSS style for the price wrapper
+  @param {string} [variant] - Optional variant for the price wrapper
+  @param {string} [size] - Optional size for the price wrapper
+  @param {string} [attributes] - Optional HTML attributes for the wrapper
+
+  @example
+  {% render 'element.price', price: price %}
+{% enddoc %}
+
+{%- liquid
+  assign formatted_price = price | money
+  assign superscript_decimals = superscript_decimals | default: settings.superscript_decimals, allow_false: true | default: true, allow_false: true
+  assign strikethrough = strikethrough | default: false
+  assign classlist = classlist | default: '' | append: ' element-price' | strip
+  assign style = style | default: ''
+  assign attributes = attributes | default: ''
+  assign variant = variant | default: 'body-md'
+  assign size = size | default: ''
+
+  if superscript_decimals
+    unless shop.money_format contains 'money' or shop.money_format contains '.'
+      if shop.money_format contains '{{amount}}' or shop.money_format contains '{{ amount }}'
+        assign formatted_price = formatted_price | replace: '.', '<sup>' | append: '</sup>'
+      elsif shop.money_format contains '{{amount_with_comma_separator}}' or shop.money_format contains '{{ amount_with_comma_separator }}'
+        assign formatted_price = formatted_price | replace: ',', '<sup>' | append: '</sup>'
+      endif
+    endunless
+  endif
+
+  if strikethrough
+    assign strikethrough = 'line-through'
+  endif
+-%}
+
+{%- render 'element.text',
+  as: 'span',
+  text: formatted_price,
+  variant: variant,
+  size: size,
+  classlist: classlist,
+  attributes: attributes,
+  text_decoration: strikethrough,
+  style: style
+-%}
+
+{% render 'style.normalize' %}
+
+{% stylesheet %}
+  .element-price {
+    /* Colors */
+    --_color-primary: var(--color-primary, inherit);
+
+    color: var(--_color-primary);
+
+    sup {
+      top: -0.5em;
+      font-size: 60%;
+    }
+  }
+{% endstylesheet %}

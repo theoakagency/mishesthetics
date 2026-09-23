@@ -1,0 +1,116 @@
+{% doc %}
+  Copyright © 2025 Archetype Themes LP. All rights reserved.
+
+  Multi-column text layout with optional images for features or benefits.
+
+  @param {string} [title] - Section heading
+  @param {string} [align_text] - ('left'|'center'|'right') Text alignment
+  @param {boolean} [divider] - Show divider above section
+  @param {string} [heading_size] - ('sm'|'md'|'lg'|'xl') Heading size
+  @param {string} [color_scheme] - ('none'|'1'|'2'|'3') Color scheme
+
+  @example
+  {% render 'section.text-columns', align_text: 'center', heading_size: 'lg' %}
+{% enddoc %}
+
+{%- liquid
+  assign align_text = align_text | default: section.settings.align_text | default: 'center'
+  assign title = title | default: section.settings.title
+  assign divider = divider | default: section.settings.divider, allow_false: true | default: false, allow_false: true
+  assign heading_size = heading_size | default: section.settings.heading_size | default: 'md'
+  assign color_scheme = color_scheme | default: section.settings.color_scheme | default: 'none'
+
+  unless color_scheme
+    assign class_name = 'text-columns-' | append: section.id
+    render 'utility.color-scheme-override', class_name: class_name
+  endunless
+-%}
+
+{%- if divider -%}<div class="section--divider">{%- endif -%}
+
+<div class="index-section color-scheme-{{ color_scheme }} text-columns-{{ section.id }}">
+  {%- render 'utility.color-scheme-texture', color_scheme: color_scheme -%}
+
+  <div class="page-width" style="z-index: 1;">
+    {%- if title != blank -%}
+      <div class="section-header text-{{ align_text }}">
+        <h2 class="heading-{{ heading_size }}">{{ title }}</h2>
+      </div>
+    {%- endif -%}
+
+    <div class="float-grid{% unless section.blocks.size == 5 %} grid--uniform{% endunless %} grid--flush-bottom clearfix">
+      {%- liquid
+        assign grid_item_width = 'medium-up--one-third'
+        case section.blocks.size
+          when 1
+            assign grid_item_width = 'medium-up--one-half'
+          when 2
+            assign grid_item_width = 'medium-up--one-half'
+          when 4
+            assign grid_item_width = 'medium-up--one-half'
+        endcase
+      -%}
+      {%- for block in section.blocks -%}
+        {%- if section.blocks.size == 5 and forloop.index < 3 -%}
+          {%- assign column_width = 'medium-up--one-half' -%}
+        {%- else -%}
+          {%- assign column_width = grid_item_width -%}
+        {%- endif -%}
+        <div class="grid__item {{ column_width }} text-{{ align_text }}" {{ block.shopify_attributes }}>
+          {%- if block.settings.enable_image -%}
+            <div style="{% if align_text == 'center' %}margin: 0 auto;{% elsif align_text == 'right' %}margin-inline-start: auto;{% endif %} max-width: {{ block.settings.image_width }}px;">
+              {%- if block.settings.button_link != blank -%}
+                <a href="{{ block.settings.button_link }}">
+              {%- endif -%}
+              {%- if block.settings.image != blank -%}
+                <div
+                  class="image-wrap text-spacing {% if block.settings.image_mask != 'none' %}svg-mask svg-mask--{{ block.settings.image_mask }}{% endif %}"
+                  style="height: 0; padding-bottom: {{ 100 | divided_by: block.settings.image.aspect_ratio }}%;"
+                >
+                  {%- render 'element.image',
+                    img: block.settings.image,
+                    sizeVariable: column_width,
+                    widths: '180, 360, 540, 720, 900, 1080',
+                    style: 'height: 100%;'
+                  -%}
+                </div>
+              {%- elsif block.settings.map_address != blank -%}
+                <div class="image-wrap text-spacing">
+                  {%- render 'element.map',
+                    map_address: block.settings.map_address,
+                    access_token: block.settings.api_key,
+                    aspect_ratio: block.settings.image_mask,
+                    style_url: block.settings.style_url
+                  -%}
+                </div>
+              {%- else -%}
+                <div class="image-wrap text-spacing">
+                  {%- render 'element.placeholder', name: 'image', no_padding: true -%}
+                </div>
+              {%- endif -%}
+              {%- if block.settings.button_link != blank -%}
+                </a>
+              {%- endif -%}
+            </div>
+          {%- endif -%}
+          {%- if block.settings.title != blank -%}
+            <h2 class="heading-{{ heading_size }} rte--block">
+              {{ block.settings.title }}
+            </h2>
+          {%- endif -%}
+          {%- if block.settings.text != blank -%}
+            <div class="rte-setting rte--block text-spacing">{{ block.settings.text }}</div>
+          {%- endif -%}
+          {%- if block.settings.button_label != blank -%}
+            {%- render 'element.button',
+              href: block.settings.button_link,
+              text: block.settings.button_label,
+              inverted: true
+            -%}
+          {%- endif -%}
+        </div>
+      {%- endfor -%}
+    </div>
+  </div>
+</div>
+{%- if divider -%}</div>{%- endif -%}

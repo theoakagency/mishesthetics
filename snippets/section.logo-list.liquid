@@ -1,0 +1,95 @@
+{% doc %}
+  Copyright © 2025 Archetype Themes LP. All rights reserved.
+
+  Logo grid or scrolling marquee for displaying brand partnerships and certifications.
+
+  @param {string} [layout_style] - ('grid'|'marquee') Layout style
+  @param {number} [speed] - Marquee scroll speed (1-10)
+  @param {string} [direction] - ('normal'|'reverse') Scroll direction
+
+  @example
+  {% render 'section.logo-list', layout_style: 'marquee', speed: 5, direction: 'normal' %}
+{% enddoc %}
+
+{%- liquid
+  assign layout_style = layout_style | default: section.settings.layout_style | default: 'grid'
+  assign speed = speed | default: section.settings.speed | default: 5
+  assign direction = direction | default: section.settings.direction | default: 'normal'
+-%}
+
+{%- capture logos -%}
+  {%- for block in section.blocks -%}
+    <div class="logo-item logo-item--{{ layout_style }}" {{ block.shopify_attributes }}>
+      {%- if block.settings.link != blank -%}
+        <a href="{{ block.settings.link }}" aria-label="{{ block.settings.image.alt }}" class="logo-item__link">
+      {%- endif -%}
+
+      {%- if block.settings.image != blank -%}
+        {%- render 'element.image', img: block.settings.image, sizeVariable: '6', fallback: '50vw', widths: '360, 540, 720, 1020', classlist: 'logo-image' -%}
+      {%- else -%}
+        {%- render 'element.placeholder', name: 'logo', no_padding: true -%}
+      {%- endif -%}
+
+      {%- if block.settings.link != blank -%}
+        </a>
+      {%- endif -%}
+    </div>
+  {%- endfor -%}
+{%- endcapture -%}
+
+{%- capture content -%}
+  {%- render 'layout.section-heading' -%}
+
+  {%- if layout_style == 'carousel' -%}
+    {%- render 'element.marquee', slot: logos, direction: direction, speed: speed, gap: 'sm' -%}
+  {%- else -%}
+    {%- render 'layout.grid', slot: logos, columns_xs: 2, columns_md: 6, gap: 'sm' -%}
+  {%- endif -%}
+{%- endcapture -%}
+
+{% render 'layout.section', slot: content, full_width: true %}
+
+{%- stylesheet -%}
+  .logo-item {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    [data-grid-style*='white'] & {
+      background-color: transparent;
+    }
+  }
+
+  .logo-item__link {
+    display: flex;
+    inline-size: 100%;
+    block-size: 100%;
+  }
+
+  .logo-item--grid {
+    height: 120px;
+  }
+
+  .logo-item--carousel {
+    min-width: 200px;
+    min-height: 120px;
+    aspect-ratio: 16 / 9;
+    width: 100%;
+  }
+
+  .logo-image {
+    width: auto;
+    max-width: 100%;
+    max-height: var(--size-18);
+    object-fit: contain;
+    display: block;
+  }
+
+  .logo-item--grid .logo-image {
+    max-height: 60px;
+  }
+
+  .logo-item--carousel .logo-image {
+    max-height: 70px;
+  }
+{%- endstylesheet -%}

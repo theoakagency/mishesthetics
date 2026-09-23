@@ -1,0 +1,86 @@
+{%- doc -%}
+  SVG icon from the theme assets directory.
+
+  @param {string} name - Icon name (resolves to `icon.{name}.svg` in assets)
+  @param {string} [size] - 'xs' | 'sm' | 'md' | 'lg' | 'xl'. Default: 'md'
+  @param {string} [classes] - Additional CSS classes
+  @param {string} [style] - Inline style overrides
+  @param {string} [aria_label] - Accessible label. If provided, icon is not `aria-hidden`.
+  @param {string} [attr] - Additional HTML attributes
+
+  @example
+  {% render 'kit.icon', name: 'cart' %}
+  @example
+  {% render 'kit.icon', name: 'close', size: 'sm', aria_label: 'Close menu' %}
+{%- enddoc -%}
+
+{%- render 'kit.tokens' -%}
+
+{%- liquid
+  assign size = size | default: 'md'
+  assign class_list = 'kit-icon kit-icon--' | append: size
+
+  if classes != blank
+    assign class_list = class_list | append: ' ' | append: classes
+  endif
+
+  assign file_name = 'kit.icon.' | append: name | append: '.svg'
+  assign svg = file_name | inline_asset_content
+-%}
+
+<span
+  class="{{ class_list }}"
+  {%- if aria_label != blank %}
+    role="img"
+    aria-label="{{ aria_label | escape }}"
+  {%- else %}
+    aria-hidden="true"
+  {%- endif %}
+  {%- if style != blank %}
+    style="{{ style | escape }}"
+  {% endif %}
+  {%- if attr != blank %}
+    {{ attr -}}
+  {% endif %}
+>
+  {{- svg -}}
+</span>
+
+{% stylesheet %}
+  .kit-icon {
+    display: inline-flex;
+    vertical-align: middle;
+    line-height: 0;
+  }
+
+  .kit-icon > svg {
+    width: var(--icon-size);
+    height: var(--icon-size);
+    fill: var(--kit-color-icons);
+    stroke-width: var(--kit-icon-stroke-width);
+  }
+
+  .kit-icon > svg [fill] {
+    fill: inherit;
+  }
+
+  .kit-icon--xs {
+    --icon-size: 12px;
+  }
+
+  .kit-icon--sm {
+    --icon-size: 16px;
+  }
+
+  .kit-icon--md {
+    --icon-size: 20px;
+  }
+
+  .kit-icon--lg {
+    --icon-size: 24px;
+  }
+
+  .kit-icon--xl {
+    --icon-size: 32px;
+  }
+{% endstylesheet %}

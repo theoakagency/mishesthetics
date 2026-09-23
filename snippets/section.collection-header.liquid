@@ -1,0 +1,208 @@
+{% doc %}
+  Copyright © 2025 Archetype Themes LP. All rights reserved.
+
+  Collection page header with image, title, description, and parallax effects.
+
+  @param {boolean} [enable] - Show header section
+  @param {boolean} [collection_image_enable] - Display collection image
+  @param {boolean} [show_collection_description] - Display description
+  @param {boolean} [parallax] - Enable parallax scrolling
+  @param {string} [parallax_direction] - ('top'|'left') Parallax direction
+  @param {boolean} [disable_sticky_header] - Disable sticky header
+  @param {string} [color_scheme] - ('none'|'1'|'2'|'3') Color scheme
+  @param {string} [hydration] - Hydration strategy
+
+  @example
+  {% render 'section.collection-header', parallax: true, parallax_direction: 'top' %}
+{% enddoc %}
+
+{% stylesheet %}
+  .collection-hero {
+    --collection-hero-overlay-direction: 45deg;
+
+    position: relative;
+    width: 100%;
+    height: 200px;
+    overflow: hidden;
+    background-color: color-mix(in srgb, var(--color-secondary) var(--shade-12), var(--color-primary));
+
+    @media only screen and (min-width: 769px) {
+      height: 400px;
+    }
+  }
+
+  .collection-hero__content {
+    --z-index-overlay: -1;
+    position: absolute;
+    top: 0;
+    left: 0;
+    bottom: 0;
+    width: 100%;
+    display: flex;
+    align-items: flex-end;
+    padding: calc(var(--gutter) / 2) 0;
+    z-index: 1;
+
+    @media only screen and (min-width: 769px) {
+      padding: var(--gutter) 0;
+    }
+
+    /*Account for overlayed header/toolbar*/
+    .overlaid-header & {
+      padding-top: 70px;
+
+      @media only screen and (min-width: 769px) {
+        padding-top: 100px;
+      }
+    }
+
+    & .page-width {
+      width: 100%;
+    }
+
+    &:after {
+      background: linear-gradient(var(--collection-hero-overlay-direction), var(--color-secondary), transparent 50%);
+      pointer-events: none;
+    }
+  }
+
+  /*Apply animations*/
+  .collection-hero__image {
+    transform: scale(1);
+    transition: transform 1s cubic-bezier(0.18, 0.63, 0.25, 1), opacity 0.7s ease;
+    animation: none;
+    object-fit: cover;
+  }
+
+  .collection-hero__description {
+    @media only screen and (min-width: 769px) {
+      max-width: 60%;
+    }
+  }
+{% endstylesheet %}
+
+{%- liquid
+  assign enable = enable | default: section.settings.enable, allow_false: true | default: true, allow_false: true
+  assign collection_image_enable = collection_image_enable | default: section.settings.collection_image_enable, allow_false: true | default: true, allow_false: true
+  assign show_collection_description = show_collection_description | default: section.settings.show_collection_description, allow_false: true | default: true, allow_false: true
+  assign parallax = parallax | default: section.settings.parallax, allow_false: true | default: false, allow_false: true
+  assign parallax_direction = parallax_direction | default: section.settings.parallax_direction | default: 'top'
+  assign disable_sticky_header = disable_sticky_header | default: false, allow_false: true
+  assign color_scheme = color_scheme | default: section.settings.color_scheme | default: 'none'
+  assign hydration = hydration | default: 'on:idle'
+-%}
+
+{% capture image_content %}
+  {% comment %}Full width image so don't need to adjust sizes attribute, fallback is 100vw{% endcomment %}
+  {%- render 'element.image',
+    img: collection.image,
+    img_width: 2400,
+    classlist: 'collection-hero__image image-fit',
+    preload: true,
+    loading: 'eager'
+  -%}
+{% endcapture %}
+
+{%- if enable -%}
+  {%- if collection_image_enable and collection.image -%}
+    <is-land {{ hydration }}>
+      <collection-header
+        id="CollectionHeaderSection"
+        class="color-scheme-{{ color_scheme }}"
+        {% if parallax %}
+          data-parallax="true"
+        {% endif %}
+      >
+        <div class="collection-hero loading">
+          {%- if parallax -%}
+            {% render 'element.image.parallax', slot: image_content, direction: parallax_direction %}
+          {%- else -%}
+            {{ image_content }}
+          {%- endif -%}
+
+          <div class="collection-hero__content overlay">
+            <div class="page-width">
+              <header class="section-header section-header--flush">
+                {%- render 'element.breadcrumbs' -%}
+                {%- render 'element.text', as: 'h1', variant: 'heading-xl', text: collection.title -%}
+
+                {%- if show_collection_description -%}
+                  <div class="collection-hero__description">
+                    {%- render 'element.text', as: 'p', text: collection.description -%}
+                  </div>
+                {%- endif -%}
+              </header>
+            </div>
+          </div>
+        </div>
+      </collection-header>
+
+      <template data-island>
+        <script type="module">
+          import 'section.collection-header'
+        </script>
+      </template>
+    </is-land>
+
+    <div
+      class="page-width medium-up--hide color-scheme-{{ color_scheme }}"
+      data-collection-count
+      style="padding-top: 15px;"
+    >
+      {% assign info_product_count = 'info.product_count' | t: count: collection.products_count %}
+      {%- capture fallback_info_product_count -%}
+        {{ collection.products_count }} product{%- if collection.products_count != 1 -%}s{%- endif -%}
+      {%- endcapture -%}
+      {% render 'utility.translate', t: info_product_count, fallback: fallback_info_product_count %}
+    </div>
+
+  {%- else -%}
+    {%- assign disable_sticky_header = true -%}
+    <div class="color-scheme-{{ color_scheme }}">
+      <div class="page-width page-content page-content--top">
+        <header class="section-header section-header--flush">
+          {%- render 'element.breadcrumbs' -%}
+
+          <h1 class="section-header__title">
+            {{ collection.title }}
+          </h1>
+
+          {%- if show_collection_description -%}
+            <div class="collection-hero__description">
+              {%- render 'element.text', as: 'p', text: collection.description -%}
+            </div>
+          {%- endif -%}
+
+          <p class="medium-up--hide" data-collection-count>
+            {% assign info_product_count = 'info.product_count' | t: count: collection.products_count %}
+            {%- capture fallback_info_product_count -%}
+              {{ collection.products_count }} product{%- if collection.products_count != 1 -%}s{%- endif -%}
+            {%- endcapture -%}
+            {% render 'utility.translate', t: info_product_count, fallback: fallback_info_product_count %}
+          </p>
+        </header>
+      </div>
+    </div>
+  {%- endif -%}
+{% else %}
+  {%- assign disable_sticky_header = true -%}
+{%- endif -%}
+
+{%- if disable_sticky_header -%}
+  {% comment %}
+    Div to trigger theme.CollectionHeader JS
+  {% endcomment %}
+  <is-land {{ hydration }}>
+    <collection-header
+      id="CollectionHeaderSection"
+      data-section-id="{{ section.id }}"
+      data-section-type="collection-header"
+    ></collection-header>
+
+    <template data-island>
+      <script type="module">
+        import 'section.collection-header'
+      </script>
+    </template>
+  </is-land>
+{%- endif -%}

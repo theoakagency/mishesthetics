@@ -1,0 +1,373 @@
+{% doc %}
+  Copyright © 2025 Archetype Themes LP. All rights reserved.
+
+  Split layout section with image and text content side by side.
+
+  @param {string} [subtitle] - Section subtitle
+  @param {string} [title] - Section heading
+  @param {string} [heading_size] - ('sm'|'md'|'lg'|'xl') Heading size
+  @param {string} [text] - Body content
+  @param {string} [button_label] - Button label
+  @param {string} [button_link] - Button URL
+  @param {string} [button_style] - ('primary'|'secondary') Button style
+  @param {string} [align_text] - ('left'|'center'|'right') Text alignment
+  @param {string} [layout] - ('left'|'right') Image placement
+  @param {string} [image_width] - Image column width
+  @param {object} [image] - Featured image
+  @param {string} [image_mask] - Image mask
+  @param {object} [image2] - Secondary image
+  @param {string} [image2_mask] - Secondary image mask
+  @param {boolean} [show_wave] - Whether to show the wave background
+  @param {boolean} [divider] - Whether to add a divider above the section
+  @param {boolean} [top_padding] - Whether to add top padding to the section
+  @param {boolean} [bottom_padding] - Whether to add bottom padding to the section
+  @param {string} [color_scheme] - ('none'|'1'|'2'|'3') Color scheme
+
+  @example
+  {% render 'section.text-and-image', layout: 'left', heading_size: 'lg' %}
+{% enddoc %}
+
+{% stylesheet %}
+  .feature-row-wrapper {
+    overflow: hidden;
+    direction: ltr;
+  }
+
+  .feature-row {
+    margin: 0 auto;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+
+    @media (--widescreen) {
+      margin: 0 6%;
+    }
+
+    @media only screen and (max-width: 768px) {
+      flex-direction: column;
+      margin: 0;
+    }
+  }
+
+  @media only screen and (max-width: 959px) {
+    .feature-row--small-none {
+      display: block;
+    }
+  }
+
+  .feature-row__item {
+    flex: 0 1 57%;
+    margin: 0 auto;
+
+    @media only screen and (max-width: 768px) {
+      flex: 1 1 auto;
+      max-width: 100%;
+      min-width: 100%;
+    }
+  }
+
+  .feature-row__image {
+    display: block;
+    margin: 0 auto;
+    order: 1;
+
+    @media only screen and (min-width: 769px) {
+      order: 2;
+    }
+  }
+
+  .feature-row__text {
+    padding: 0;
+
+    @media only screen and (max-width: 768px) {
+      order: 2;
+      margin-top: 0;
+      padding: 30px 20px 0;
+      padding-bottom: 0; /*always last element on mobile*/
+    }
+
+    & .rte {
+      margin: 0;
+    }
+
+    & .element-button {
+      margin-top: calc(var(--gutter) / 2);
+    }
+  }
+
+  @media only screen and (min-width: 769px) {
+    .feature-row__text--left {
+      padding-left: calc(var(--gutter) * 2);
+      padding-right: 20px;
+    }
+
+    .feature-row__text--right {
+      padding-right: calc(var(--gutter) * 2);
+      padding-left: 20px;
+    }
+  }
+
+  .feature-row__item--overlap-images {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0 0 15px;
+    margin: 0 0 0 -30px;
+
+    @media only screen and (min-width: 769px) {
+      padding: 50px 0;
+      margin: 0 auto;
+    }
+
+    & > *:first-child {
+      z-index: 1;
+      transform: translate(30px, 30px);
+
+      @media only screen and (min-width: 769px) {
+        transform: translate(50px, 50px);
+      }
+    }
+
+    & svg {
+      border: 2px solid;
+      border-color: var(--root-color-secondary);
+    }
+  }
+
+  .feature-row__item--overlap-images {
+    & .feature-row__first-image {
+      width: 55%;
+    }
+
+    & .feature-row__second-image {
+      width: 60%;
+    }
+  }
+
+  .feature-row__item--placeholder-images {
+    & .placeholder-image-wrap {
+      width: 50%;
+    }
+  }
+
+  .feature-row-wrapper .feature-row__images {
+    width: 100%;
+    min-width: 0;
+
+    @media only screen and (max-width: 959px) {
+      padding-top: 30px;
+    }
+  }
+
+  .feature-row-wrapper .feature-row__text {
+    width: 100%;
+    min-width: 0;
+
+    @media only screen and (min-width: 769px) {
+      min-width: 43%;
+      flex: 0 1 43%;
+    }
+  }
+
+  .feature-row--33 {
+    & .feature-row__images {
+      max-width: 50%;
+
+      @media only screen and (min-width: 769px) {
+        max-width: none;
+        flex: 0 1 33.333%;
+      }
+    }
+  }
+
+  .feature-row--50 {
+    & .feature-row__images {
+      max-width: 100%;
+      padding-right: 20px;
+      padding-left: 20px;
+
+      @media only screen and (min-width: 769px) {
+        max-width: none;
+        flex: 0 1 50%;
+        padding-right: 0;
+        padding-left: 0;
+      }
+    }
+  }
+
+  .feature-row--66 {
+    & .feature-row__images {
+      max-width: 100%;
+      padding-right: 20px;
+      padding-left: 20px;
+
+      @media only screen and (min-width: 769px) {
+        max-width: none;
+        flex: 0 1 66.666%;
+        padding-right: 0;
+        padding-left: 0;
+      }
+    }
+  }
+{% endstylesheet %}
+
+{%- liquid
+  assign subtitle = subtitle | default: section.settings.subtitle | default: blank
+  assign title = title | default: section.settings.title
+  assign heading_size = heading_size | default: section.settings.heading_size | default: 'md'
+  assign text = text | default: section.settings.text
+  assign button_label = button_label | default: section.settings.button_label | default: blank
+  assign button_link = button_link | default: section.settings.button_link
+  assign button_style = button_style | default: section.settings.button_style | default: 'primary'
+  assign align_text = align_text | default: section.settings.align_text | default: 'left'
+  assign layout = layout | default: section.settings.layout | default: 'right'
+  assign image_width = image_width | default: section.settings.image_width | default: '50'
+  assign image = image | default: section.settings.image
+  assign image_mask = image_mask | default: section.settings.image_mask | default: 'none'
+  assign image2 = image2 | default: section.settings.image2
+  assign image2_mask = image2_mask | default: section.settings.image2_mask | default: 'none'
+  assign show_wave = show_wave | default: section.settings.show_wave, allow_false: true | default: false, allow_false: true
+  assign divider = divider | default: section.settings.divider, allow_false: true | default: false, allow_false: true
+  assign top_padding = top_padding | default: section.settings.top_padding, allow_false: true
+  assign bottom_padding = bottom_padding | default: section.settings.bottom_padding, allow_false: true
+  assign color_scheme = color_scheme | default: section.settings.color_scheme | default: 'none'
+
+  assign lazyload_images = true
+  if section.index == 1
+    assign lazyload_images = false
+  endif
+-%}
+
+{%- if divider -%}<div class="section--divider">{%- endif -%}
+
+{%- liquid
+  assign image_width = image_width
+  assign overlap_images = true
+  if image == blank or image2 == blank
+    assign overlap_images = false
+  endif
+
+  if image == blank and image2 == blank
+    assign overlap_images = true
+    assign placeholder_images = true
+  endif
+-%}
+
+{% style %}
+  {% if top_padding == false %}
+    #shopify-section-{{ section.id }} .index-section { padding-top: 0 !important; }
+  {% endif %}
+  {% if bottom_padding == false %}
+    #shopify-section-{{ section.id }} .index-section { padding-bottom: 0 !important; }
+  {% endif %}
+{% endstyle %}
+
+<div class="index-section color-scheme-{{ color_scheme }} {% if show_wave %}background-svg--wave{% endif %}">
+  {%- render 'utility.color-scheme-texture', color_scheme: color_scheme -%}
+
+  <div class="page-width feature-row-wrapper feature-row--{{ image_width }}" style="z-index: 1;">
+    {%- capture image_layout -%}
+      <div class="feature-row__item feature-row__images{% if overlap_images %} feature-row__item--overlap-images{% endif %} {% if placeholder_images %}feature-row__item--placeholder-images{% endif %}">
+          {%- if image != blank -%}
+            <div class="feature-row__first-image">
+              {%- if button_label != blank and button_link != blank -%}<a href="{{ button_link }}">{%- endif -%}
+                <div class="image-wrap {% if image_mask != 'none' %}svg-mask svg-mask--{{ image_mask }}{% endif %}" style="height: 0; padding-bottom: {{ 100 | divided_by: image.aspect_ratio }}%;">
+                  {%- liquid
+                    if image2 == blank
+                      assign sizeVariable = image_width | append: 'vw'
+                      assign fallback = '100vw'
+                    else
+                      assign sizeVariable = 'calc(0.4 * 50vw)'
+                      assign fallback = '40vw'
+                    endif
+
+                    assign imageWidth = image_width | times: 1
+                    if imageWidth >= 50
+                      assign loading = lazyload_images
+                    else
+                      assign loading = true
+                    endif
+                  -%}
+                  {%- render 'element.image',
+                    img: image,
+                    widths: '180, 360, 540, 750, 900, 1080',
+                    loading: loading,
+                    sizeVariable: sizeVariable,
+                    fallback: fallback,
+                    classlist: 'feature-row__image',
+                  -%}
+                </div>
+              {%- if button_label != blank and button_link != blank -%}</a>{%- endif -%}
+            </div>
+          {%- endif -%}
+          {%- if image2 != blank -%}
+            <div class="feature-row__second-image">
+              {%- if button_label != blank and button_link != blank -%}<a href="{{ button_link }}">{%- endif -%}
+                <div class="image-wrap {% if image2_mask != 'none' %}svg-mask svg-mask--{{ image2_mask }}{% endif %}" style="height: 0; padding-bottom: {{ 100 | divided_by: image2.aspect_ratio }}%;">
+                  {%- liquid
+                    if image == blank
+                      assign sizeVariable = image_width | append: 'vw'
+                      assign fallback = '100vw'
+                    else
+                      assign sizeVariable = 'calc(0.6 * 50vw)'
+                      assign fallback = '60vw'
+                    endif
+                  -%}
+                  {%- render 'element.image',
+                    img: image2,
+                    widths: '180, 360, 540, 750, 900, 1080',
+                    sizeVariable: sizeVariable,
+                    fallback: fallback,
+                    classlist: 'feature-row__image',
+                  -%}
+                </div>
+              {%- if button_label != blank and button_link != blank -%}</a>{%- endif -%}
+            </div>
+          {%- endif -%}
+          {%- if image == blank and image2 == blank -%}
+            <div class="placeholder-image-wrap">
+              <div class="image-wrap">
+                {%- render 'element.placeholder', name: 'image' -%}
+              </div>
+            </div>
+            <div class="placeholder-image-wrap">
+              <div class="image-wrap">
+                {%- render 'element.placeholder', name: 'image' -%}
+              </div>
+            </div>
+          {%- endif -%}
+      </div>
+    {%- endcapture -%}
+
+    <div class="feature-row">
+      {%- if layout == 'left' -%}
+        {{ image_layout }}
+      {%- endif -%}
+
+      <div class="feature-row__item feature-row__text feature-row__text--{{ layout }} text-{{ align_text }}">
+        {%- if subtitle != blank -%}
+          <p class="accent-subtitle">{{ subtitle }}</p>
+        {%- endif -%}
+        {%- if title != blank -%}
+          <h2 class="heading-{{ heading_size }}">{{ title | escape }}</h2>
+        {%- endif -%}
+        {%- if text != blank -%}
+          <div class="rte featured-row__subtext clearfix">{{ text }}</div>
+        {%- endif -%}
+        {%- if button_label != blank -%}
+          {% assign inverted = false %}
+          {% if button_style == 'secondary' %}
+            {% assign inverted = true %}
+          {% endif %}
+          {% render 'element.button', text: button_label, href: button_link, inverted: inverted %}
+        {%- endif -%}
+      </div>
+
+      {%- if layout == 'right' -%}
+        {{ image_layout }}
+      {%- endif -%}
+    </div>
+  </div>
+</div>
+
+{%- if divider -%}</div>{%- endif -%}

@@ -1,0 +1,128 @@
+{% doc %}
+  Copyright © 2025 Archetype Themes LP. All rights reserved.
+
+  Modal overlays for additional content like store availability and product details.
+
+  @param {string} [context] - The context identifier for the tool tip
+
+  @example
+  {% render 'overlay.tool-tip', context: 'store-availability' %}
+{% enddoc %}
+
+{% stylesheet %}
+  tool-tip {
+    display: none;
+
+    &.quick-shop-modal {
+      & .page-content--product {
+        max-width: 100%;
+        width: 1500px;
+      }
+    }
+
+    /*Ajax page adjustments*/
+    & .page-content,
+    & .page-width {
+      padding: 0;
+    }
+  }
+
+  tool-tip[data-tool-tip-open='true'] {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 10001;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+
+    &:before {
+      content: '';
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-color: #e0e0e0;
+      background-color: color-mix(in srgb, var(--color-secondary) var(--shade-60), transparent);
+      animation: overlay-on 0.3s forwards;
+      cursor: pointer;
+    }
+  }
+
+  .tool-tip__inner {
+    animation: modal-close 0.3s forwards;
+    opacity: 0;
+    color: var(--root-color-primary);
+
+    tool-tip[data-tool-tip-open='true'] & {
+      animation: modal-open 0.3s forwards;
+      display: block;
+      position: fixed;
+      background: var(--root-color-secondary);
+      box-shadow: 0 10px 20px #00000017;
+      padding: 30px;
+      min-width: 250px;
+      min-height: 250px;
+
+      @media only screen and (max-width: 768px) {
+        width: calc(100% - 20px);
+        max-width: 500px;
+      }
+    }
+
+    @media only screen and (min-width: 769px) {
+      margin: 40px;
+      max-width: calc(100% - 80px);
+      max-height: 90vh;
+      padding: calc(var(--gutter) * 1.5);
+
+      .quick-shop-modal & {
+        max-width: 1200px;
+        width: calc(100% - 80px);
+      }
+    }
+  }
+
+  .tool-tip__content {
+    max-height: 80vh;
+    overflow: auto;
+
+    .quick-shop-modal &,
+    .quick-add-modal & {
+      padding: 1rem;
+    }
+
+    [data-tool-tip='store-availability'] & {
+      padding: 0;
+    }
+
+    @media only screen and (max-width: 768px) {
+      font-size: 0.85em;
+    }
+  }
+
+  .tool-tip__close {
+    --element-button-radius: var(--radius-full);
+
+    position: absolute;
+    top: 0;
+    right: 0;
+    transform: translate(25%, -25%);
+    z-index: 2;
+  }
+{% endstylesheet %}
+
+<tool-tip data-tool-tip="{{ context }}">
+  <div class="tool-tip__inner" data-tool-tip-inner>
+    {% render 'element.button', classlist: 'tool-tip__close', icon: 'close', attributes: 'data-tool-tip-close' %}
+    <div data-tool-tip-title>{{ page_title }}</div>
+    <div class="tool-tip__content" data-tool-tip-content></div>
+  </div>
+</tool-tip>
+
+<script type="module">
+  import 'overlay.tool-tip'
+</script>

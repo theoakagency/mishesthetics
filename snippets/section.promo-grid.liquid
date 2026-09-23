@@ -1,0 +1,1192 @@
+{% doc %}
+  Copyright © 2025 Archetype Themes LP. All rights reserved.
+
+  Flexible promotional grid with customizable blocks for images, text, and CTAs.
+
+  @param {boolean} [full_width] - Enable full-width layout
+  @param {number} [gutter_size] - Spacing between grid blocks
+  @param {boolean} [space_above] - Add top spacing
+  @param {boolean} [space_below] - Add bottom spacing
+  @param {boolean} [hide_block_images] - Hide all block images
+  @param {boolean} [promo_grid_image_ratio] - Maintain aspect ratio
+  @param {string} [hydration] - Hydration strategy
+
+  @example
+  {% render 'section.promo-grid', full_width: true, gutter_size: 20 %}
+{% enddoc %}
+
+{% stylesheet %}
+  :root {
+    --z-index-promo-tint: 2;
+    --z-index-promo-color-overlay: 3;
+    --z-index-promo-text: 3;
+    --z-index-promo-content: 4;
+    --z-index-promo-link: 5;
+  }
+
+  .promo-grid--space-top {
+    padding-top: var(--index-section-padding);
+  }
+
+  .promo-grid--space-bottom {
+    padding-bottom: var(--index-section-padding);
+  }
+
+  .promo-grid--hidden-block-images {
+    @media only screen and (max-width: 768px) {
+      .flex-grid__item.type-image {
+        display: none;
+      }
+    }
+  }
+
+  .promo-grid__container {
+    display: flex;
+    align-items: flex-start;
+    position: relative;
+    overflow: hidden;
+    background-repeat: no-repeat;
+    border-radius: var(--roundness);
+    overflow: hidden;
+
+    &.horizontal-center {
+      justify-content: center;
+      text-align: center;
+
+      & .btn {
+        margin: 2px 5px;
+      }
+    }
+
+    &.horizontal-left {
+      & .btn {
+        margin-right: 10px;
+      }
+    }
+
+    &.horizontal-right {
+      justify-content: flex-end;
+      text-align: right;
+
+      & .btn {
+        margin-left: 10px;
+      }
+    }
+
+    & .scheme-image {
+      border-radius: calc(var(--roundness) + 2px);
+    }
+  }
+
+  .promo-grid__slide-link {
+    display: block;
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    z-index: var(--z-index-promo-link);
+
+    &:hover {
+      & ~ .promo-grid__content .btn:not(.btn--secondary):not(.btn--inverse) {
+        background: var(--color-button-primary-light);
+        transition-delay: 0.25s;
+      }
+    }
+  }
+
+  .promo-grid__content {
+    flex: 0 1 auto;
+    padding: 2em 2.5em; /*Relative to text-size*/
+    position: relative;
+    min-width: 200px;
+    z-index: var(--z-index-promo-content);
+
+    & p:last-child {
+      margin-bottom: 0;
+    }
+
+    .vertical-top & {
+      align-self: flex-start;
+    }
+
+    .vertical-center & {
+      align-self: center;
+    }
+
+    .vertical-bottom & {
+      align-self: flex-end;
+    }
+  }
+
+  .video-interactable .promo-grid__content {
+    pointer-events: none;
+  }
+
+  .type-advanced,
+  .type-product,
+  .type-sale_collection {
+    & .rte--strong {
+      line-height: 1.1;
+    }
+
+    & .rte--em {
+      font: inherit;
+      text-transform: lowercase;
+      font-weight: bold;
+    }
+  }
+
+  .type-advanced,
+  .type-product {
+    & .rte--strong {
+      font-size: 1.8em;
+      line-height: 1.1;
+    }
+  }
+
+  @media only screen and (min-width: 769px) {
+    .type-advanced,
+    .type-product {
+      & .rte--strong {
+        font-size: 2.25em;
+      }
+    }
+
+    .type-product {
+      &.flex-grid__item--50,
+      &.flex-grid__item--33 {
+        & .rte--strong {
+          font-size: 1.6em;
+        }
+      }
+    }
+  }
+
+  .promo-grid__bg {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    text-align: left;
+
+    & .element-placeholder {
+      position: absolute;
+      top: 0;
+      left: 50%;
+      transform: translateX(-50%);
+      max-width: none;
+      width: auto;
+      padding: 0;
+    }
+  }
+
+  .video-interactable .promo-grid__bg:before {
+    pointer-events: none;
+  }
+
+  .promo-grid__bg-image {
+    z-index: var(--z-index-hero-image);
+  }
+
+  .promo-grid__text {
+    position: relative;
+
+    & .btn {
+      margin-top: 2px;
+      margin-bottom: 2px;
+    }
+  }
+
+  /*Size adjustments when items 50% width*/
+  @media only screen and (min-width: 769px) {
+    .promo-grid > .flex-grid > .flex-grid__item--50 {
+      & .enlarge-text {
+        font-size: calc(var(--element-text-font-size--body-md) + 2px);
+      }
+
+      & .btn {
+        padding: 9px 16px;
+        font-size: calc(var(--element-text-font-size--body-md) + 1px);
+      }
+    }
+  }
+
+  /* ======================= Type: Advanced ===================== */
+  .type-advanced {
+    --z-index-overlay: -1;
+    & .promo-grid__content {
+      flex: 1 1 auto;
+      padding: 7%;
+    }
+
+    & .rte--block {
+      color: #fff;
+      text-shadow: 0 2px 3px rgb(0 0 0 / 20%);
+    }
+
+    & .btn {
+      margin-bottom: 10px;
+
+      @media only screen and (max-width: 768px) {
+        margin-bottom: 7px;
+      }
+    }
+
+    & .promo-grid__content:after {
+      background: radial-gradient(rgba(0, 0, 0, 0.3) 0%, transparent 60%);
+      margin: -100px -200px -100px -200px;
+    }
+  }
+
+  .type-advanced .horizontal-center .rte--block {
+    padding: 0 10%;
+  }
+
+  .type-advanced .horizontal-left .rte--block {
+    padding: 0 20% 0 0;
+  }
+
+  .type-advanced .horizontal-right .rte--block {
+    padding: 0 0 0 20%;
+  }
+
+  /* ======================= Type: Sale Collection ===================== */
+  .type-sale_collection {
+    max-height: 600px;
+
+    & .promo-grid__container {
+      align-items: center;
+    }
+
+    & .promo-grid__content {
+      padding: 0;
+      margin: 7%;
+      flex: 0 1 auto;
+      min-width: 0;
+
+      @media only screen and (max-width: 768px) {
+        font-size: 0.9em;
+      }
+
+      @media only screen and (min-width: 769px) {
+        &:not(.promo-grid__content--small-text) {
+          font-size: 1.5em;
+        }
+      }
+    }
+
+    /*Custom typography styles*/
+    & .rte--block {
+      margin-bottom: 7.5px;
+
+      &:last-child {
+        margin-bottom: 0;
+      }
+    }
+
+    & .rte--strong {
+      position: relative;
+      display: block;
+      font-size: 6.5em;
+      line-height: 1;
+      white-space: nowrap;
+      text-align: left;
+
+      @media only screen and (max-width: 768px) {
+        font-size: 6em;
+      }
+
+      & sup {
+        font-size: 0.5em;
+        top: -0.3em;
+      }
+    }
+
+    & .rte--em,
+    & .enlarge-text {
+      text-align: left;
+      padding-left: 8px;
+
+      @media only screen and (max-width: 768px) {
+        padding-left: 4px;
+      }
+    }
+
+    /*Custom type layout for "off" when following "%"*/
+    & small {
+      display: inline;
+      font-size: 0.4em;
+      margin-left: -1.7em;
+      letter-spacing: 0;
+    }
+  }
+
+  .type-sale-images {
+    flex: 1 1 50%;
+    margin: 7% 7% 7% 3%;
+
+    & svg {
+      display: block;
+    }
+  }
+
+  .type-sale-images__crop {
+    overflow: hidden;
+    width: 100%;
+  }
+
+  /* ======================= Type: Simple ===================== */
+  .type-simple {
+    --z-index-overlay: 1;
+    & .promo-grid__content {
+      align-self: flex-end;
+      padding: calc(var(--gutter) / 1);
+      @media only screen and (max-width: 768px) {
+        padding: calc(var(--gutter) / 2);
+      }
+    }
+
+    & .promo-grid__text {
+      color: #fff;
+    }
+
+    & .promo-grid__bg:after {
+      background: linear-gradient(15deg, rgba(0, 0, 0, 0.6), transparent 40%);
+    }
+  }
+
+  .promo-grid__title:last-child {
+    margin-bottom: 0;
+  }
+
+  /* ======================= Type: Image ===================== */
+  .type-image {
+    & .promo-grid__container {
+      background: none;
+    }
+
+    & img,
+    & a,
+    & .image-wrap {
+      width: 100%;
+    }
+  }
+
+  /*================ Type: Banner ================*/
+  .type-banner {
+    & p {
+      margin: 7px;
+      display: inline-block;
+      vertical-align: middle;
+      line-height: 1.2;
+    }
+  }
+
+  .type-banner__link {
+    display: block;
+    flex: 1 1 100%;
+  }
+
+  .type-banner__content {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0 10px;
+  }
+
+  .type-banner__text {
+    flex: 0 1 auto;
+    padding: 12px;
+    display: flex;
+    align-items: center;
+
+    @media only screen and (max-width: 959px) {
+      flex-wrap: wrap;
+      justify-content: center;
+    }
+  }
+
+  .type-banner h2 {
+    margin: 10px;
+  }
+
+  @media only screen and (min-width: 769px) {
+    .type-banner__text {
+      padding: 20px;
+    }
+  }
+
+  /*================ Type: Product ================*/
+  .type-product__wrapper {
+    flex: 1 1 100%;
+    align-self: center;
+    position: relative;
+    padding: 2em 0;
+    z-index: var(--z-index-promo-content);
+  }
+
+  .promo-grid__product {
+    display: flex;
+    align-items: center;
+
+    .flex-grid__item--25 & {
+      @media only screen and (min-width: 769px) {
+        flex-direction: column-reverse;
+      }
+    }
+  }
+
+  .type-product__text {
+    flex: 1 1 40%;
+  }
+
+  .promo-grid__product-images {
+    position: relative;
+    flex: 1 1 60%;
+
+    @media only screen and (max-width: 768px) {
+      padding-left: 1em;
+      padding-right: 1em;
+    }
+
+    .flex-grid__item--25 & {
+      @media only screen and (min-width: 769px) {
+        width: 100%;
+        margin: 0;
+      }
+    }
+  }
+
+  .promo-grid__product-text,
+  .promo-grid__product-images {
+    margin: 6%;
+  }
+
+  .promo-grid__product-images {
+    margin-left: 0;
+  }
+
+  .type-product__image {
+    position: relative;
+
+    &:first-child {
+      width: 100%;
+    }
+
+    &:nth-child(2) {
+      position: absolute;
+      bottom: 40px;
+      right: 0;
+      width: 100%;
+      max-width: 40%;
+    }
+  }
+
+  @media only screen and (max-width: 768px) {
+    .promo-grid__product {
+      flex-wrap: wrap;
+    }
+
+    .promo-grid__product-text,
+    .promo-grid__product-images {
+      margin: 3%;
+    }
+
+    .promo-grid__product-text {
+      order: 2;
+    }
+  }
+
+  .type-product__labels {
+    z-index: var(--z-index-promo-text);
+    display: flex;
+    justify-content: center;
+    gap: 1em;
+    margin-bottom: 2em;
+
+    @media only screen and (min-width: 769px) {
+      justify-content: flex-start;
+
+      & .flex-grid__item--50,
+      & .flex-grid__item--33 {
+        font-size: 0.9em;
+      }
+    }
+  }
+
+  .flex-grid {
+    display: flex;
+    flex-wrap: wrap;
+    flex: 1 1 100%;
+
+    [data-center-text='true'] & {
+      justify-content: center;
+    }
+  }
+
+  .flex-grid--center {
+    align-items: center;
+  }
+
+  .flex-grid--gutters {
+    margin-top: calc(var(--gutter) / -2);
+    margin-left: calc(var(--gutter) / -2);
+  }
+
+  .flex-grid__item {
+    flex: 0 1 100%;
+    display: flex;
+    align-items: stretch;
+
+    .flex-grid--gutters & {
+      padding-top: calc(var(--gutter) / 2);
+      padding-left: calc(var(--gutter) / 2);
+    }
+
+    & > * {
+      flex: 1 1 100%;
+    }
+  }
+
+  .flex-grid__item--stretch {
+    flex: 1 1 100%;
+  }
+
+  /*Flex grid sizing from theme settings*/
+  @media only screen and (min-width: 769px) {
+    .flex-grid__item--25 {
+      flex-basis: 25%;
+    }
+
+    .flex-grid__item--33 {
+      flex-basis: 33.33%;
+    }
+
+    .flex-grid__item--50 {
+      flex-basis: 50%;
+    }
+
+    .flex-grid__item--66 {
+      flex-basis: 66.66%;
+    }
+
+    .flex-grid__item--75 {
+      flex-basis: 75%;
+    }
+  }
+
+  .background-media-text__video {
+    position: absolute;
+    top: 0;
+    left: 0;
+    bottom: 0;
+    width: 100%;
+    z-index: 0;
+
+    @media only screen and (max-width: 768px) {
+      width: 300%;
+      left: -100%;
+    }
+
+    & iframe,
+    & video {
+      position: absolute;
+      top: 0;
+      left: 0;
+      height: 100%;
+      width: 100%;
+      pointer-events: none;
+
+      @media only screen and (min-width: 769px) {
+        height: 120%;
+        max-width: none;
+        left: -100%;
+        height: 150%;
+        width: 300%;
+      }
+
+      /*This min-width may need to change slightly depending on
+	    embedded video dimensions. Can do on a per-shop basis*/
+      @media screen and (min-width: 1140px) {
+        width: 100%;
+        height: 300%;
+        left: auto;
+        top: -100%;
+      }
+    }
+  }
+
+  .video-interactable .background-media-text__video {
+    & iframe,
+    & video {
+      pointer-events: auto;
+    }
+  }
+
+  .loaded {
+    & .background-media-text__video {
+      animation: zoom-fade 1s cubic-bezier(0.26, 0.54, 0.32, 1) 0s forwards;
+      transition: none;
+    }
+  }
+
+  @media only screen and (min-width: 769px) {
+    .background-media-text--450 .background-media-text__video {
+      min-height: 450px;
+    }
+
+    .background-media-text--550 .background-media-text__video {
+      min-height: 550px;
+    }
+
+    .background-media-text--650 .background-media-text__video {
+      min-height: 650px;
+    }
+
+    .background-media-text--750 .background-media-text__video {
+      min-height: 750px;
+    }
+
+    .background-media-text__video {
+      opacity: 0;
+    }
+  }
+{% endstylesheet %}
+
+{%- liquid
+  assign full_width = full_width | default: section.settings.full_width, allow_false: true | default: false, allow_false: true
+  assign gutter_size = gutter_size | default: section.settings.gutter_size | default: 20
+  assign space_above = space_above | default: section.settings.space_above, allow_false: true | default: false, allow_false: true
+  assign space_below = space_below | default: section.settings.space_below, allow_false: true | default: false, allow_false: true
+  assign hide_block_images = hide_block_images | default: section.settings.hide_block_images, allow_false: true | default: false, allow_false: true
+  assign promo_grid_image_ratio = promo_grid_image_ratio | default: section.settings.promo_grid_image_ratio, allow_false: true | default: false, allow_false: true
+  assign hydration = hydration | default: 'on:visible'
+
+  assign lazyload_images = true
+
+  if section.index == 1
+    assign lazyload_images = false
+  endif
+-%}
+
+<is-land {{ hydration }}>
+  <div
+    data-section-id="{{ section.id }}"
+    data-section-type="promo-grid"
+  >
+    {%- unless full_width -%}
+      <div class="page-width">
+    {%- endunless -%}
+
+    {%- style -%}
+      .flex-grid--{{ section.id }} {
+        margin-top: -{{ gutter_size }}px;
+        margin-left: -{{ gutter_size }}px;
+        {% if full_width %}
+          padding-left: {{ gutter_size }}px;
+          padding-right: {{ gutter_size }}px;
+        {% endif %}
+      }
+
+      .flex-grid--{{ section.id }} .flex-grid--gutters {
+        margin-top: -{{ gutter_size }}px;
+        margin-left: -{{ gutter_size }}px;
+      }
+
+      .flex-grid--{{ section.id }} .flex-grid__item {
+        padding-top: {{ gutter_size }}px;
+        padding-left: {{ gutter_size }}px;
+      }
+
+      @media only screen and (max-width: 589px) {
+        .flex-grid--{{ section.id }} {
+          margin-top: -{{ gutter_size | divided_by: 2 }}px;
+          margin-left: -{{ gutter_size | divided_by: 2 }}px;
+          {% if full_width %}
+            padding-left: {{ gutter_size | divided_by: 2 }}px;
+            padding-right: {{ gutter_size | divided_by: 2 }}px;
+          {% endif %}
+        }
+
+        .flex-grid--{{ section.id }} .flex-grid--gutters {
+          margin-top: -{{ gutter_size | divided_by: 2 }}px;
+          margin-left: -{{ gutter_size | divided_by: 2 }}px;
+        }
+
+        .flex-grid--{{ section.id }} .flex-grid__item {
+          padding-top: {{ gutter_size | divided_by: 2 }}px;
+          padding-left: {{ gutter_size | divided_by: 2 }}px;
+        }
+      }
+    {%- endstyle -%}
+
+    <div
+      class="
+        promo-grid
+        {% if space_above %} promo-grid--space-top{% endif %}
+        {% if space_below %} promo-grid--space-bottom{% endif %}
+        {% if hide_block_images %} promo-grid--hidden-block-images{% endif %}
+      "
+    >
+      <div class="flex-grid flex-grid--gutters flex-grid--{{ section.id }}">
+        {%- for block in section.blocks -%}
+          {%- style -%}
+            {% if block.settings.height %}
+              .flex-grid__item--{{ block.id }} {
+                min-height: {{ block.settings.height | times: 0.6 }}px;
+              }
+
+              @media only screen and (min-width: 769px) {
+                .flex-grid__item--{{ block.id }} {
+                  min-height: {{ block.settings.height | times: 0.8 }}px;
+                }
+              }
+
+              @media only screen and (min-width: 1140px) {
+                .flex-grid__item--{{ block.id }} {
+                  min-height: {{ block.settings.height }}px;
+                }
+              }
+            {% endif %}
+
+            {%- assign accent_exists = false -%}
+            {%- assign button_alpha = block.settings.color_accent | color_extract: 'alpha' -%}
+            {% unless button_alpha == 0.0 %}
+              {%- assign accent_exists = true -%}
+            {% endunless %}
+          {%- endstyle -%}
+
+          {%- liquid
+            assign blockWidth = block.settings.width | times: 1
+            if forloop.index == 1 and blockWidth >= 50
+              assign loading = lazyload_images
+            else
+              assign loading = true
+            endif
+          -%}
+
+          <div
+            class="flex-grid__item flex-grid__item--{{ block.settings.width }} flex-grid__item--{{ block.id }} type-{{ block.type }}"
+            {{ block.shopify_attributes }}
+          >
+            {%- case block.type -%}
+              {%- when '@app' -%}
+                <div class="promo-grid__container">
+                  {%- render block -%}
+                </div>
+              {%- when 'advanced' -%}
+                <div
+                  class="promo-grid__container {{ block.settings.text_align }} color-scheme-{{ block.settings.color_scheme }}"
+                >
+                  {%- render 'utility.color-scheme-texture', color_scheme: block.settings.color_scheme -%}
+                  {%- if block.settings.cta_link1 != blank and block.settings.cta_link2 == blank -%}
+                    <a
+                      href="{{ block.settings.cta_link1 }}"
+                      class="promo-grid__slide-link"
+                      aria-hidden="true"
+                      aria-label="{{ block.settings.cta_text1 }}"
+                    ></a>
+                  {%- endif -%}
+
+                  <div class="promo-grid__bg">
+                    {%- if block.settings.video_url != blank -%}
+                      {%- render 'element.video',
+                        external_video: block.settings.video_url,
+                        autoplay: true,
+                        loop: true,
+                        background: true
+                      -%}
+                    {%- else -%}
+                      {%- if block.settings.image != blank -%}
+                        {%- capture image_classes -%}
+                          image-fit promo-grid__bg-image promo-grid__bg-image--{{ block.id }}
+                        {%- endcapture -%}
+                        {%- render 'element.image',
+                          img: block.settings.image,
+                          loading: loading,
+                          sizeVariable: block.settings.width,
+                          classlist: image_classes
+                        -%}
+                      {%- else -%}
+                        {%- render 'element.placeholder', name: 'lifestyle-1' -%}
+                      {%- endif -%}
+                    {%- endif -%}
+                  </div>
+
+                  {%- if block.settings.subheading != blank
+                    or block.settings.heading != blank
+                    or block.settings.textarea != blank
+                    or block.settings.cta_text1 != blank
+                    or block.settings.cta_text2 != blank
+                  -%}
+                    <div class="promo-grid__content">
+                      <div class="promo-grid__text">
+                        {%- if block.settings.subheading != blank -%}
+                          <div class="rte--block rte--em">
+                            {{ block.settings.subheading }}
+                          </div>
+                        {%- endif -%}
+                        {%- if block.settings.heading != blank -%}
+                          <h2 class="rte--block rte--strong">
+                            {{ block.settings.heading }}
+                          </h2>
+                        {%- endif -%}
+                        {%- if block.settings.textarea != blank -%}
+                          <div class="rte--block enlarge-text">
+                            {{ block.settings.textarea | newline_to_br }}
+                          </div>
+                        {%- endif -%}
+                        {%- if block.settings.cta_text1 != blank -%}
+                          {%- render 'element.button',
+                            href: block.settings.cta_link1,
+                            text: block.settings.cta_text1,
+                            inverted: accent_exists
+                          -%}
+                        {%- endif -%}
+                        {%- if block.settings.cta_text2 != blank -%}
+                          {%- render 'element.button',
+                            href: block.settings.cta_link2,
+                            text: block.settings.cta_text2,
+                            inverted: accent_exists
+                          -%}
+                        {%- endif -%}
+                      </div>
+                    </div>
+                  {%- endif -%}
+                </div>
+
+              {%- when 'sale_collection' -%}
+                <a
+                  href="{{ collections[block.settings.sale_collection].url }}"
+                  class="promo-grid__container vertical-center horizontal-left color-scheme-{{ block.settings.color_scheme }}"
+                >
+                  {%- render 'utility.color-scheme-texture', color_scheme: block.settings.color_scheme -%}
+
+                  {%- if block.settings.top_text != blank
+                    or block.settings.middle_text != blank
+                    or block.settings.bottom_text != blank
+                  -%}
+                    <div class="promo-grid__content{% if block.settings.width == '50' %} promo-grid__content--small-text{% endif %}">
+                      <div class="promo-grid__text text-center">
+                        {%- if block.settings.top_text != blank -%}
+                          <div class="rte--block enlarge-text">
+                            {{ block.settings.top_text }}
+                          </div>
+                        {%- endif -%}
+                        {%- if block.settings.middle_text != blank -%}
+                          <div class="rte--block rte--strong">
+                            {%- assign middle_text = block.settings.middle_text
+                              | replace: '% off', '% <small>off</small>'
+                              | replace: '%', '<sup>%</sup>'
+                              | replace: '$', '<sup>$</sup>'
+                            -%}
+                            {{ middle_text }}
+                          </div>
+                        {%- endif -%}
+                        {%- if block.settings.bottom_text != blank -%}
+                          <div class="rte--block enlarge-text">
+                            {{ block.settings.bottom_text }}
+                          </div>
+                        {%- endif -%}
+                      </div>
+                    </div>
+                  {%- endif -%}
+
+                  <div class="type-sale-images">
+                    <div class="type-sale-images__crop">
+                      {%- if block.settings.sale_collection != blank -%}
+                        {%- assign collection_image_1 = collections[block.settings.sale_collection].products[0].featured_media.preview_image -%}
+                        <div class="type-sale-images__image">
+                          {%- if collection_image_1 != blank -%}
+                            <div
+                              class="image-wrap {% if block.settings.image_mask != 'none' %}svg-mask svg-mask--{{ block.settings.image_mask }}{% endif %}"
+                              style="height: 0; padding-bottom: {{ 100 | divided_by: collection_image_1.aspect_ratio }}%;"
+                            >
+                              {%- liquid
+                                if block.settings.width == '50'
+                                  assign sizeVariable = '25vw'
+                                else
+                                  assign sizeVariable = '50vw'
+                                endif
+
+                                assign fallback = '50vw'
+                              -%}
+                              {%- render 'element.image',
+                                img: collection_image_1,
+                                loading: loading,
+                                widths: '360, 540, 720, 900, 1080, 1600',
+                                sizeVariable: sizeVariable,
+                                fallback: fallback
+                              -%}
+                            </div>
+                          {%- endif -%}
+                        </div>
+                      {%- else -%}
+                        {%- render 'element.placeholder', name: 'product-1' -%}
+                      {%- endif -%}
+                    </div>
+                  </div>
+                </a>
+
+              {%- when 'simple' -%}
+                {%- liquid
+                  assign block_img = ''
+                  assign block_text = ''
+                  if block.settings.link contains '/products/'
+                    assign product_handle = block.settings.link | remove: '/products/'
+                    assign block_img = all_products[product_handle].featured_media.preview_image
+                    assign block_text = all_products[product_handle].title
+                  elsif block.settings.link contains '/collections/'
+                    assign lang_code_string = request.locale.iso_code | prepend: '/' | downcase
+                    assign collection_handle = block.settings.link | remove: '/collections/' | remove: lang_code_string
+                    assign block_text = collections[collection_handle].title
+                    if collections[collection_handle].image
+                      assign block_img = collections[collection_handle].image
+                    else
+                      assign block_img = collections[collection_handle].products[0].featured_image
+                    endif
+                  endif
+                  if block.settings.text != blank
+                    assign block_text = block.settings.text
+                  endif
+                  if block.settings.image
+                    assign block_img = block.settings.image
+                  endif
+                -%}
+
+                {%- if block.settings.link != blank -%}
+                  <a href="{{ block.settings.link }}" class="promo-grid__container">
+                {%- else -%}
+                  <div class="promo-grid__container">
+                {%- endif -%}
+
+                <div class="promo-grid__bg">
+                  {%- if block_img != blank -%}
+                    {%- render 'element.image',
+                      img: block_img,
+                      loading: loading,
+                      sizeVariable: block.settings.width,
+                      classlist: 'image-fit'
+                    -%}
+                  {%- else -%}
+                    {%- render 'element.placeholder', name: 'lifestyle-1' -%}
+                  {%- endif -%}
+                </div>
+
+                <div class="promo-grid__content">
+                  <div class="promo-grid__text">
+                    <p class="promo-grid__title heading-md">
+                      {%- if block_text != blank -%}
+                        {{ block_text | newline_to_br }}
+                      {%- else -%}
+                        Simple promotion
+                      {%- endif -%}
+                    </p>
+                  </div>
+                </div>
+
+                {%- if block.settings.link != blank -%}
+                  </a>
+                {%- else -%}
+                  </div>
+                {%- endif -%}
+
+              {%- when 'image' -%}
+                <div
+                  class="
+                    promo-grid__container
+                    {% if promo_grid_image_ratio %} image-wrap{% endif %}
+                  "
+                >
+                  {%- if block.settings.link -%}
+                    <a href="{{ block.settings.link }}">
+                  {%- endif -%}
+                  {%- if block.settings.image != blank -%}
+                    {% if promo_grid_image_ratio %}
+                      {%- render 'element.image',
+                        img: block.settings.image,
+                        loading: loading,
+                        widths: '360, 540, 720, 900, 1080, 1600',
+                        sizeVariable: block.settings.width
+                      -%}
+                    {% else %}
+                      <div
+                        class="image-wrap"
+                        style="height: 0; padding-bottom: {{ 100 | divided_by: block.settings.image.aspect_ratio }}%;"
+                      >
+                        {%- render 'element.image',
+                          img: block.settings.image,
+                          loading: loading,
+                          widths: '360, 540, 720, 900, 1080, 1600',
+                          sizeVariable: block.settings.width
+                        -%}
+                      </div>
+                    {% endif %}
+                  {%- else -%}
+                    {%- render 'element.placeholder', name: 'lifestyle-1' -%}
+                  {%- endif -%}
+                  {%- if block.settings.link -%}
+                    </a>
+                  {%- endif -%}
+                </div>
+
+              {%- when 'banner' -%}
+                {%- if block.settings.link -%}
+                  <a href="{{ block.settings.link }}" class="type-banner__link">
+                {%- endif -%}
+                <div class="promo-grid__container color-scheme-{{ block.settings.color_scheme }}">
+                  {%- render 'utility.color-scheme-texture', color_scheme: block.settings.color_scheme -%}
+
+                  <div class="type-banner__content text-center">
+                    <div class="type-banner__text">
+                      {%- if block.settings.heading != blank -%}
+                        <h2
+                          class="
+                            {% if block.settings.heading_size %}
+                              heading-{{ block.settings.heading_size }}
+                            {% else %}
+                              heading-md
+                            {% endif %}
+                            {% if block.settings.text_highlight %}
+                              text-highlight
+                              text-highlight--{{ block.settings.text_highlight }}
+                            {% endif %}
+                          "
+                        >
+                          {{ block.settings.heading }}
+                        </h2>
+                      {%- endif -%}
+                      {%- if block.settings.text != blank -%}
+                        <p>{{ block.settings.text }}</p>
+                      {%- endif -%}
+                      {%- if block.settings.label != blank -%}
+                        {%- render 'element.button', text: block.settings.label, inverted: true -%}
+                      {%- endif -%}
+                    </div>
+                  </div>
+                </div>
+                {%- if block.settings.link -%}
+                  </a>
+                {%- endif -%}
+
+              {%- when 'product' -%}
+                {%- assign product = all_products[block.settings.product] -%}
+                <div class="promo-grid__container color-scheme-{{ block.settings.color_scheme }}">
+                  {%- render 'utility.color-scheme-texture', color_scheme: block.settings.color_scheme -%}
+
+                  <div class="type-product__wrapper">
+                    <div class="promo-grid__product">
+                      {%- if block.settings.subheading != blank
+                        or block.settings.heading != blank
+                        or block.settings.textarea != blank
+                        or block.settings.link_label != blank
+                      -%}
+                        <div class="promo-grid__product-text type-product__text promo-grid__text small--text-center">
+                          {%- unless product.empty? -%}
+                            <div class="type-product__labels">
+                              {%- if block.settings.label != blank -%}
+                                {%- render 'element.badge', label: block.settings.label -%}
+                              {%- endif -%}
+                              {%- if block.settings.enable_price -%}
+                                {%- capture price -%}
+                                  {%- render 'element.price', price: product.price -%}
+                                {%- endcapture -%}
+
+                                {%- render 'element.badge', label: price, inverted: true -%}
+                              {%- endif -%}
+                            </div>
+                          {%- endunless -%}
+                          {%- if block.settings.subheading != blank -%}
+                            <div class="rte--block rte--em">
+                              {{ block.settings.subheading }}
+                            </div>
+                          {%- endif -%}
+                          {%- if block.settings.heading != blank -%}
+                            <div class="rte--block rte--strong">
+                              {{ block.settings.heading }}
+                            </div>
+                          {%- endif -%}
+                          {%- if block.settings.textarea != blank -%}
+                            <div class="rte--block enlarge-text">
+                              {{ block.settings.textarea | newline_to_br }}
+                            </div>
+                          {%- endif -%}
+                          {%- if block.settings.link_label != blank -%}
+                            {%- render 'element.button', href: product.url, text: block.settings.link_label -%}
+                          {%- endif -%}
+                        </div>
+                      {%- endif -%}
+                      <div class="promo-grid__product-images">
+                        {%- unless product.empty? -%}
+                          {%- assign image = product.featured_media.preview_image -%}
+                          <div class="type-product__image">
+                            {%- if image != blank -%}
+                              {%- assign ratio = image.aspect_ratio -%}
+                            {%- else -%}
+                              {%- assign ratio = 1 -%}
+                            {%- endif -%}
+                            <div
+                              class="image-wrap {% if block.settings.image_mask != 'none' %}svg-mask svg-mask--{{ block.settings.image_mask }}{% endif %}"
+                              style="height: 0; padding-bottom: {{ 100 | divided_by: ratio }}%;"
+                            >
+                              {%- if image != blank -%}
+                                <a href="{{ product.url }}">
+                                  {%- liquid
+                                    if block.settings.width == '50'
+                                      assign sizeVariable = 'calc(0.6 * 50vw)'
+                                    else
+                                      assign sizeVariable = '60vw'
+                                    endif
+
+                                    assign fallback = '50vw'
+                                  -%}
+                                  {%- render 'element.image',
+                                    img: image,
+                                    loading: loading,
+                                    widths: '360, 540, 720, 900, 1080, 1600',
+                                    sizeVariable: sizeVariable,
+                                    fallback: fallback
+                                  -%}
+                                </a>
+                              {%- else -%}
+                                <div class="product-image--placeholder">
+                                  {%- capture placeholder -%}product-{% cycle 1, 2, 3, 4, 5, 6 %}{%- endcapture -%}
+                                  {%- render 'element.placeholder', name: placeholder -%}
+                                </div>
+                              {%- endif -%}
+                            </div>
+                          </div>
+                        {%- else -%}
+                          <div class="type-product__image">
+                            {%- render 'element.placeholder', name: 'product-1' -%}
+                          </div>
+                        {%- endunless -%}
+                      </div>
+                    </div>
+                  </div>
+                </div>
+            {%- endcase -%}
+          </div>
+        {%- endfor -%}
+      </div>
+    </div>
+
+    {%- if section.blocks.size == 0 -%}
+      <div class="page-width text-center">
+        <div class="rte clearfix">
+          <p>
+            {% render 'utility.translate',
+              key: 'info.section_no_content',
+              fallback: "This section doesn't currently include any content. Add content to this section using the sidebar."
+            %}
+          </p>
+        </div>
+      </div>
+    {%- endif -%}
+
+    {%- unless full_width -%}
+      </div>
+    {%- endunless -%}
+  </div>
+</is-land>

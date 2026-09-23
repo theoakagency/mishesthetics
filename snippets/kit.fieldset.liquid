@@ -1,0 +1,90 @@
+{% doc %}
+  Fieldset for grouping related form controls.
+
+  @param {string} [content] - The content for the fieldset.
+  @param {string} [legend] - Plain-text legend.
+  @param {string} [selection_name] - Currently selected value, shown beside the legend.
+  @param {string} [legend_extra] - Markup slotted after the legend text and selection. Use CSS overrides to reorder.
+  @param {boolean} [disabled] - Disable every control in the fieldset. Default: false
+  @param {string} [id] - HTML id attribute
+  @param {string} [classes] - Additional CSS classes
+  @param {string} [style] - Inline style overrides
+  @param {string} [attr] - Additional HTML attributes
+
+  @example
+  {% render 'kit.fieldset', legend: 'Size', selection_name: 'Small' %}
+{% enddoc %}
+
+{%- render 'kit.tokens' -%}
+
+{%- liquid
+  assign legend = legend | escape
+  assign selection_name = selection_name | escape
+  assign disabled = disabled | default: false, allow_false: true
+
+  assign class_list = 'kit-fieldset'
+  if classes != blank
+    assign class_list = class_list | append: ' ' | append: classes
+  endif
+
+-%}
+
+<fieldset
+  class="{{ class_list }}"
+  {%- if disabled %}
+    disabled
+  {% endif %}
+  {%- if style != blank %}
+    style="{{ style | escape }}"
+  {% endif %}
+  {%- if id != blank %}
+    id="{{ id }}"
+  {% endif %}
+  {%- if attr != blank %}
+    {{ attr -}}
+  {% endif %}
+>
+  {%- if legend != blank -%}
+    <legend class="kit-fieldset__legend">
+      {%- render 'kit.text', tag: 'span', classes: 'kit-fieldset__legend-text', text: legend -%}
+      {%- if selection_name != blank -%}
+        {%- render 'kit.text',
+          tag: 'span',
+          classes: 'kit-fieldset__legend-selection',
+          text: selection_name
+        -%}
+      {%- endif -%}
+      {%- if legend_extra != blank -%}
+        <span class="kit-text kit-fieldset__legend-extra">{{ legend_extra }}</span>
+      {%- endif -%}
+    </legend>
+  {%- endif -%}
+  {{ content }}
+</fieldset>
+
+{% stylesheet %}
+  .kit-fieldset {
+    margin: 0;
+    padding: 0;
+    border: 0;
+  }
+
+  .kit-fieldset__legend {
+    display: flex;
+    margin-block-end: var(--kit-space-xs);
+  }
+
+  .kit-fieldset__legend-text.kit-text {
+    font-weight: bold;
+  }
+
+  .kit-fieldset__legend-selection.kit-text,
+  .kit-fieldset__legend-extra.kit-text {
+    font-weight: normal;
+  }
+
+  .kit-fieldset__legend-selection.kit-text::before,
+  .kit-fieldset__legend-extra.kit-text::before {
+    content: '\00a0\2014\00a0';
+  }
+{% endstylesheet %}

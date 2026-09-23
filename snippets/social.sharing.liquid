@@ -1,0 +1,90 @@
+{% doc %}
+  Copyright © 2025 Archetype Themes LP. All rights reserved.
+
+  Social media sharing buttons for sharing content to various platforms.
+
+  @param {boolean} [share_facebook] - Show Facebook share button
+  @param {boolean} [share_twitter] - Show Twitter/X share button
+  @param {boolean} [share_pinterest] - Show Pinterest share button
+  @param {string} [share_title] - Title of the content to share
+  @param {string} [share_permalink] - URL of the content to share
+  @param {string} [share_image] - Image URL for the shared content
+
+  @example
+  {% render 'social.sharing', share_facebook: true, share_title: product.title, share_permalink: product.url %}
+{% enddoc %}
+
+{% stylesheet %}
+  .social-sharing {
+    display: inline-flex;
+    flex-wrap: wrap;
+    gap: 10px 20px;
+
+    & .element-icon {
+      height: 18px;
+      width: 18px;
+    }
+  }
+
+  .blog-layout__sidebar {
+    & .social-sharing {
+      margin-bottom: 40px;
+    }
+  }
+
+  .social-sharing__link {
+    display: inline-block;
+    color: var(--root-color-primary);
+    border-radius: 2px;
+    margin: 0 18px 0 0;
+    text-decoration: none;
+    font-weight: normal;
+
+    &:last-child {
+      margin-right: 0;
+    }
+  }
+{% endstylesheet %}
+
+{%- liquid
+  assign share_facebook = share_facebook | default: settings.share_facebook, allow_false: true | default: true, allow_false: true
+  assign share_twitter = share_twitter | default: settings.share_twitter, allow_false: true | default: true, allow_false: true
+  assign share_pinterest = share_pinterest | default: settings.share_pinterest, allow_false: true | default: true, allow_false: true
+
+  capture social_sharing_icons
+    if share_facebook
+      assign link = '//www.facebook.com/sharer.php?u=' | append: shop.url | append: share_permalink
+      assign link_title = 'actions.share_on_facebook' | t
+      assign label = 'actions.share' | t
+
+      render 'social.icon-link', platform: 'Facebook', link: link, link_title: link_title, classlist: 'social-sharing__link', label: label
+    endif
+
+    if share_twitter
+      assign share_title = share_title | url_param_escape
+
+      assign link = '//twitter.com/intent/tweet?text=' | append: share_title | append: '&amp;url=' | append: shop.url | append: share_permalink
+      assign link_title = 'actions.share_on_x' | t
+      assign label = 'actions.share' | t
+
+      render 'social.icon-link', platform: 'X', link: link, link_title: link_title, classlist: 'social-sharing__link', label: label
+    endif
+
+    if share_pinterest
+      assign share_title = share_title | url_param_escape
+      assign share_image = share_image | image_url: width: 1024, height: 1024
+
+      assign link = '//pinterest.com/pin/create/button/?url=' | append: shop.url | append: share_permalink | append: '&amp;media=' | append: share_image | append: '&amp;description=' | append: share_title
+      assign link_title = 'actions.pin_on_pinterest' | t
+      assign label = 'actions.pin_it' | t
+
+      render 'social.icon-link', platform: 'Pinterest', link: link, link_title: link_title, classlist: 'social-sharing__link', label: label
+    endif
+  endcapture
+-%}
+
+{%- if social_sharing_icons != blank -%}
+  <ul class="social-sharing no-bullets">
+    {{ social_sharing_icons }}
+  </ul>
+{%- endif -%}

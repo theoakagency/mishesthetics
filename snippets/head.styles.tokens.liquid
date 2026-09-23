@@ -1,0 +1,171 @@
+{%- comment -%}
+  Renders the list of CSS variables. Typically, this is referenced inside of a
+  theme's layout file.
+
+  Usage:
+  {% render 'css-variables' %}
+{%- endcomment -%}
+
+{%- style -%}
+  /* Root Variables */
+  :root {
+    --root-font-size: 16px;
+    --root-color-primary: #000;
+    --root-color-secondary: #fff;
+  }
+
+  /* Colors */
+  :root {
+    --color-primary: var(--root-color-primary);
+    --color-secondary: var(--root-color-secondary);
+    --color-focus: #4a9afc;
+    --color-error: #ba4444;
+    --color-price: var(--color-primary);
+    --color-text-savings: var(--color-primary);
+    --disabled-grey: #f6f6f6;
+    --disabled-border: #b6b6b6;
+    --disabled-grey-text: #b6b6b6;
+    --success-green: #56ad6a;
+    --success-green-bg: #ecfef0;
+    --color-sticky-nav-links: #fff;
+  }
+
+  /* Body Font Stack */
+  :root {
+    --element-text-font-family--body: 'Arial';
+    --element-text-font-family-fallback--body: 'sans-serif';
+    --element-text-font-weight--body: var(--font-weight-400);
+    --element-text-letter-spacing--body: var(--letter-space-md);
+    --element-text-line-height--body: var(--line-height-md);
+    --element-text-text-transform--body: none;
+    --element-text-font-size--body-lg: var(--text-size-4);
+    --element-text-font-size--body-md: var(--text-size-3-5);
+    --element-text-font-size--body-sm: var(--text-size-3);
+    --element-text-font-size--body-xs: var(--text-size-2-5);
+
+    @media screen and (min-width: 769px) {
+      --element-text-font-size--body-lg: var(--text-size-4-5);
+      --element-text-font-size--body-md: var(--text-size-4);
+      --element-text-font-size--body-sm: var(--text-size-3-5);
+      --element-text-font-size--body-xs: var(--text-size-3);
+    }
+  }
+
+  /* Heading Font Stack */
+  :root {
+    --element-text-font-family--heading: 'Arial';
+    --element-text-font-family-fallback--heading: 'sans-serif';
+    --element-text-font-weight--heading: var(--font-weight-700);
+    --element-text-letter-spacing--heading: var(--letter-space-md);
+
+    --element-text-line-height--heading-2xl: var(--line-height-md);
+    --element-text-line-height--heading-xl: var(--line-height-md);
+    --element-text-line-height--heading-lg: var(--line-height-md);
+    --element-text-line-height--heading-md: var(--line-height-md);
+    --element-text-line-height--heading-sm: var(--line-height-md);
+    --element-text-line-height--heading-xs: var(--line-height-md);
+
+    --element-text-font-size--heading-2xl: var(--text-size-12);
+    --element-text-font-size--heading-xl: var(--text-size-8);
+    --element-text-font-size--heading-lg: var(--text-size-6);
+    --element-text-font-size--heading-md: var(--text-size-5);
+    --element-text-font-size--heading-sm: var(--text-size-4-5);
+    --element-text-font-size--heading-xs: var(--text-size-4);
+
+    @media screen and (min-width: 769px) {
+      --element-text-font-size--heading-2xl: var(--text-size-16);
+      --element-text-font-size--heading-2xl: var(--text-size-12);
+      --element-text-font-size--heading-xl: var(--text-size-8);
+      --element-text-font-size--heading-lg: var(--text-size-6);
+      --element-text-font-size--heading-md: var(--text-size-5);
+      --element-text-font-size--heading-sm: var(--text-size-4-5);
+      --element-text-font-size--heading-xs: var(--text-size-4-5);
+    }
+  }
+
+  /* Accent Font Stack */
+  :root {
+    --element-text-font-family--accent: 'Arial';
+    --element-text-font-family-fallback--accent: 'sans-serif';
+    --element-text-font-weight--accent: var(--font-weight-400);
+    --element-text-letter-spacing--accent: var(--letter-space-4xl);
+    --element-text-line-height--accent: var(--line-height-md);
+    --element-text-text-transform--accent: uppercase;
+  }
+
+  /* Input Responsive Styles */
+  @media (max-width: 768px) {
+    :root { 
+      --element-input-padding-inline: var(--size-2);
+      --element-input-padding-block: var(--size-2);
+    }
+  }
+
+  /* Button Responsive Styles */
+  @media (max-width: 768px) {
+    :root { 
+      --element-button-padding-inline: var(--size-2);
+      --element-button-padding-block: var(--size-2);
+    }
+
+    .element-button--shopify-payment-wrapper shopify-accelerated-checkout {
+      --shopify-accelerated-checkout-button-block-size: calc(2* var(--element-button-padding-block) + var(--element-text-line-height--body) * var(--element-text-font-size--body-md));
+    }
+  } 
+
+  /* ==================================================================== */
+  /* OLD CSS VARIABLES THAT NEEDS TO 🔥 */
+  /* ==================================================================== */
+  :root {
+    --z-index-modal: 30;
+    --z-index-toolbar: 7;
+    --z-index-header: 6;
+    --z-index-header-submenu: 7;
+    --z-index-header-bottom-row: 3;
+    --z-index-header-drawers: 5;
+    --z-index-header-drawers-mobile: 3;
+    --z-index-header-search: 7;
+    --z-index-loader: 4;
+    --z-index-header-search-overlay: 1;
+    --url-ico-select: url({{ 'ico-select.svg' | asset_url | split: '?' | first }});
+    --url-swirl-svg: url({{ 'swirl.svg' | asset_url | split: '?' | first }});
+    --header-padding-bottom: 0;
+    --gutter: 30px;
+    --page-width: 1500px;
+    --page-width-narrow: 1000px;
+    --page-width-gutter-small: 17px;
+    --grid-gutter: 22px;
+    --grid-gutter-small: 16px;
+    --slide-curve: 0.25s cubic-bezier(0.165, 0.84, 0.44, 1);
+    --drawer-box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+    --product-grid-margin: 10px;
+    --product-grid-padding: 12px;
+    --product-radius: 10px;
+    --page-top-padding: 35px;
+    --page-narrow: 780px;
+    --page-width-padding: 40px;
+    --grid-gutter: 22px;
+    --index-section-padding: 60px;
+    --section-header-bottom: 40px;
+    --size-chart-margin: 30px 0;
+    --size-chart-icon-margin: 5px;
+    --newsletter-reminder-padding: 20px 30px 20px 25px;
+    --text-frame-margin: 10px;
+    --desktop-menu-chevron-size: 10px;
+    --site-nav-item-padding: 20px;
+    --site-nav-item-padding-top-bottom: 16px;
+    --site-nav-icon-padding: 12px;
+  }
+
+  @media screen and (max-width: 768px) {
+    :root {
+      --page-top-padding: 15px;
+      --page-narrow: 330px;
+      --page-width-padding: 17px;
+      --grid-gutter: 16px;
+      --index-section-padding: 40px;
+      --section-header-bottom: 25px;
+      --text-frame-margin: 7px;
+    }
+  }
+{%- endstyle -%}

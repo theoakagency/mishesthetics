@@ -1,0 +1,31 @@
+{% doc %}
+  Copyright © 2025 Archetype Themes LP. All rights reserved.
+
+  Determines if superscript styling should be applied to price decimals based on money format.
+
+  @param {boolean} [superscript_decimals] - Whether superscript decimals are enabled, defaults to theme setting
+
+  @example
+  {% liquid
+    capture superscript
+      render 'utility.enable-superscript'
+    endcapture
+  %}
+{% enddoc %}
+
+{%- liquid
+  assign superscript_decimals = superscript_decimals | default: settings.superscript_decimals, allow_false: true
+  assign enable_superscript = false
+
+  unless shop.money_format contains 'money' or shop.money_format contains '.'
+    if superscript_decimals
+      if shop.money_format contains '{{amount}}' or shop.money_format contains '{{ amount }}'
+        assign enable_superscript = true
+      elsif shop.money_format contains '{{amount_with_comma_separator}}' or shop.money_format contains '{{ amount_with_comma_separator }}'
+        assign enable_superscript = true
+      endif
+    endif
+  endunless
+
+  echo enable_superscript
+-%}

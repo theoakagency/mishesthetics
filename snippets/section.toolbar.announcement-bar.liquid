@@ -1,0 +1,156 @@
+{% doc %}
+  Copyright © 2025 Archetype Themes LP. All rights reserved.
+
+  Renders the announcement bar.
+
+  @param {boolean} [announcement_center] - Whether to center the announcement text
+  @param {string} [richtext] - The announcement text
+  @param {string} [richtext_mobile] - The announcement text for mobile
+
+  @example
+  {% render 'section.toolbar.announcements' %}
+{% enddoc %}
+
+{% stylesheet %}
+  :root {
+    --announcement-animation-speed: 0.5s;
+  }
+
+  .announcement-bar {
+    position: relative;
+    font-size: 13px;
+    font-weight: var(--element-text-font-weight--heading);
+    text-align: center;
+    padding: 7px 0;
+
+    @media only screen and (min-width: 769px) {
+      padding: 6px 0;
+      font-size: 14px;
+      text-align: left;
+
+      [dir='rtl'] & {
+        text-align: right;
+      }
+    }
+  }
+
+  .announcement-slider__slide {
+    position: relative;
+    overflow: hidden;
+    width: 100%;
+  }
+
+  .announcement-slider__content {
+    opacity: 0;
+    transform: translateY(100%);
+    transition: all var(--announcement-animation-speed) ease;
+
+    & p {
+      margin: 0;
+    }
+
+    & a {
+      text-decoration: underline;
+      text-underline-offset: 2px;
+    }
+
+    .animate-out & {
+      opacity: 0;
+      transform: translateY(-100%);
+    }
+
+    .is-selected & {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+{% endstylesheet %}
+
+{%- liquid
+  assign announcement_center = announcement_center | default: section.settings.announcement_center, allow_false: true | default: true, allow_false: true
+  assign richtext = richtext | default: section.settings.richtext
+  assign richtext_mobile = richtext_mobile | default: section.settings.richtext_mobile
+
+  assign show_announcement = false
+  assign announcement_block_count = 0
+
+  for block in section.blocks
+    if block.type == 'announcement' or block.type == '@app'
+      assign show_announcement = true
+      assign announcement_block_count = announcement_block_count | plus: 1
+    endif
+  endfor
+-%}
+
+{% if show_announcement %}
+  <div class="toolbar__item toolbar__item--announcements">
+    <div class="announcement-bar{% if announcement_center %} text-center{% endif %}">
+      <div class="slideshow-wrapper">
+        <button type="button" class="visually-hidden slideshow__pause" data-id="{{ section.id }}" aria-live="polite">
+          <span class="slideshow__pause-stop">
+            {% render 'element.icon', name: 'pause' %}
+            <span class="icon__fallback-text visually-hidden">
+              {% render 'utility.translate', key: 'actions.slideshow_pause', fallback: 'Slideshow pause' -%}
+            </span>
+          </span>
+
+          <span class="slideshow__pause-play">
+            {% render 'element.icon', name: 'play' %}
+            <span class="icon__fallback-text visually-hidden">
+              {% render 'utility.translate', key: 'actions.slideshow_play', fallback: 'Play slideshow' %}
+            </span>
+          </span>
+        </button>
+
+        <announcement-bar
+          id="AnnouncementSlider"
+          class="announcement-slider"
+          section-id="{{ section.id }}"
+          data-block-count="{{ announcement_block_count }}"
+        >
+          {%- assign slide_index = 0 -%}
+          {%- for block in section.blocks -%}
+            {%- if block.type == '@app' -%}
+              <div
+                id="AnnouncementSlide-{{ block.id }}"
+                class="slideshow__slide announcement-slider__slide{% if slide_index == 0 %} is-selected{% endif %}"
+                data-index="{{ slide_index }}"
+                {{ block.shopify_attributes }}
+              >
+                {%- render block -%}
+              </div>
+              {%- assign slide_index = slide_index | plus: 1 -%}
+            {%- endif -%}
+
+            {%- if block.type == 'announcement' -%}
+              <div
+                id="AnnouncementSlide-{{ block.id }}"
+                class="slideshow__slide announcement-slider__slide{% if slide_index == 0 %} is-selected{% endif %}"
+                data-index="{{ slide_index }}"
+                {{ block.shopify_attributes }}
+              >
+                <div class="announcement-slider__content">
+                  {%- if block.settings.richtext_mobile != blank -%}
+                    <div class="medium-up--hide">
+                      {{ block.settings.richtext_mobile }}
+                    </div>
+                    <div class="small--hide">
+                      {{ block.settings.richtext }}
+                    </div>
+                  {%- else -%}
+                    {{ block.settings.richtext }}
+                  {%- endif -%}
+                </div>
+              </div>
+
+              {%- assign slide_index = slide_index | plus: 1 -%}
+            {%- endif -%}
+          {%- endfor -%}
+        </announcement-bar>
+        <script type="module">
+          import 'section.toolbar.announcement-bar'
+        </script>
+      </div>
+    </div>
+  </div>
+{% endif %}

@@ -1,0 +1,337 @@
+{%- doc -%}
+  Copyright © 2025 Archetype Themes LP. All rights reserved.
+
+  Renders the item grid filters for the collection grid.
+
+  @param {object} context - Collection or search object
+  @param {boolean} [enable_sort] - Enable sorting functionality
+  @param {string} [active_tags_location_desktop] - The location of the active tags on desktop
+  @param {boolean} [enable_reset_all_filters] - Show reset all button
+  @param {boolean} [enable_reset_price_filter] - Show reset price button
+  @param {boolean} [enable_show_more_filters] - Show more filters button
+  @param {string} [price_range_style] - The style of the price range filter
+  @param {string} [filter_variant] - The style of the filters
+  @param {boolean} [collapse_filters] - Whether to collapse filters
+
+  @example
+  {% render 'list.filter-grid.filters', context: search %}
+{%- enddoc -%}
+
+{% stylesheet %}
+  .collection-filter__item--right {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    flex: 0 1 auto;
+
+    /*account for button padding*/
+    & > .inline-list {
+      margin-right: -7px;
+    }
+  }
+
+  .image-filter__wrapper ul {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 10px;
+
+    label {
+      height: 100%;
+      align-items: flex-start;
+      border: 1px solid transparent;
+
+      &:active,
+      &:hover,
+      &:focus-within {
+        border-color: color-mix(in srgb, var(--color-primary) var(--shade-12), var(--color-secondary));
+      }
+    }
+
+    .tag__text {
+      margin-left: 0;
+    }
+  }
+
+  .image-filter__wrapper .tag--active label {
+    border-color: var(--root-color-primary);
+    border: 2px solid;
+  }
+
+  .image-filter__image-wrapper {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    text-align: center;
+  }
+
+  .tag-list--active-tags:empty {
+    display: none;
+  }
+
+  @media only screen and (max-width: 768px) {
+    .tag-list--active-tags {
+      margin: 20px 20px 10px;
+    }
+
+    .collection-sidebar__group {
+      border-top: 1px solid;
+      border-top-color: color-mix(in srgb, var(--color-primary) var(--shade-12), var(--color-secondary));
+    }
+  }
+
+  .collection-sidebar__group {
+    & .tag-list {
+      list-style: none;
+
+      @media only screen and (max-width: 768px) {
+        &:not(.tag-list--swatches) {
+          columns: 2;
+        }
+      }
+
+      & a:hover {
+        text-decoration: underline;
+        text-underline-offset: 2px;
+      }
+    }
+  }
+
+  :root {
+    --tag-active-icon-size: 16px;
+    --tag-active-icon-size-active: 10px;
+  }
+
+  .tag-list .tag-list {
+    margin-left: calc(var(--gutter) / 2);
+  }
+
+  .tag-list li {
+    margin-bottom: 0;
+  }
+
+  .tag--reset-all {
+    margin: 0;
+    align-self: center;
+
+    a {
+      line-height: 1.375rem;
+      text-decoration-line: underline;
+      text-decoration-style: solid;
+      text-decoration-skip-ink: none;
+      text-decoration-thickness: auto;
+      text-underline-offset: 2px;
+    }
+  }
+
+  .tag--active > a,
+  .tag--active > button {
+    font-weight: 900;
+  }
+
+  .tag-list--checkboxes {
+    padding-bottom: 6px;
+
+    & a {
+      position: relative;
+      padding-left: 25px;
+
+      &:before,
+      &:after {
+        content: '';
+        position: absolute;
+        left: 0;
+        top: 50%;
+        transform: translateY(-50%);
+      }
+
+      &:before {
+        border: 1px solid;
+        border-color: color-mix(in srgb, var(--color-primary) var(--shade-12), var(--color-secondary));
+        height: var(--tag-active-icon-size);
+        width: var(--tag-active-icon-size);
+      }
+
+      &:after {
+        height: var(--tag-active-icon-size-active);
+        width: var(--tag-active-icon-size-active);
+        left: 3px;
+      }
+    }
+  }
+
+  .tag-list--checkboxes .tag--active a:after,
+  .tag--active .tag__checkbox:after,
+  input:checked ~ .tag__checkbox:after {
+    background-color: var(--root-color-primary);
+    border-color: var(--root-color-primary);
+  }
+
+  /*Remove tags (top of sidebar)*/
+  .tag--inline {
+    display: inline-block;
+    position: relative;
+    margin: 0 10px 13px 0;
+
+    & a {
+      display: block;
+      text-align: left;
+      padding: 7px 15px 7px 36px;
+      min-width: 0;
+    }
+
+    /*X icon sits over button, not in it*/
+    & .element-icon {
+      position: absolute;
+      left: 10px;
+      top: 50%;
+      transform: translateY(-50%);
+      pointer-events: none;
+      color: var(--color-button-primary-text);
+    }
+  }
+
+  .tag--inline a {
+    padding: 7px 15px 7px 15px;
+  }
+
+  /*Color swatches in sidebar*/
+  .tag-list--swatches {
+    margin-top: 2px;
+
+    & li {
+      display: inline-block;
+    }
+  }
+
+  .tag__checkbox {
+    position: relative;
+    padding-left: 25px;
+    overflow: hidden;
+
+    &:before,
+    &:after {
+      content: '';
+      position: absolute;
+      left: 0;
+      top: 50%;
+      transform: translateY(-50%);
+    }
+
+    &:before {
+      border: 1px solid;
+      border-color: color-mix(in srgb, var(--color-primary) var(--shade-12), var(--color-secondary));
+      height: var(--tag-active-icon-size);
+      width: var(--tag-active-icon-size);
+    }
+
+    &:after {
+      height: var(--tag-active-icon-size-active);
+      width: var(--tag-active-icon-size-active);
+      left: 3px;
+    }
+  }
+
+  .tag__input {
+    position: absolute;
+    opacity: 0;
+    cursor: pointer;
+    height: 0;
+    width: 0;
+  }
+
+  /*Sidebar color swatches*/
+  .tag--swatch {
+    display: inline-block;
+
+    .color-swatch {
+      width: 35px;
+      height: 35px;
+      flex-shrink: 0;
+    }
+  }
+
+  .tag--active .color-swatch:hover:after {
+    position: absolute;
+    content: '';
+    left: 50%;
+    top: 0;
+    bottom: 0;
+    border-left: 1px solid;
+    border-color: color-mix(in srgb, var(--color-primary) var(--shade-12), var(--color-secondary));
+    transform: rotate(45deg);
+  }
+
+  .tag:focus-within .color-swatch {
+    box-shadow: 0 0 0 1px var(--root-color-primary);
+  }
+
+  .tag--active .color-swatch {
+    box-shadow: 0 0 0 2px var(--root-color-primary);
+  }
+
+  .tag--show-label {
+    width: 100%;
+
+    .tag__text {
+      display: block !important;
+      margin-left: 0.5rem;
+      margin-bottom: 4px;
+    }
+  }
+
+  /*conditional styles for tags*/
+  .item-grid--filters-pill .accordion:has(.chip) {
+    .no-bullets.tag-list {
+      display: inline-flex;
+      flex-wrap: wrap;
+      gap: 6px;
+    }
+
+    .checkbox:has(input[type='checkbox']:focus) {
+      /* Chip tokens */
+      --chip-focus-outline: var(--color-focus);
+      --chip-inset-box-shadow: transparent;
+    }
+  }
+
+  .tag--image .tag__checkbox-wrapper {
+    display: block;
+
+    &:has(input[type='checkbox']:focus-visible) {
+      outline: 3px solid var(--color-focus);
+    }
+  }
+{% endstylesheet %}
+
+{%- liquid
+  assign enable_sort = enable_sort | default: section.settings.enable_sort, allow_false: true | default: true, allow_false: true
+  assign enable_reset_all_filters = enable_reset_all_filters | default: false, allow_false: true
+  assign enable_reset_price_filter = enable_reset_price_filter | default: false, allow_false: true
+  assign enable_show_more_filters = enable_show_more_filters | default: false, allow_false: true
+  assign active_tags_location_desktop = active_tags_location_desktop | default: 'sidebar'
+  assign price_range_style = price_range_style | default: 'slider'
+  assign filter_variant = filter_variant | default: 'checkbox'
+  assign collapse_filters = collapse_filters | default: section.settings.collapse_filters, allow_false: true | default: true, allow_false: true
+%}
+
+{%- if active_tags_location_desktop == 'sidebar' -%}
+  {%- render 'list.filter-grid.active-tags',
+    context: context,
+    enable_reset_all_filters: enable_reset_all_filters,
+    enable_reset_price_filter: enable_reset_price_filter
+  -%}
+{%- endif -%}
+
+{%- if enable_sort -%}
+  <div class="collection-sidebar__group collection-sidebar__group--sort medium-up--hide">
+    {%- render 'list.filter-grid.sort-by', context: context, type: 'button', collapse_filters: collapse_filters -%}
+  </div>
+{%- endif -%}
+
+{%- render 'list.filter-grid.filter-form',
+  context: context,
+  price_range_style: price_range_style,
+  enable_show_more_filters: enable_show_more_filters,
+  collapse_filters: collapse_filters,
+  filter_variant: filter_variant
+-%}

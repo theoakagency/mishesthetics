@@ -1,0 +1,33 @@
+{% doc %}
+  Copyright © 2025 Archetype Themes LP. All rights reserved.
+
+  Translation helper with fallback support for missing locale strings.
+
+  @param {string} [key] - The translation key to look up
+  @param {string} [t] - Pre-translated string to check
+  @param {string} fallback - Fallback text if translation is missing
+  @param {boolean} [as_json] - Whether to output as JSON, default: false
+
+  @example
+  {% render 'utility.translate', key: 'actions.add_to_cart', fallback: 'Add to cart' %}
+{% enddoc %}
+
+{% liquid
+  assign output = ''
+
+  if key != blank
+    assign output = key | t
+  else
+    assign output = t
+  endif
+
+  if output contains 'Translation missing:'
+    assign output = fallback
+  endif
+
+  if as_json
+    assign output = output | json
+  endif
+
+  echo output
+%}

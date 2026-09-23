@@ -1,0 +1,53 @@
+{% doc %}
+  Copyright © 2025 Archetype Themes LP. All rights reserved.
+
+  Full-width search overlay with predictive search functionality.
+
+  @example
+  {% render 'header.search' %}
+{% enddoc %}
+
+{% stylesheet %}
+  .site-header__search-container {
+    display: none;
+    align-items: center;
+    position: absolute;
+    top: 0;
+    left: 0;
+    bottom: 0;
+    right: 0;
+    z-index: var(--z-index-header-search);
+
+    &.is-active {
+      display: flex;
+      background-color: var(--color-secondary);
+    }
+
+    & .page-width {
+      display: flex;
+      width: 100%;
+      position: relative;
+    }
+  }
+
+  .site-header__search {
+    display: flex;
+    width: 100%;
+
+    > is-land {
+      width: 100%;
+    }
+  }
+{% endstylesheet %}
+
+<header-search class="site-header__search-container">
+  <div class="page-width">
+    <div class="site-header__search">
+      {%- render 'form.predictive-search', context: 'header' -%}
+    </div>
+  </div>
+</header-search>
+
+<script type="module">
+  import 'element.header-search'
+</script>

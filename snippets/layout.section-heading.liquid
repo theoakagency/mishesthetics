@@ -1,0 +1,123 @@
+{% doc %}
+  Copyright © 2025 Archetype Themes LP. All rights reserved.
+
+  Section heading with title, sizing options, and optional "view all" link.
+
+  @param {string} [title] - The title of the section
+  @param {string} [heading_size] - The size of the heading as 'sm'|'md'|'lg'|'xl' (default: 'md')
+  @param {string} [heading_position] - The position of the heading as 'left'|'center'|'right' (default: 'left')
+  @param {boolean} [view_all] - Whether to show the view all link
+  @param {string} [url] - The URL of the view all link
+  @param {string} [wrapper_class] - Additional classes to add to the wrapper
+
+  @example
+  {% render 'layout.section-heading',
+    title: 'Featured collection',
+    heading_size: 'lg',
+    heading_position: 'center',
+    view_all: true,
+    url: '/collections/all'
+  %}
+{% enddoc %}
+
+{%- liquid
+  assign title = title | default: section.settings.title
+  assign heading_size = heading_size | default: section.settings.heading_size | default: 'md'
+  assign heading_position = heading_position | default: section.settings.heading_position | default: 'left'
+  assign view_all = view_all | default: section.settings.view_all, allow_false: true
+  assign url = url | default: section.settings.url
+  assign text_direction = settings.text_direction | default: 'ltr'
+  assign wrapper_class = wrapper_class | default: blank
+-%}
+
+{%- if title != blank or view_all -%}
+  <div class="text-{{ heading_position }} text-direction-{{ text_direction }} heading-section heading-section--view-all-{{ view_all }}{% if wrapper_class %} {{ wrapper_class }}{% endif %}">
+    <div class="section-header{% if view_all and title != blank %} section-header--with-link{% endif %}">
+      {% if title != blank %}
+        <h2 class="section-header__title heading-{{ heading_size }}">
+          {{ title | escape }}
+        </h2>
+      {% endif %}
+
+      {%- if view_all -%}
+        <a href="{{ url }}" class="section-header__link">
+          {% render 'utility.translate', key: 'actions.view_all', fallback: 'View all' %}
+        </a>
+      {%- endif -%}
+    </div>
+  </div>
+{%- endif -%}
+
+{% stylesheet %}
+  /* default configuration values */
+  .heading-section {
+    --header-position: static;
+    --link-left-position: auto;
+    --link-position: static;
+    --link-right-position: auto;
+    --link-top-position: auto;
+    --padding: 0;
+    --title-alignment: inherit;
+  }
+
+  /* configuration values for different component states */
+  .heading-section:has(.section-header__title).text-right {
+    --padding: 20px;
+
+    @media only screen and (max-width: 768px) {
+      --padding: 10px;
+    }
+  }
+
+  .heading-section:has(.section-header__title).text-center {
+    --header-position: relative;
+    --link-position: absolute;
+    --link-right-position: 0;
+    --link-top-position: 0;
+
+    @media only screen and (max-width: 768px) {
+      --link-position: relative;
+    }
+  }
+
+  .heading-section:has(.section-header__title).text-center.text-direction-rtl {
+    --link-left-position: 0;
+    --link-right-position: auto;
+  }
+
+  .heading-section:has(.section-header__link).text-direction-ltr {
+    @media only screen and (max-width: 768px) {
+      --title-alignment: left;
+    }
+  }
+
+  .heading-section:has(.section-header__link).text-direction-rtl {
+    @media only screen and (max-width: 768px) {
+      --title-alignment: right;
+    }
+  }
+
+  /* component styles */
+  .heading-section .section-header__link {
+    padding-inline-start: var(--padding);
+    position: var(--link-position);
+    right: var(--link-right-position);
+    top: var(--link-top-position);
+  }
+
+  .heading-section.text-direction-rtl .section-header__link {
+    padding-inline-start: 0;
+  }
+
+  .heading-section .section-header {
+    position: var(--header-position);
+  }
+
+  .heading-section .section-header__title {
+    text-align: var(--title-alignment);
+  }
+
+  .heading-section.text-direction-rtl .section-header__title {
+    padding-inline-start: var(--padding);
+  }
+{% endstylesheet %}

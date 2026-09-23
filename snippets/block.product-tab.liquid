@@ -1,0 +1,34 @@
+{% doc %}
+  Copyright © 2025 Archetype Themes LP. All rights reserved.
+
+  Collapsible content tab for additional product information and custom pages.
+
+  @param {object} [block] - Block object
+  @param {object} [product] - Product object
+  @param {string} [title] - Tab heading text
+  @param {string} [tab_content] - Rich text content for the tab
+  @param {string} [page_content] - Page content to display in tab
+
+  @example
+  {% render 'block.product-tab', title: 'Shipping Info', tab_content: shipping_details %}
+{% enddoc %}
+
+{%- liquid
+  assign product = section.settings.product | default: product
+  assign title = title | default: block.settings.title
+  assign tab_content = tab_content | default: block.settings.content
+  assign page_content = page_content | default: block.settings.page.content
+
+  capture accordion_content
+    echo tab_content
+    echo page_content
+  endcapture
+
+  assign tab_group = 'product-tabs-' | append: section.id
+-%}
+
+{%- if title != blank and accordion_content != blank -%}
+  <div {{ block.shopify_attributes }}>
+    {%- render 'element.accordion', title: title, slot: accordion_content, group: tab_group -%}
+  </div>
+{%- endif -%}

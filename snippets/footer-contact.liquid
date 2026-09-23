@@ -1,0 +1,89 @@
+{%- doc -%}
+  Copyright © 2025 Archetype Themes LP. All rights reserved.
+
+  Renders the footer contact block for the footer.
+
+  @param {object} block - The block object
+  @param {string} [phone] - The phone number
+  @param {object} [contact_page] - The contact page object
+  @param {object} [chat_page] - The chat page object
+  @param {string} [blocks_heading_size] - The heading size for the block
+
+  @example
+  {% render 'footer-contact', block: block %}
+{%- enddoc -%}
+
+{%- liquid
+  assign phone = phone | default: block.settings.phone
+  assign contact_page = contact_page | default: block.settings.contact
+  assign chat_page = chat_page | default: block.settings.chat
+  assign enable_social = enable_social | default: block.settings.enable_social, allow_false: true | default: true, allow_false: true
+  assign blocks_heading_size = blocks_heading_size | default: block.settings.heading_size | default: 'sm'
+-%}
+
+<div class="footer__mobile-section">
+  <div class="footer__blocks--mobile">
+    <div class="footer__block--mobile">
+      <h2 class="footer__title heading-{{ blocks_heading_size }}">
+        {% assign actions_get_in_touch = 'actions.get_in_touch' | t %}
+        {% render 'utility.translate', t: actions_get_in_touch, fallback: 'Get in touch' %}
+      </h2>
+
+      <ul class="footer__menu footer__menu--underline">
+        {%- if phone != blank -%}
+          <li>
+            <a href="tel:{{ phone }}">
+              <span class="icon-and-text">
+                {% render 'element.icon', name: 'phone' %}
+                <span>{{ phone }}</span>
+              </span>
+            </a>
+          </li>
+        {%- endif -%}
+
+        {%- if contact_page != blank -%}
+          <li>
+            <a href="{{ contact_page.url }}">
+              <span class="icon-and-text">
+                {% render 'element.icon', name: 'email' %}
+                <span>
+                  {% assign actions_email_us = 'actions.send_us_message' | t %}
+                  {% render 'utility.translate', t: actions_email_us, fallback: 'Send us a message' -%}
+                </span>
+              </span>
+            </a>
+          </li>
+        {%- endif -%}
+
+        {%- if chat_page != blank -%}
+          <li>
+            <a href="{{ chat_page.url }}">
+              <span class="icon-and-text">
+                {% render 'element.icon', name: 'chat' %}
+                <span>
+                  {% assign actions_live_chat = 'actions.live_chat' | t %}
+                  {% render 'utility.translate', t: actions_live_chat, fallback: 'Live chat' -%}
+                </span>
+              </span>
+            </a>
+          </li>
+        {%- endif -%}
+      </ul>
+    </div>
+
+    {% capture social_icons %}
+      {% render 'social.icons', wrapper_class: 'inline-list' %}
+    {% endcapture %}
+
+    {%- if enable_social and social_icons != blank -%}
+      <div class="footer__block--mobile">
+        {% assign actions_follow_us = 'actions.follow_us' | t %}
+        <div class="footer__title">
+          {% render 'utility.translate', t: actions_follow_us, fallback: 'Follow us' %}
+        </div>
+
+        {{ social_icons }}
+      </div>
+    {%- endif -%}
+  </div>
+</div>

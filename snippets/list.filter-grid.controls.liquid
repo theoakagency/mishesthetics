@@ -1,0 +1,254 @@
+{%- doc -%}
+  Copyright © 2025 Archetype Themes LP. All rights reserved.
+
+  Renders the item grid controls above the items.
+
+  @param {object} context - Collection or search object
+  @param {boolean} [enable_sort] - Enable sorting functionality
+  @param {string} [grid_style] - Grid layout ('large', 'medium', 'list')
+  @param {boolean} [enable_filters] - Enable filtering functionality
+  @param {string} [active_tags_location_desktop] - Active tags position ('filterbar', 'sidebar')
+  @param {boolean} [enable_reset_all_filters] - Show reset all button
+  @param {boolean} [enable_reset_price_filter] - Show reset price button
+
+  @example
+  {% render 'list.filter-grid.controls', context: search %}
+{%- enddoc -%}
+
+{% stylesheet %}
+  @media only screen and (max-width: 768px) {
+    .collection-mobile-filters .filter-wrapper {
+      --element-accordion-px: var(--page-width-gutter-small);
+
+      display: none;
+      transition: all var(--slide-curve);
+      background-color: var(--color-secondary);
+      transform: translateY(-100%);
+      max-height: 80vh;
+      overflow: auto;
+      box-shadow: var(--drawer-box-shadow);
+
+      &.is-active {
+        display: block;
+        height: 100%;
+        transform: translateY(0);
+      }
+    }
+
+    .collection-mobile-filters {
+      position: absolute;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      height: 0;
+      overflow: visible;
+    }
+  }
+
+  .collection-filter {
+    margin-bottom: calc(var(--gutter) / 2);
+
+    @media only screen and (max-width: 768px) {
+      position: sticky;
+      top: 0; /*updated with JS based on sticky header height*/
+      z-index: 4;
+      margin-left: calc(var(--page-width-gutter-small) * -1);
+      margin-right: calc(var(--page-width-gutter-small) * -1);
+      margin-bottom: 0;
+    }
+  }
+
+  .collection-filter__inner {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    flex-wrap: nowrap;
+
+    @media only screen and (max-width: 768px) {
+      position: relative;
+      z-index: 4;
+      justify-content: space-between;
+      background: var(--color-secondary);
+      padding: 0 var(--page-width-gutter-small);
+
+      &:after {
+        content: '';
+        position: absolute;
+        height: 20px;
+        top: 100%;
+        left: 0;
+        right: 0;
+        pointer-events: none;
+        background: linear-gradient(rgba(0, 0, 0, 0.05), rgba(0, 0, 0, 0));
+      }
+    }
+
+    active-tags {
+      display: inline-flex;
+      margin-right: auto;
+      flex: 1;
+
+      @media only screen and (max-width: 768px) {
+        display: none;
+      }
+    }
+
+    .tag {
+      margin: 0;
+    }
+  }
+
+  .collection-filter__item {
+    flex: 0 1 auto;
+  }
+
+  .collection-filter__item--drawer {
+    flex: 0 1 50%;
+    padding-right: calc(var(--gutter) / 4);
+  }
+
+  .collection-filter__item--count {
+    flex: 1 1 50%;
+    text-align: center;
+  }
+
+  @media only screen and (max-width: 768px) {
+    .collection-filter__item--count {
+      order: 3;
+      flex: 1 1 100%;
+    }
+  }
+
+  .grid-view-btn {
+    display: block;
+    padding: 10px 8px;
+    opacity: 0.15;
+
+    &:hover {
+      opacity: 0.4;
+    }
+
+    &.is-active {
+      opacity: 1;
+    }
+
+    & svg {
+      display: block;
+    }
+
+    @media only screen and (max-width: 768px) {
+      & svg {
+        width: 18px;
+        height: 18px;
+      }
+    }
+  }
+{% endstylesheet %}
+
+{% liquid
+  assign grid_style = grid_style | default: section.settings.grid_style | default: 'medium'
+  assign enable_filters = enable_filters | default: section.settings.enable_sidebar, allow_false: true | default: true, allow_false: true
+  assign enable_sort = enable_sort | default: section.settings.enable_sort, allow_false: true | default: true, allow_false: true
+  assign enable_reset_all_filters = enable_reset_all_filters | default: false, allow_false: true
+  assign enable_reset_price_filter = enable_reset_price_filter | default: false, allow_false: true
+  assign active_tags_location_desktop = active_tags_location_desktop | default: 'sidebar'
+
+  if context.products
+    assign count = context.products_count
+  endif
+
+  if context.results
+    assign count = context.results_count
+  endif
+%}
+
+<div class="collection-filter">
+  <div class="collection-filter__inner">
+    {%- if enable_filters -%}
+      <div class="collection-filter__item collection-filter__item--drawer">
+        {%- render 'list.filter-grid.mobile-filters-trigger',
+          context: context,
+          enable_reset_price_filter: enable_reset_price_filter
+        -%}
+      </div>
+
+      {%- if active_tags_location_desktop == 'filterbar' -%}
+        {%- render 'list.filter-grid.active-tags',
+          context: context,
+          enable_reset_all_filters: enable_reset_all_filters,
+          enable_reset_price_filter: enable_reset_price_filter
+        -%}
+      {%- else -%}
+        <div class="collection-filter__item collection-filter__item--count small--hide">
+          {%- if context.products -%}
+            {% assign info_product_count = 'info.product_count' | t: count: count %}
+            {%- capture fallback_info_product_count -%}
+            {{ count }} product{%- if count != 1 -%}s{%- endif -%}
+          {%- endcapture -%}
+            {% render 'utility.translate', t: info_product_count, fallback: fallback_info_product_count %}
+          {%- endif -%}
+
+          {%- if context.results -%}
+            {% assign info_search_result_count = 'info.search_result_count' | t: count: count %}
+            {%- capture fallback_info_search_result_count -%}
+            {{ count }} product{%- if count != 1 -%}s{%- endif -%}
+          {%- endcapture -%}
+            {% render 'utility.translate', t: info_search_result_count, fallback: fallback_info_search_result_count %}
+          {%- endif -%}
+        </div>
+      {%- endif -%}
+    {%- endif -%}
+
+    {%- if enable_sort -%}
+      <div class="collection-filter__item {% if enable_filters %} small--hide{% endif %}">
+        {%- render 'list.filter-grid.sort-by', context: context -%}
+      </div>
+    {%- endif -%}
+
+    <div class="collection-filter__item collection-filter__item--right">
+      {%- render 'list.filter-grid.view-buttons', grid_style: grid_style -%}
+    </div>
+  </div>
+
+  <div class="collection-mobile-filters medium-up--hide">
+    <collection-mobile-filters>
+      <div class="collection-mobile-filters__holder" id="CollectionInlineFilterWrap"></div>
+    </collection-mobile-filters>
+  </div>
+</div>
+
+<script type="module">
+  import 'list.filter-grid.collection-mobile-filters'
+</script>
+
+{% comment %}
+  Disable sidebar & filter features
+{% endcomment %}
+{%- style -%}
+  {%- if enable_sort == false -%}
+
+    .collection-filter__sort {
+      display: none;
+    }
+  {%- endif -%}
+  .collection-filter__item--count {
+    text-align: left;
+  }
+  html[dir="rtl"] .collection-filter__item--count {
+    text-align: right;
+  }
+{%- endstyle -%}
+
+{%- style -%}
+  @media screen and (min-width: 769px) {
+    .collection-filter__item--drawer {
+      display: none;
+    }
+    .collection-filter__item--count {
+      text-align: left;
+    }
+    html[dir='rtl'] .collection-filter__item--count {
+      text-align: right;
+    }
+  }
+{%- endstyle -%}

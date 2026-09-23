@@ -1,0 +1,17 @@
+{% doc %}
+  Copyright © 2025 Archetype Themes LP. All rights reserved.
+
+  Mobile menu toggle button for opening and closing navigation drawer.
+
+  @param {string} [menu_button] - Custom menu button HTML
+
+  @example
+  {% render 'header.toggle-menu' %}
+{% enddoc %}
+
+<toggle-menu>
+  {{- menu_button -}}
+</toggle-menu>
+<script type="module">
+  import 'header.toggle-menu'
+</script>

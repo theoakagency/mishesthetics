@@ -1,0 +1,22 @@
+{% doc %}
+  Copyright © 2025 Archetype Themes LP. All rights reserved.
+
+  Cart toggle button that opens drawer or navigates to cart page based on cart type.
+
+  @param {string} [cart_type] - Cart display type ('page' or 'dropdown'), defaults to theme setting
+  @param {string} [cart_link] - Custom cart link HTML
+
+  @example
+  {% render 'header.toggle-cart', cart_type: 'dropdown' %}
+{% enddoc %}
+
+{%- liquid
+  assign cart_type = cart_type | default: settings.cart_type | default: 'page'
+-%}
+
+<toggle-cart cart-type="{{ cart_type }}">
+  {{- cart_link -}}
+</toggle-cart>
+<script type="module">
+  import 'header.toggle-cart'
+</script>

@@ -1,0 +1,41 @@
+{%- doc -%}
+  Copyright © 2025 Archetype Themes LP. All rights reserved.
+
+  Renders the fallback filter for the collection grid when no other filter type is available.
+
+  @param {object} filter - Filter object
+
+  @example
+  {% render 'list.filter-grid.fallback-filter', filter: filter %}
+{%- enddoc -%}
+
+<ul class="no-bullets tag-list">
+  {%- assign tag_count = filter.values.size -%}
+  {%- for filter_value in filter.values -%}
+    {%- liquid
+      assign tag_count = tag_count | plus: 1
+      assign filter_value_index = forloop.index
+    -%}
+
+    {%- capture checkbox_label -%}
+      {{ filter_value.label }} ({{ filter_value.count }})
+    {%- endcapture -%}
+
+    <li class="tag{% if filter_value.active %} tag--active{% endif %}{% if filter_value.count == 0 %} hide{% endif %}">
+      {%- render 'element.checkbox',
+        name: filter_value.param_name,
+        classlist: 'tag__checkbox-wrapper',
+        label: checkbox_label,
+        value: filter_value.value,
+        checked: filter_value.active,
+        index: filter_value_index
+      -%}
+    </li>
+  {%- endfor -%}
+</ul>
+
+{%- if tag_count == 0 -%}
+  {%- style -%}
+    .collection-sidebar__group--{{ filter_index }} { display: none; }
+  {%- endstyle -%}
+{%- endif -%}

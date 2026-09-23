@@ -1,0 +1,321 @@
+{% doc %}
+  Copyright © 2025 Archetype Themes LP. All rights reserved.
+
+  AI-powered complementary product recommendations for cross-selling and upselling.
+
+  @param {object} [block] - Block object
+  @param {string} [type] - ('block'|'section') Render context
+  @param {boolean} [quick_add_enable] - Enable quick add to cart, default: false
+  @param {string} [product_grid_image_size] - Image aspect ratio for grid items
+  @param {boolean} [product_grid_image_fill] - Fill grid item with image, default: false
+  @param {boolean} [product_hover_image] - Show second image on hover, default: false
+  @param {boolean} [enable_swatches] - Display color swatches, default: false
+  @param {boolean} [vendor_enable] - Show vendor name, default: false
+  @param {boolean} [product_save_amount] - Display savings amount, default: false
+  @param {string} [product_save_type] - ('dollar'|'percent') Savings display format
+  @param {boolean} [set_image_breathing_room] - Add padding around images, default: false
+  @param {boolean} [enable_product_tags] - Show product tags, default: false
+
+  @example
+  {% render 'block.product-complementary', type: 'block', quick_add_enable: true %}
+{% enddoc %}
+
+{% stylesheet %}
+  product-recommendations[data-intent='complementary'] {
+    display: block;
+    overflow: hidden;
+
+    & .product-recommendations__title {
+      margin-top: 40px;
+      width: 100%;
+      max-width: 72%;
+      margin-bottom: 20px;
+      text-align: left;
+    }
+
+    & .float-grid {
+      margin-left: 0;
+    }
+
+    & .grid__item,
+    & .grid-item {
+      margin-bottom: 1rem;
+      padding-left: 0;
+      padding-bottom: 8px;
+
+      @media only screen and (max-width: 768px) {
+        margin-left: 0 !important;
+        flex: 0 0 100%;
+      }
+    }
+
+    & .grid-product__image-wrap {
+      min-width: 90px;
+    }
+
+    & .grid__image-ratio {
+      background-color: transparent;
+    }
+
+    & img.image-style--circle {
+      border-radius: 50%;
+      object-fit: cover;
+      width: 85%;
+      height: 85%;
+      position: absolute;
+      top: 0;
+      right: 0;
+      left: 0;
+      bottom: 0;
+      margin: auto;
+    }
+
+    & .grid__item-image-wrapper .grid-product__link {
+      width: 100%;
+      display: block;
+    }
+
+    & .grid__item-image-wrapper,
+    & .grid-product__link,
+    & .grid-item__link {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+
+      & .grid-product__image-mask,
+      & .grid-product__image-wrap,
+      & .image-wrap {
+        width: 112px;
+        margin: 0;
+      }
+
+      & .grid-product__meta {
+        margin-left: 48px;
+        width: calc(100% - 112px);
+        text-align: left;
+      }
+    }
+
+    & .grid-product__actions {
+      top: 0;
+      right: 0;
+    }
+
+    & .flickity-viewport {
+      width: 100%;
+    }
+
+    & .flickity-previous {
+      left: auto;
+      top: -32px;
+      right: 50px;
+
+      @media only screen and (max-width: 768px) {
+        right: 45px;
+      }
+    }
+
+    & .flickity-next {
+      right: 0;
+      top: -32px;
+    }
+
+    & .flickity-page-dots {
+      top: -41px;
+      right: 0;
+      width: auto;
+      bottom: auto;
+    }
+
+    & .flickity-button:disabled {
+      display: block;
+      opacity: 0.35;
+    }
+  }
+
+  .product-recommendations__slide {
+    display: block;
+    overflow: hidden;
+    width: 100%;
+    margin: 0;
+    padding: 0;
+
+    @media only screen and (max-width: 768px) {
+      display: flex;
+      flex-wrap: wrap;
+    }
+
+    & .grid__item:last-child {
+      margin-bottom: 0;
+      padding-bottom: 0;
+    }
+  }
+
+  .product-recommendations--title-missing {
+    margin-top: 80px;
+  }
+
+  product-recommendations[data-intent='complementary'] {
+    & .grid-product__actions {
+      top: 0;
+      right: 5px;
+
+      @media only screen and (min-width: 769px) {
+        & .btn--icon {
+          padding: 10px;
+        }
+
+        & .element-icon {
+          width: 25px;
+          height: 25px;
+        }
+      }
+    }
+
+    & .grid-item {
+      padding: 8px;
+    }
+  }
+
+  [data-grid-style*='grey'] product-recommendations[data-intent='complementary'],
+  [data-grid-style*='grey-round'] product-recommendations[data-intent='complementary'],
+  [data-grid-style*='white'] product-recommendations[data-intent='complementary'],
+  [data-grid-style*='white-round'] product-recommendations[data-intent='complementary'],
+  [data-grid-style*='round'] product-recommendations[data-intent='complementary'],
+  [data-grid-style*='square'] product-recommendations[data-intent='complementary'] {
+    & .grid-item__content {
+      padding: 0 8px;
+    }
+  }
+
+  [data-grid-style*='gridlines'] product-recommendations[data-intent='complementary'] {
+    @media only screen and (max-width: 768px) {
+      & .grid-product__actions {
+        top: -6px;
+        right: -6px;
+      }
+    }
+
+    & .product-recommendations__slide .grid-product:last-child:after {
+      border-top: 0;
+    }
+
+    & .product-recommendations__slide .grid-product:first-child:after {
+      border-top: solid var(--grid-thickness)
+        color-mix(in srgb, var(--color-primary) var(--shade-12), var(--color-secondary));
+    }
+
+    & .grid-product {
+      padding: 8px;
+      margin-bottom: 0;
+    }
+
+    & .grid-product:after {
+      padding: 0 8px;
+      box-shadow: none;
+      border: solid var(--grid-thickness)
+        color-mix(in srgb, var(--color-primary) var(--shade-12), var(--color-secondary));
+    }
+  }
+{% endstylesheet %}
+
+{%- liquid
+  assign product = section.settings.product | default: product
+  assign type = type | default: 'block'
+  assign quick_add_enable = quick_add_enable | default: false
+  assign product_grid_image_size = product_grid_image_size | default: settings.product_grid_image_size | default: 'square'
+  assign product_grid_image_fill = product_grid_image_fill | default: settings.product_grid_image_fill | default: false
+  assign product_hover_image = product_hover_image | default: settings.product_hover_image | default: false
+  assign enable_swatches = enable_swatches | default: settings.enable_swatches | default: false
+  assign vendor_enable = vendor_enable | default: settings.vendor_enable | default: false
+  assign product_save_amount = product_save_amount | default: settings.product_save_amount | default: false
+  assign product_save_type = product_save_type | default: settings.product_save_type | default: 'dollar'
+  assign set_image_breathing_room = set_image_breathing_room | default: true, allow_false: true
+  assign enable_product_tags = enable_product_tags | default: settings.enable_product_tags | default: false
+  assign product_grid_content_align = product_grid_content_align | default: settings.product_grid_content_align | default: 'start'
+
+  if recommendations.products and recommendations.products_count > 0
+    assign related_collection = recommendations
+  endif
+
+  if type == 'block'
+    assign number_of_products = block.settings.complementary_count
+    assign image_style = block.settings.image_style
+  else
+    assign number_of_products = section.settings.complementary_count
+  endif
+-%}
+
+<product-recommendations
+  id="Recommendations-{{ section.id }}"
+  data-section-id="{{ section.id }}"
+  data-section-type="product-recommendations"
+  data-enable="true"
+  data-product-id="{{ product.id }}"
+  data-intent="complementary"
+  {% if type == 'block' %}
+    data-block-id="{{ block.id }}" {{ block.shopify_attributes -}}
+  {% endif %}
+  data-url="{{ routes.product_recommendations_url }}?section_id={{ section.id }}&product_id={{ product.id }}&limit={{ number_of_products }}&intent=complementary"
+  data-limit="{{ number_of_products }}"
+>
+  {% if block.settings.product_complementary_heading != blank %}
+    <h4 class="product-recommendations__title">{{ block.settings.product_complementary_heading }}</h4>
+  {% endif %}
+
+  <div
+    class="{% unless block.settings.product_complementary_heading != blank %}product-recommendations--title-missing{% endunless %}"
+    data-section-id="{{ product.id }}"
+    data-subsection
+    data-section-type="collection-template"
+  >
+    <div class="product-recommendations-placeholder">
+      {% comment %}
+        This content is visually hidden and replaced when recommended products show up
+      {% endcomment %}
+      <div class="float-grid grid--uniform visually-invisible clearfix" aria-hidden="true">
+        {%- render 'list.product-card', product: product, disabled_high_variants: false -%}
+      </div>
+    </div>
+    {%- if related_collection.products_count > 0 -%}
+      <div class="product-recommendations">
+        <div
+          class="product-single__related float-grid grid--uniform clearfix"
+          {% if type == 'block' %}
+            data-slideshow data-controls="{{ block.settings.control_type }}"
+            data-per-slide="{{ block.settings.per_slide }}" data-count="{{ number_of_products }}"
+          {% endif %}
+        >
+          {% assign currentStep = 1 %}
+          {%- for product in related_collection.products limit: number_of_products -%}
+            {% if currentStep == 1 %}
+              <div class="product-recommendations__slide">
+            {% endif %}
+
+            {%- render 'list.product-card',
+              image_style: image_style,
+              product: product,
+              sizes: '112px',
+              product_grid_content_align: product_grid_content_align,
+              disabled_high_variants: false
+            -%}
+
+            {% if currentStep == block.settings.per_slide or forloop.last %}
+              </div>
+            {% endif %}
+
+            {% if currentStep == block.settings.per_slide or forloop.last %}
+              {% assign currentStep = 0 %}
+            {% endif %}
+
+            {% assign currentStep = currentStep | plus: 1 %}
+          {%- endfor -%}
+        </div>
+      </div>
+    {%- endif -%}
+  </div>
+</product-recommendations>
+
+<script type="module">
+  import 'element.product-recommendations'
+</script>

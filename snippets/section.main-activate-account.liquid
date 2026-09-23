@@ -1,0 +1,59 @@
+{% doc %}
+  Copyright © 2025 Archetype Themes LP. All rights reserved.
+
+  Customer account activation template for setting initial password.
+
+  @example
+  {% render 'section.main-activate-account' %}
+{% enddoc %}
+
+{%- liquid
+  capture input_password_label
+    render 'utility.translate', key: 'labels.password', fallback: 'Password'
+  endcapture
+
+  capture input_password_confirmation_label
+    render 'utility.translate', key: 'actions.confirm_password', fallback: 'Confirm password'
+  endcapture
+
+  capture input_activate_account_label
+    render 'utility.translate', key: 'actions.activate', fallback: 'Activate'
+  endcapture
+-%}
+
+<div class="page-width page-width--tiny page-content">
+  <header class="section-header">
+    <h1 class="section-header__title">
+      {% render 'utility.translate', key: 'actions.activate', fallback: 'Activate account' %}
+    </h1>
+    <br>
+    <p>
+      {% render 'utility.translate',
+        key: 'info.create_your_password_to_activate',
+        fallback: 'Create your password to activate your account.'
+      %}
+    </p>
+  </header>
+
+  <div class="form-vertical">
+    {%- form 'activate_customer_password' -%}
+      {{ form.errors | default_errors }}
+
+      {%- render 'element.input',
+        type: 'password',
+        id: 'CustomerPassword',
+        name: 'customer[password]',
+        placeholder: input_password_label
+      -%}
+
+      {%- render 'element.input',
+        type: 'password',
+        id: 'CustomerPasswordConfirmation',
+        name: 'customer[password_confirmation]',
+        placeholder: input_password_confirmation_label
+      -%}
+
+      {%- render 'element.button', type: 'submit', id: 'active-account-submit', text: input_activate_account_label -%}
+    {%- endform -%}
+  </div>
+</div>

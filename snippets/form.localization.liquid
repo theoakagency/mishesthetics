@@ -1,0 +1,318 @@
+{% doc %}
+  Copyright © 2025 Archetype Themes LP. All rights reserved.
+
+  Form for selecting language locale and currency preferences.
+
+  @param {string} [context] - Rendering context for styling variations
+  @param {boolean} [show_locale_selector] - Show the language selector
+  @param {boolean} [show_currency_selector] - Show the currency selector
+  @param {boolean} [show_currency_flags] - Display currency flags in selector
+
+  @example
+  {% render 'form.localization', context: 'footer', show_locale_selector: true, show_currency_selector: true %}
+{% enddoc %}
+
+{% stylesheet %}
+  .multi-selectors {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-wrap: wrap;
+  }
+
+  .multi-selectors__item {
+    margin: 0 20px;
+
+    .toolbar & {
+      margin-right: 0;
+      margin-bottom: 0;
+    }
+
+    .toolbar:has(.toolbar__scrolling-text) & {
+      margin-left: 0;
+    }
+  }
+
+  .multi-selectors--footer {
+    justify-content: flex-start;
+
+    & .multi-selectors__item {
+      margin-bottom: 20px;
+      margin-left: 0;
+    }
+  }
+
+  .currency-flag {
+    position: relative;
+    display: inline-block;
+    width: 22px;
+    height: 22px;
+    object-fit: cover;
+    vertical-align: middle;
+    overflow: hidden;
+    box-shadow: 0 0 1px 0 rgba(0, 0, 0, 0.3) inset;
+    border-radius: 50%;
+    background-clip: padding-box; /* Fix for android devices */
+  }
+
+  @media only screen and (max-width: 768px) {
+    [data-disclosure-currency] .disclosure-list {
+      left: 50%;
+      transform: translateX(-50%);
+      max-width: 90vw;
+    }
+
+    [data-disclosure-currency] .disclosure-list--single-true {
+      left: 0;
+      transform: none;
+    }
+  }
+
+  :root {
+    --max-height-disclosure: 60vh;
+    --min-height-disclosure: 92px;
+  }
+
+  .disclosure {
+    position: relative;
+  }
+
+  .disclosure__toggle {
+    white-space: nowrap;
+  }
+
+  .disclosure-list {
+    background-color: var(--root-color-secondary);
+    color: var(--root-color-primary);
+    bottom: 100%;
+    padding: 10px 0;
+    margin: 0;
+    position: absolute;
+    display: none;
+    min-height: var(--min-height-disclosure);
+    max-height: var(--max-height-disclosure);
+    overflow-y: auto;
+    border-radius: 0;
+    box-shadow: 0 0 20px rgba(0, 0, 0, 0.09);
+    z-index: 1;
+
+    & a,
+    & .disclosure-list__item a {
+      color: currentColor;
+    }
+  }
+
+  .disclosure-list--down {
+    bottom: auto;
+    top: 100%;
+  }
+
+  .disclosure-list--left {
+    right: 0;
+  }
+
+  .disclosure-list--visible {
+    display: block;
+  }
+
+  .disclosure-list__item {
+    white-space: nowrap;
+    padding: 5px 15px 4px;
+    text-align: left;
+  }
+
+  .disclosure-list__option {
+    &:focus,
+    &:hover {
+      & .disclosure-list__label {
+        text-decoration: underline;
+      }
+    }
+  }
+
+  .disclosure-list__item--current {
+    & .disclosure-list__label {
+      text-decoration: underline;
+    }
+  }
+
+  .disclosure-list__label {
+    display: inline-block;
+    vertical-align: middle;
+    text-underline-offset: 0.2rem;
+
+    [data-disclosure-currency] & {
+      padding-left: 10px;
+    }
+
+    & span {
+      border-bottom: 2px solid transparent;
+
+      .is-active & {
+        border-bottom: 2px solid currentColor;
+      }
+    }
+  }
+{% endstylesheet %}
+
+{%- liquid
+  assign show_locale_selector = show_locale_selector | default: section.settings.show_locale_selector, allow_false: true | default: true, allow_false: true
+  assign show_currency_selector = show_currency_selector | default: section.settings.show_currency_selector, allow_false: true | default: true, allow_false: true
+  assign show_currency_flags = show_currency_flags | default: section.settings.show_currency_flags, allow_false: true | default: false, allow_false: true
+
+  assign locale_selector = false
+  assign currency_selector = false
+
+  if show_locale_selector and localization.available_languages.size > 1
+    assign locale_selector = true
+  endif
+
+  if show_currency_selector and localization.available_countries.size > 1
+    assign currency_selector = true
+  endif
+
+  assign form_id = 'localization_form-' | append: context
+  assign form_class = 'multi-selectors multi-selectors--' | append: context
+-%}
+
+{%- if locale_selector or currency_selector -%}
+  {%- form 'localization', id: form_id, class: form_class, data-disclosure-form: '' -%}
+    {% unless locale_selector and currency_selector %}
+      {% assign is_single = true %}
+    {% endunless %}
+
+    {%- if locale_selector -%}
+      <div class="multi-selectors__item">
+        {%- if context == 'footer' -%}
+          <div class="footer__title" id="LangHeading-{{ context }}">
+            {% render 'utility.translate', key: 'labels.language', fallback: 'Language' %}
+          </div>
+        {%- else -%}
+          <div class="visually-hidden" id="LangHeading-{{ context }}">
+            {% render 'utility.translate', key: 'labels.language', fallback: 'Language' %}
+          </div>
+        {%- endif -%}
+
+        <at-disclosure class="disclosure" data-disclosure-locale defer-hydration>
+          <button
+            type="button"
+            class="faux-select disclosure__toggle"
+            aria-expanded="false"
+            aria-controls="LangList-{{ context }}"
+            aria-describedby="LangHeading-{{ context }}"
+            data-disclosure-toggle
+          >
+            <span class="disclosure-list__label">
+              {{ form.current_locale.endonym_name | capitalize }}
+            </span>
+            {% render 'element.icon', name: 'chevron-down' %}
+          </button>
+
+          <ul
+            id="LangList-{{ context }}"
+            class="disclosure-list disclosure-list--single-{{ is_single }} {% if context == 'toolbar' %} disclosure-list--down disclosure-list--left{% endif %}"
+            data-disclosure-list
+          >
+            {%- for locale in form.available_locales -%}
+              <li class="disclosure-list__item{% if locale.iso_code == form.current_locale.iso_code %} disclosure-list__item--current{% endif %}">
+                <a
+                  class="disclosure-list__option"
+                  href="#"
+                  lang="{{ locale.iso_code }}"
+                  {% if locale.iso_code == form.current_locale.iso_code %}
+                    aria-current="true"
+                  {% endif %}
+                  data-value="{{ locale.iso_code }}"
+                  data-disclosure-option
+                >
+                  <span class="disclosure-list__label">
+                    {{ locale.endonym_name | capitalize }}
+                  </span>
+                </a>
+              </li>
+            {%- endfor -%}
+          </ul>
+          <input type="hidden" name="locale_code" value="{{ form.current_locale.iso_code }}" data-disclosure-input>
+        </at-disclosure>
+        <script type="module">
+          import 'form.localization.disclosure'
+        </script>
+      </div>
+    {%- endif -%}
+
+    {%- if currency_selector -%}
+      <div class="multi-selectors__item">
+        {%- if context == 'footer' -%}
+          <div class="footer__title" id="CurrencyHeading-{{ context }}">
+            {% render 'utility.translate', key: 'labels.currency', fallback: 'Currency' %}
+          </div>
+        {%- else -%}
+          <div class="visually-hidden" id="CurrencyHeading-{{ context }}">
+            {% render 'utility.translate', key: 'labels.currency', fallback: 'Currency' %}
+          </div>
+        {%- endif -%}
+
+        <at-disclosure class="disclosure" data-disclosure-currency defer-hydration>
+          <button
+            type="button"
+            class="faux-select disclosure__toggle"
+            aria-expanded="false"
+            aria-controls="CurrencyList-{{ context }}"
+            aria-describedby="CurrencyHeading-{{ context }}"
+            data-disclosure-toggle
+          >
+            {%- if show_currency_flags -%}
+              {{-
+                localization.country
+                | image_url: width: 60, format: 'jpg'
+                | image_tag: loading: 'lazy', class: 'currency-flag'
+              -}}
+            {%- endif -%}
+            <span class="disclosure-list__label">
+              {{- localization.country.name }} ({{ localization.country.currency.iso_code }}
+              {{ localization.country.currency.symbol }})</span
+            >
+            {% render 'element.icon', name: 'chevron-down' %}
+          </button>
+
+          <ul
+            id="CurrencyList-{{ context }}"
+            class="disclosure-list disclosure-list--single-{{ is_single }} {% if context == 'toolbar' %} disclosure-list--down disclosure-list--left{% endif %}"
+            data-disclosure-list
+          >
+            {%- for country in localization.available_countries -%}
+              <li class="disclosure-list__item{% if country.iso_code == localization.country.iso_code %} disclosure-list__item--current{% endif %}">
+                <a
+                  class="disclosure-list__option"
+                  href="#"
+                  {% if country.iso_code == localization.country.iso_code %}
+                    aria-current="true"
+                  {% endif %}
+                  data-value="{{ country.iso_code }}"
+                  data-disclosure-option
+                >
+                  {%- if show_currency_flags -%}
+                    {{-
+                      country
+                      | image_url: width: 60, format: 'jpg'
+                      | image_tag: loading: 'lazy', class: 'currency-flag'
+                    -}}
+                  {%- endif -%}
+                  <span class="disclosure-list__label">
+                    {{- country.name }} ({{ country.currency.iso_code }}
+                    {{ country.currency.symbol }})</span
+                  >
+                </a>
+              </li>
+            {%- endfor -%}
+          </ul>
+
+          <input type="hidden" name="country_code" value="{{ localization.country.iso_code }}" data-disclosure-input>
+        </at-disclosure>
+        <script type="module">
+          import 'form.localization.disclosure'
+        </script>
+      </div>
+    {%- endif -%}
+  {%- endform -%}
+{%- endif -%}

@@ -1,0 +1,51 @@
+{% doc %}
+  Copyright © 2025 Archetype Themes LP. All rights reserved.
+
+  Full-width product showcase extending edge-to-edge.
+
+  @param {object} [product] - Product to display
+  @param {boolean} [max_width] - Enable maximum width constraint
+
+  @example
+  {% render 'section.product-full-width', product: product %}
+{% enddoc %}
+
+{%- liquid
+  assign product = product | default: section.settings.product
+  assign max_width = max_width | default: section.settings.max_width, allow_false: true | default: true, allow_false: true
+-%}
+
+{%- if section.blocks.size > 0 -%}
+  <div class="page-width{% if max_width %} page-width--narrow{% endif %}">
+    {%- for block in section.blocks -%}
+      {%- case block.type -%}
+        {%- when '@app' -%}
+          {% render block %}
+        {%- when 'separator' -%}
+          <hr>
+        {%- when 'text' -%}
+          <div {{ block.shopify_attributes }}>
+            {{ block.settings.text }}
+          </div>
+        {%- when 'tab' -%}
+          {%- render 'block.product-tab', block: block -%}
+        {%- when 'contact' -%}
+          {%- render 'block.product-contact', block: block -%}
+        {%- when 'description' -%}
+          {%- render 'block.product-description', block: block -%}
+        {%- when 'share' -%}
+          <div {{ block.shopify_attributes }}>
+            {%- render 'social.sharing',
+              share_title: product.title,
+              share_permalink: product.url,
+              share_image: product
+            -%}
+          </div>
+        {%- when 'custom' -%}
+          <div {{ block.shopify_attributes }}>
+            {{ block.settings.code }}
+          </div>
+      {%- endcase -%}
+    {%- endfor -%}
+  </div>
+{%- endif -%}

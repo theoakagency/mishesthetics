@@ -1,0 +1,24 @@
+{% doc %}
+  Copyright © 2025 Archetype Themes LP. All rights reserved.
+
+  Quick shop modal for viewing and purchasing products without leaving the current page.
+
+  @param {string} [content] - The content to display in the quick shop modal
+  @param {string} [hydration] - The hydration strategy, default: 'on:visible'
+
+  @example
+  {% render 'overlay.quick-shop', content: product_content %}
+{% enddoc %}
+
+{%- liquid
+  assign content = content | default: blank
+  assign hydration = hydration | default: 'on:visible'
+-%}
+
+<quick-shop defer-hydration>
+  {{ content }}
+</quick-shop>
+
+<script type="module">
+  import 'overlay.quick-shop'
+</script>

@@ -1,0 +1,66 @@
+{%- doc -%}
+  Copyright © 2025 Archetype Themes LP. All rights reserved.
+
+  A section component that displays scrolling text with customizable styling and behavior.
+  Features configurable text size, spacing, scroll direction, and speed with optional link functionality.
+  Uses the element.marquee component for the scrolling behavior.
+
+  @param {string} text - The text to display
+  @param {string} [link] - The link to navigate to when the text is clicked
+  @param {number} [text_size] - The size of the text in pixels (20-150) (default: 70)
+  @param {boolean} [text_spacing] - Whether to add spacing between the text (default: true)
+  @param {string} [direction] - ('normal'|'reverse') - The direction the text should scroll (default: 'normal')
+  @param {number} [speed] - The speed at which the text should scroll (1-10) (default: 5)
+
+  @example
+  {% render 'section.scrolling-text', text: 'Hello World', direction: 'reverse', speed: 7 %}
+{%- enddoc -%}
+
+{%- liquid
+  assign text = text | default: section.settings.text
+  assign link = link | default: section.settings.link
+  assign text_size = text_size | default: section.settings.text_size | default: 70
+  assign text_spacing = text_spacing | default: section.settings.text_spacing, allow_false: true | default: true, allow_false: true
+  assign direction = direction | default: section.settings.direction | default: 'normal'
+  assign speed = speed | default: section.settings.speed | default: 5
+-%}
+
+{%- style -%}
+  .scrolling-text {
+    --_font-size: {{ text_size }}px;
+  }
+{%- endstyle -%}
+
+{%- capture text -%}
+  {%- if text != blank -%}
+    <span>{{ text }}</span>
+  {%- endif -%}
+{%- endcapture -%}
+
+{%- if text_spacing -%}
+  {%- assign gap = 'md' -%}
+{%- else -%}
+  {%- assign gap = 'xs' -%}
+{%- endif -%}
+
+{%- capture content -%}
+  {%- render 'layout.section-heading' -%}
+
+  {%- if link != blank -%}
+    <a href="{{ link }}">
+  {%- endif -%}
+
+  {%- render 'element.marquee', slot: text, direction: direction, speed: speed, gap: gap -%}
+
+  {%- if link != blank -%}
+    </a>
+  {%- endif -%}
+{%- endcapture -%}
+
+{%- render 'layout.section', classlist: 'scrolling-text', slot: content, full_width: true -%}
+
+{%- stylesheet -%}
+  .scrolling-text {
+    font-size: var(--_font-size);
+  }
+{%- endstylesheet -%}

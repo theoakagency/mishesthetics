@@ -1,0 +1,278 @@
+{% doc %}
+  Copyright © 2025 Archetype Themes LP. All rights reserved.
+
+  Site footer with menu links, newsletter signup, copyright, and social icons.
+
+  @param {boolean} [show_newsletter] - Display newsletter form
+  @param {string} [newsletter_richtext] - Newsletter form text
+  @param {boolean} [footer_main_menu] - Show main menu on mobile
+  @param {boolean} [show_copyright] - Display copyright text
+  @param {string} [copyright_text] - Custom copyright text
+  @param {object} [policies_menu] - Policies menu object
+  @param {boolean} [show_wave] - Display wave background decoration
+
+  @example
+  {% render 'section.footer', show_newsletter: true, show_copyright: true %}
+{% enddoc %}
+
+{% stylesheet %}
+  .site-footer {
+    display: block;
+    font-size: calc(var(--element-text-font-size--body-md) - 1px);
+
+    & .faux-select {
+      font-size: calc(var(--element-text-font-size--body-md) - 1px);
+      min-width: max-content;
+    }
+  }
+
+  .footer__section {
+    padding: 30px 0;
+    border-top: 1px solid;
+    border-top-color: color-mix(in srgb, var(--color-primary) var(--shade-12), var(--color-secondary));
+
+    .site-footer:not(:has([data-type='menu'])) & {
+      padding-top: 0;
+      border-top-width: 0;
+    }
+  }
+
+  @media only screen and (min-width: 769px) {
+    .footer__section--menus {
+      padding-top: 50px;
+    }
+  }
+
+  /* Mimic a standalone section on mobile */
+  @media only screen and (max-width: 768px) {
+    .footer__mobile-section {
+      margin-left: calc(var(--page-width-padding) * -1);
+      margin-right: calc(var(--page-width-padding) * -1);
+      padding: 20px var(--page-width-padding) 0;
+      border-top: 1px solid;
+    }
+  }
+
+  .footer__title {
+    margin-bottom: 15px;
+  }
+
+  .footer__subscribe {
+    font-weight: var(--element-text-font-weight--heading);
+    font-size: calc(var(--element-text-font-size--body-md) + 2px);
+  }
+
+  .footer__menu {
+    margin: 0 0 20px;
+    padding: 0;
+    list-style: none;
+
+    @media only screen and (max-width: 768px) {
+      margin-bottom: 0;
+    }
+
+    & li {
+      margin: 0;
+    }
+
+    & a {
+      display: inline-block;
+      padding: 4px 0;
+    }
+
+    & .element-icon {
+      margin-right: 10px;
+
+      [dir='rtl'] & {
+        margin-right: 0;
+        margin-left: 10px;
+      }
+    }
+  }
+
+  .footer__menu--underline a {
+    text-decoration: underline;
+    text-underline-offset: 2px;
+  }
+
+  .footer__blocks {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 20px;
+  }
+
+  .footer__block {
+    flex: 0 1 25%;
+    max-width: 210px;
+  }
+
+  @media only screen and (max-width: 768px) {
+    .footer__blocks--mobile {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+    }
+
+    .footer__block,
+    .footer__block--mobile {
+      max-width: none;
+      flex: 1 1 50%;
+    }
+
+    .footer__block[data-type='payment'],
+    .footer__block[data-type='contact'] {
+      flex: 1 0 100%;
+    }
+
+    & .multi-selectors--footer .multi-selectors__item {
+      margin: 0;
+    }
+  }
+
+  .payment-icons {
+    user-select: none;
+    cursor: default;
+    margin-bottom: 20px;
+
+    @media only screen and (max-width: 768px) {
+      margin-bottom: 0;
+    }
+
+    & li {
+      cursor: default;
+      margin: 0 8px 4px 0;
+    }
+  }
+
+  /* Footer of the footer */
+  .footer__base-links {
+    font-size: 13px;
+
+    & a,
+    & span {
+      display: inline-block;
+      padding: 2px 20px 2px 0;
+    }
+
+    & a {
+      text-decoration: underline;
+      text-underline-offset: 2px;
+    }
+  }
+{% endstylesheet %}
+
+{%- liquid
+  assign show_newsletter = show_newsletter | default: section.settings.show_newsletter, allow_false: true | default: true, allow_false: true
+  assign newsletter_richtext = newsletter_richtext | default: section.settings.newsletter_richtext
+  assign footer_main_menu = footer_main_menu | default: section.settings.footer_main_menu, allow_false: true | default: true, allow_false: true
+  assign show_copyright = show_copyright | default: section.settings.show_copyright, allow_false: true | default: true, allow_false: true
+  assign copyright_text = copyright_text | default: section.settings.copyright_text
+  assign policies_menu = policies_menu | default: section.settings.policies_menu
+  assign show_wave = show_wave | default: section.settings.show_wave, allow_false: true | default: false, allow_false: true
+  assign hydration = hydration | default: 'on:visible'
+  assign color_scheme = color_scheme | default: section.settings.color_scheme | default: 'none'
+-%}
+
+{%- if show_newsletter -%}
+  <div class="footer__section footer__section--border color-scheme-{{ color_scheme }}">
+    <div class="page-width">
+      {%- capture footer_newsletter -%}
+        {%- if newsletter_richtext != blank -%}
+          {%- render 'element.text', as: 'div', variant: 'rte', text: newsletter_richtext, alignment: 'center', classlist: 'footer__subscribe' -%}
+        {%- endif -%}
+
+        {%- render 'form.customer', context: 'footer' -%}
+      {%- endcapture -%}
+
+      {%- render 'layout.stack',
+        slot: footer_newsletter,
+        horizontal_md: true,
+        justify: 'center',
+        align: 'center',
+        classlist: 'footer__newsletter',
+        gap_xs: 'sm',
+        gap_md: 'md'
+      -%}
+    </div>
+  </div>
+{%- endif -%}
+
+{% comment %}
+  Main navigation is copied here with JS for mobile users
+{% endcomment %}
+{%- if footer_main_menu -%}
+  <div id="FooterMobileNavWrap" class="footer__section footer__section--border medium-up--hide">
+    <div id="FooterMobileNav" class="page-width"></div>
+  </div>
+{%- endif -%}
+
+<is-land {{ hydration }}>
+  <footer-section
+    class="site-footer color-scheme-{{ color_scheme }}"
+    data-section-id="{{ section.id }}"
+    data-section-type="footer-section"
+  >
+    <div
+      id="FooterMenus"
+      class="footer__section footer__section--menus {% if show_wave %}background-svg--wave-reverse{% endif %}"
+    >
+      <div class="page-width">
+        <div class="footer__blocks">
+          {%- for block in section.blocks -%}
+            <div
+              class="footer__block footer__block--{{ block.type }}"
+              data-type="{{ block.type }}"
+              {{ block.shopify_attributes }}
+            >
+              {%- liquid
+                case block.type
+                  when 'menu'
+                    render 'footer-menu', block: block
+                  when 'payment'
+                    render 'footer-payments', block: block
+                  when 'contact'
+                    render 'footer-contact', block: block
+                  when 'image'
+                    render 'footer-image', block: block
+                  when 'follow_shop_cta'
+                    render 'follow-shop-cta'
+                endcase
+              -%}
+            </div>
+          {%- endfor -%}
+        </div>
+      </div>
+    </div>
+
+    <div class="footer__section">
+      <div class="page-width text-center small--text-left">
+        <div class="footer__base-links">
+          {%- if show_copyright -%}
+            <span>
+              &copy; {{ 'now' | date: '%Y' }}
+              {{ shop.name }}
+              {%- if copyright_text != blank -%}
+                {{ copyright_text }}
+              {%- endif -%}
+            </span>
+          {%- endif -%}
+
+          {%- if policies_menu.links.size > 0 -%}
+            {%- for link in policies_menu.links -%}
+              <a href="{{ link.url }}">{{ link.title }}</a>
+            {%- endfor -%}
+          {%- endif -%}
+
+          {{ powered_by_link }}
+        </div>
+      </div>
+    </div>
+  </footer-section>
+
+  <template data-island>
+    <script type="module">
+      import 'section.footer'
+    </script>
+  </template>
+</is-land>

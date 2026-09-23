@@ -1,0 +1,103 @@
+{%- doc -%}
+  Copyright © 2025 Archetype Themes LP. All rights reserved.
+
+  Displays the active filters in a list format for the collection grid.
+
+  @param {object} context - Collection or search object
+  @param {boolean} [enable_reset_all_filters] - Show reset all button
+  @param {boolean} [enable_reset_price_filter] - Show reset price button
+
+  @example
+  {% render 'list.filter-grid.active-tags', context: context %}
+{%- enddoc -%}
+
+{% stylesheet %}
+  .active-tags {
+    display: block;
+
+    @media only screen and (max-width: 768px) {
+      margin: 20px 20px 10px;
+    }
+  }
+{% endstylesheet %}
+
+{%- liquid
+  assign enable_reset_all_filters = enable_reset_all_filters | default: false, allow_false: true
+  assign enable_reset_price_filter = enable_reset_price_filter | default: false, allow_false: true
+  assign current_filter_size = 0
+  assign min = null
+  assign max = null
+  assign is_price_filter_active = false
+  for filter in context.filters
+    assign current_filter_size = current_filter_size | plus: filter.active_values.size
+    if filter.type == 'price_range'
+      assign min = filter.min_value.value
+      assign max = filter.max_value.value
+      # Check if price range filter is active
+      if min != null or max != null
+        assign is_price_filter_active = true
+        assign current_filter_size = current_filter_size | plus: 1
+      endif
+    endif
+  endfor
+  assign sort_by = context.sort_by | default: context.default_sort_by
+  assign results_url = context.url
+  if request.page_type == 'search'
+    assign terms = context.terms | escape
+    assign results_url = '?q=' | append: terms | append: '&options%5Bprefix%5D=last&sort_by=' | append: sort_by
+  endif
+-%}
+
+{%- if current_filter_size > 0 -%}
+  <active-tags class="active-tags">
+    {%- capture tag_list -%}
+      {%- for filter in context.filters -%}
+        {%- for filter_value in filter.active_values -%}
+          <div class="tag tag--remove">
+            {%- render 'element.chip',
+              href: filter_value.url_to_remove,
+              label: filter_value.label,
+              dismissible: true,
+              active: true,
+              classlist: 'js-no-transition'
+            -%}
+          </div>
+        {%- endfor -%}
+        {%- if filter.type == 'price_range' and is_price_filter_active and enable_reset_price_filter -%}
+          <div class="tag tag--remove">
+            {%- capture chip_label -%}
+              {{ min | default: 0 | money }} - {{ max | default: filter.range_max | money }}
+            {%- endcapture -%}
+
+            {%- render 'element.chip',
+              href: filter.url_to_remove,
+              label: chip_label,
+              dismissible: true,
+              active: true,
+              classlist: 'js-no-transition'
+            -%}
+          </div>
+        {%- endif -%}
+      {%- endfor -%}
+      {%- if enable_reset_all_filters -%}
+        <div class="tag--reset-all">
+          <a href="{{ results_url }}">
+            {% render 'utility.translate', key: 'actions.reset_filters', fallback: 'Reset filters' -%}
+          </a>
+        </div>
+      {%- endif -%}
+    {%- endcapture -%}
+
+    {%- render 'layout.stack',
+      as: 'div',
+      classlist: 'no-bullets tag-list tag-list--active-tags',
+      horizontal: true,
+      slot: tag_list,
+      gap: 'xs'
+    -%}
+  </active-tags>
+
+  <script type="module">
+    import 'list.filter-grid.active-tags'
+  </script>
+{%- endif -%}

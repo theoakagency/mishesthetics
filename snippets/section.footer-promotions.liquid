@@ -1,0 +1,140 @@
+{% doc %}
+  Copyright © 2025 Archetype Themes LP. All rights reserved.
+
+  Footer promotional banner section with configurable visibility.
+
+  @param {boolean} [show_section] - Display section
+  @param {boolean} [hide_homepage] - Hide on homepage
+
+  @example
+  {% render 'section.footer-promotions', show_section: true %}
+{% enddoc %}
+
+{% stylesheet %}
+  @media only screen and (max-width: 768px) {
+    .footer-promotions {
+      & .grid__item {
+        margin-bottom: 32px;
+
+        &:last-child {
+          margin-bottom: 0;
+        }
+      }
+    }
+  }
+
+  .footer-promotion {
+    width: 100%;
+    text-align: center;
+    padding: 22px;
+    border-radius: var(--roundness);
+    overflow: hidden;
+
+    @media only screen and (min-width: 769px) {
+      padding: 30px;
+    }
+
+    & .scheme-image {
+      border-radius: calc(var(--roundness) + 2px);
+    }
+
+    &[class*='color-scheme-']:not(.color-scheme-none) .btn {
+      border: 0;
+    }
+  }
+
+  .footer__grid-image {
+    display: block;
+    text-align: center;
+    margin-bottom: 17px;
+
+    @media only screen and (min-width: 769px) {
+      margin-bottom: 20px;
+    }
+
+    & img {
+      display: block;
+    }
+  }
+
+  .color-scheme-none.footer-promotion {
+    border: 1px solid;
+    border-color: color-mix(in srgb, var(--color-primary) var(--shade-12), var(--color-secondary));
+  }
+{% endstylesheet %}
+
+{%- liquid
+  assign show_section = show_section | default: section.settings.show_section, allow_false: true | default: true, allow_false: true
+  assign hide_homepage = hide_homepage | default: section.settings.hide_homepage, allow_false: true | default: true, allow_false: true
+
+  if template == 'index' and hide_homepage
+    assign show_section = false
+  endif
+-%}
+
+{%- if show_section -%}
+  {%- if section.blocks.size > 0 -%}
+    {%- liquid
+      assign grid_item_width = 'medium-up--one-half'
+      if section.blocks.size == 3
+        assign grid_item_width = 'medium-up--one-third'
+      endif
+    -%}
+
+    <div class="index-section">
+      <div class="section--divider">
+        <div class="page-width footer-promotions">
+          <div class="new-grid new-grid--center" data-view="3-1">
+            {%- for block in section.blocks -%}
+              <div class="grid-item {{ grid_item_width }}" {{ block.shopify_attributes }}>
+                <div class="footer-promotion color-scheme-{{ block.settings.color_scheme }}">
+                  {%- render 'utility.color-scheme-texture', color_scheme: block.settings.color_scheme -%}
+
+                  {%- if block.settings.enable_image -%}
+                    <a
+                      href="{{ block.settings.button_link }}"
+                      class="footer__grid-image {% if block.settings.image_width %}footer__grid-image--{{ block.settings.image_width }}{% endif %}"
+                      aria-label="{{ block.settings.title }}"
+                    >
+                      {%- if block.settings.image != blank -%}
+                        <div
+                          class="image-wrap {% if block.settings.image_mask != 'none' %}svg-mask svg-mask--{{ block.settings.image_mask }}{% endif %}"
+                          style="height: 0; padding-bottom: {{ 100 | divided_by: block.settings.image.aspect_ratio }}%;"
+                        >
+                          {%- render 'element.image',
+                            img: block.settings.image,
+                            widths: '180, 360, 540, 720, 900, 1080',
+                            sizeVariable: 3
+                          -%}
+                        </div>
+                      {%- else -%}
+                        <div class="image-wrap {% if block.settings.image_mask != 'none' %}svg-mask svg-mask--{{ block.settings.image_mask }}{% endif %}">
+                          {%- render 'element.placeholder', name: 'lifestyle-1', no_padding: true -%}
+                        </div>
+                      {%- endif -%}
+                    </a>
+                  {%- endif -%}
+                  {%- if block.settings.title != blank -%}
+                    <h2 class="{% if block.settings.heading_size %}heading-{{ block.settings.heading_size }}{% else %}heading-md{% endif %} rte--block">
+                      {{ block.settings.title }}
+                    </h2>
+                  {%- endif -%}
+                  {%- if block.settings.text != blank -%}
+                    <div class="rte-setting rte--block text-spacing">{{ block.settings.text }}</div>
+                  {%- endif -%}
+                  {%- if block.settings.button_label != blank and block.settings.button_link != blank -%}
+                    {%- render 'element.button',
+                      href: block.settings.button_link,
+                      inverted: true,
+                      text: block.settings.button_label
+                    -%}
+                  {%- endif -%}
+                </div>
+              </div>
+            {%- endfor -%}
+          </div>
+        </div>
+      </div>
+    </div>
+  {%- endif -%}
+{%- endif -%}

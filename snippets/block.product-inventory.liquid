@@ -1,0 +1,168 @@
+{% doc %}
+  Copyright © 2025 Archetype Themes LP. All rights reserved.
+
+  Real-time inventory status display with low stock warnings and incoming inventory notifications.
+
+  @param {object} [block] - Block object
+  @param {object} [current_variant] - Current variant object
+  @param {object} [product] - Product object
+
+  @example
+  {% render 'block.product-inventory', product: product %}
+{% enddoc %}
+
+{% stylesheet %}
+  /*Inventory indicator*/
+  @keyframes inventory-pulse {
+    0% {
+      opacity: 0.5;
+    }
+    100% {
+      transform: scale(2.5);
+      opacity: 0;
+    }
+  }
+
+  .element-icon--inventory {
+    &:before,
+    &:after {
+      width: 9px;
+      height: 9px;
+      background: #54c63a;
+      border-radius: 9px;
+      position: absolute;
+      left: 0;
+      top: 0;
+      content: '';
+      margin: 8px;
+    }
+
+    &:before {
+      animation: inventory-pulse 2s linear infinite;
+    }
+
+    .inventory--low & {
+      &:before,
+      &:after {
+        background: #f4af29;
+      }
+    }
+  }
+
+  .product-inventory__points {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+
+    .quick-add-modal & {
+      display: none;
+    }
+  }
+
+  .product-inventory__point {
+    display: block;
+
+    & .element-icon {
+      position: relative;
+      width: 25px;
+      height: 25px;
+      margin-right: 10px;
+
+      [dir='rtl'] & {
+        margin-right: 0;
+        margin-left: 10px;
+      }
+    }
+  }
+{% endstylesheet %}
+
+{%- liquid
+  assign product = section.settings.product | default: product
+  assign current_variant = current_variant | default: product.selected_or_first_available_variant
+
+  assign continue_selling = false
+  assign in_stock = false
+  assign show_incoming_inventory_message = false
+  assign show_low_inventory_message = false
+  assign back_in_stock_dated = false
+  assign backordered = false
+
+  if current_variant
+    if current_variant.inventory_policy == 'continue'
+      assign continue_selling = true
+    endif
+
+    # Untracked variants are always in stock
+    if current_variant.inventory_quantity > 0 or current_variant.inventory_management == nil
+      assign in_stock = true
+    endif
+
+    # Incoming inventory transfer notice: if setting is enabled and quantity <= 0
+    # renders either "Backordered, shipping soon" or "Back in stock {{ date }}"
+    if block.settings.inventory_transfers_enable and current_variant.inventory_quantity <= 0
+      if current_variant.incoming or continue_selling
+        assign show_incoming_inventory_message = true
+      endif
+    endif
+
+    if current_variant.inventory_management == 'shopify'
+      if current_variant.inventory_quantity <= block.settings.inventory_threshold and current_variant.inventory_quantity > 0
+        assign show_low_inventory_message = true
+      endif
+    endif
+
+    if show_incoming_inventory_message
+      # Dated "Back in stock" copy: if transfer date is present and Continue selling is false
+      # Backordered copy: if no transfer date or Continue selling
+      if current_variant.next_incoming_date and continue_selling == false
+        assign back_in_stock_dated = true
+      else
+        assign backordered = true
+      endif
+    endif
+  endif
+-%}
+
+<product-inventory
+  class="product-block--inventory-point{% unless in_stock or show_incoming_inventory_message %} hide{% endunless %}"
+  data-product-id="{{ product.id }}"
+  data-section-id="{{ section.id }}"
+  {{ block.shopify_attributes }}
+>
+  <ul class="product-inventory__points">
+    <li class="product-inventory__point">
+      <span class="icon-and-text{% if show_low_inventory_message or back_in_stock_dated %} inventory--low{% endif %}">
+        <span class="element-icon element-icon--inventory"></span>
+        <span>
+          {%- if show_low_inventory_message -%}
+            {%- assign info_low_stock_count = 'info.low_stock_count' | t: count: current_variant.inventory_quantity -%}
+            {%- capture fallback_info_low_stock_count -%}
+              Low stock - {{ count }} item{%- if count != 1 -%}s{%- endif -%} left
+            {%- endcapture -%}
+            {%- render 'utility.translate', t: info_low_stock_count, fallback: fallback_info_low_stock_count -%}
+
+          {%- elsif in_stock -%}
+            {%- render 'utility.translate', key: 'info.in_stock', fallback: 'In stock, ready to ship' -%}
+
+          {%- elsif show_incoming_inventory_message -%}
+            {%- if back_in_stock_dated -%}
+              {%- assign date = current_variant.next_incoming_date | date: format: 'date' -%}
+              {%- assign info_back_in_stock_on = 'info.back_in_stock_on' | t: date: date -%}
+              {%- capture fallback_info_back_in_stock_on -%}
+                Back in stock {{ date }}
+              {%- endcapture -%}
+              {%- render 'utility.translate', t: info_back_in_stock_on, fallback: fallback_info_back_in_stock_on -%}
+
+            {%- elsif backordered -%}
+              {%- render 'utility.translate', key: 'info.backordered', fallback: 'Backordered, shipping soon' -%}
+            {%- endif -%}
+          {%- endif -%}
+        </span>
+      </span>
+    </li>
+  </ul>
+</product-inventory>
+
+<script type="module">
+  import 'block.product-inventory'
+</script>

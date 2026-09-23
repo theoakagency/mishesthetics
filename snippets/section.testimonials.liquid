@@ -1,0 +1,449 @@
+{% doc %}
+  Copyright © 2025 Archetype Themes LP. All rights reserved.
+
+  Customer testimonials carousel with optional images and ratings.
+
+  @param {string} [title] - Section heading
+  @param {string} [heading_size] - ('sm'|'md'|'lg'|'xl') Heading size
+  @param {string} [align_text] - ('left'|'center'|'right') Text alignment, default: 'center'
+  @param {boolean} [round_images] - Display images with rounded borders, default: true
+  @param {string} [color_scheme] - ('none'|'1'|'2'|'3') Color scheme
+  @param {string} [hydration] - Hydration strategy
+  @param {object} [image] - Background image
+  @param {string} [image_ratio] - Image aspect ratio
+  @param {string} [layout] - ('left'|'right') Image position
+
+  @example
+  {% render 'section.testimonials', align_text: 'center', round_images: true %}
+{% enddoc %}
+
+{%- liquid
+  assign align_text = align_text | default: section.settings.align_text | default: 'center'
+  assign round_images = round_images | default: section.settings.round_images, allow_false: true | default: true, allow_false: true
+  assign title = title | default: section.settings.title
+  assign color_scheme = color_scheme | default: section.settings.color_scheme | default: 'none'
+  assign image = image | default: section.settings.image
+  assign image_ratio = image_ratio | default: section.settings.image_ratio | default: 'square'
+  assign layout = layout | default: section.settings.layout
+  assign hydration = hydration | default: 'on:idle'
+  assign heading_size = heading_size | default: section.settings.heading_size | default: 'md'
+
+  unless color_scheme
+    assign class_name = 'testimonials-' | append: section.id
+    render 'utility.color-scheme-override', class_name: class_name
+  endunless
+
+  capture image_classes
+    echo 'testimonials-section__image testimonials-section__image--' | append: image_ratio
+  endcapture
+-%}
+
+<is-land {{ hydration }}>
+  <testimonials-component
+    class="testimonials-section testimonials-{{ section.id }}{% if image != blank %} testimonials-section--with-image{% if title != blank %} testimonials-section--with-title{% endif %}{% endif %}{% if layout %} testimonials-section--layout-{{ layout }}{% endif %} text-{{ align_text }} color-scheme-{{ color_scheme }}"
+    section-id="{{ section.id }}"
+  >
+    {%- render 'utility.color-scheme-texture', color_scheme: color_scheme -%}
+
+    <div class="testimonials-section__inner" style="z-index: 1;">
+      {%- if title != blank -%}
+        <div class="page-width testimonials-section__header">
+          <div class="section-header">
+            {% render 'element.text', as: 'h2', text: title, variant: 'heading', size: heading_size %}
+          </div>
+        </div>
+      {%- endif -%}
+
+      {%- if image != blank -%}
+        {%- render 'element.image', img: image, widths: '180, 360, 540, 750, 900, 1080', classlist: image_classes -%}
+      {%- endif -%}
+
+      {%- if section.blocks.size > 0 -%}
+        <div class="slideshow-wrapper testimonials-section__slideshow">
+          <div
+            class="testimonials-slider"
+            id="Testimonials-{{ section.id }}"
+            data-dots="{% if section.blocks.size > 1 %}true{% else %}false{% endif %}"
+            data-count="{{ section.blocks.size }}"
+          >
+            {%- for block in section.blocks -%}
+              <div
+                class="testimonials-slide testimonials-slide--{{ block.id }}"
+                data-index="{{ forloop.index0 }}"
+                {{ block.shopify_attributes }}
+              >
+                <blockquote class="testimonials-slider__text">
+                  {%- capture testimonial_icon -%}
+                    {%- if block.settings.icon == 'quote' -%}
+                      <span class="quote-icon">{% render 'element.icon', name: 'quote' %}</span>
+                    {%- elsif block.settings.icon == '5-stars' -%}
+                      <span class="testimonial-stars">★★★★★</span>
+                    {%- elsif block.settings.icon == '4-stars' -%}
+                      <span class="testimonial-stars">★★★★</span>
+                    {%- elsif block.settings.icon == '3-stars' -%}
+                      <span class="testimonial-stars">★★★</span>
+                    {%- elsif block.settings.icon == '2-stars' -%}
+                      <span class="testimonial-stars">★★</span>
+                    {%- elsif block.settings.icon == '1-star' -%}
+                      <span class="testimonial-stars">★</span>
+                    {%- endif -%}
+                  {%- endcapture -%}
+
+                  {%- capture testimonial_text -%}
+                    {%- if block.settings.testimonial != blank -%}
+                      {%- render 'element.text', variant: 'rte', text: block.settings.testimonial -%}
+                    {%- endif -%}
+                  {%- endcapture -%}
+
+                  {%- liquid
+                    case align_text
+                      when 'left'
+                        assign align_value = 'start'
+                      when 'right'
+                        assign align_value = 'end'
+                      else
+                        assign align_value = 'center'
+                    endcase
+                  -%}
+
+                  {%- capture author_image -%}
+                    {%- if block.settings.image != blank -%}
+                      <div class="testimonial-image{% if round_images %} testimonial-image--round{% endif %}">
+                        <div class="image-wrap text-spacing">
+                          {%- liquid
+                            if round_images
+                              assign sizeVariable = '65px'
+                            else
+                              assign sizeVariable = '142px'
+                            endif
+                            assign fallback = sizeVariable
+                            render 'element.image', img: block.settings.image, sizeVariable: sizeVariable, fallback: fallback, widths: '180, 360, 540, 720'
+                          -%}
+                        </div>
+                      </div>
+                    {%- endif -%}
+                  {%- endcapture -%}
+
+                  {%- capture author_text -%}
+                    <div>
+                      {%- if block.settings.author != blank -%}
+                        {% render 'element.text', as: 'cite', text: block.settings.author, variant: 'body-sm', style: '--element-text-font-weight: 600;' %}
+                      {%- endif -%}
+                      {%- if block.settings.author_info != blank -%}
+                        {% render 'element.text', variant: 'body-sm', text: block.settings.author_info %}
+                      {%- endif -%}
+                    </div>
+                  {%- endcapture -%}
+
+                  {%- capture author_stack_content -%}
+                    {{ author_image }}
+                    {{ author_text }}
+                  {%- endcapture -%}
+
+                  {%- capture author_content -%}
+                    {% render 'layout.stack',
+                      slot: author_stack_content,
+                      horizontal_sm: true,
+                      align: align_value,
+                      justify: align_value,
+                      gap: 'sm',
+                      classlist: 'testimonials__author'
+                    %}
+                  {%- endcapture -%}
+
+                  {%- capture testimonial_content -%}
+                    {{ testimonial_icon }}
+                    {{ testimonial_text }}
+                    {{ author_content }}
+                  {%- endcapture -%}
+
+                  {% render 'layout.stack', slot: testimonial_content, gap: 'md' %}
+                </blockquote>
+              </div>
+            {%- endfor -%}
+          </div>
+        </div>
+      {%- endif -%}
+    </div>
+  </testimonials-component>
+
+  <template data-island>
+    <script type="module">
+      import 'section.testimonials'
+    </script>
+  </template>
+</is-land>
+
+{%- stylesheet -%}
+  .quote-icon {
+    display: block;
+  }
+
+  .testimonial-stars {
+    display: block;
+    font-size: 16px;
+    letter-spacing: 0.2em;
+
+    @media only screen and (min-width: 769px) {
+      font-size: 18px;
+    }
+  }
+
+  .testimonials-slide {
+    display: none;
+    opacity: 0;
+    padding: 0 0 55px;
+    width: var(--testimonial-slide-width);
+
+    /*Hide all but first slide to prevent page reflows prior to init*/
+    &:first-child {
+      display: block;
+    }
+
+    .flickity-slider & {
+      display: block;
+      opacity: 1;
+    }
+
+    & .testimonials-slider__text {
+      transform: scale(0.95);
+      transition: transform 0.5s ease, box-shadow 0.5s ease;
+      background: inherit;
+      color: inherit;
+    }
+
+    &.is-selected .testimonials-slider__text {
+      transform: scale(1.1);
+      box-shadow: var(--testimonial-box-shadow);
+      position: relative;
+      z-index: 10;
+    }
+
+    /* Remove box-shadow when section has an image */
+    .testimonials-section--with-image &.is-selected .testimonials-slider__text {
+      box-shadow: none;
+    }
+
+    @media only screen and (max-width: 768px) {
+      & {
+        width: 100%;
+        padding: 0 0 25px;
+      }
+
+      & .testimonials-slider__text {
+        transform: scale(0.86);
+      }
+
+      &.is-selected .testimonials-slider__text {
+        transform: scale(1);
+        box-shadow: none;
+      }
+    }
+  }
+
+  .testimonials-slider__text {
+    padding: 30px calc(var(--gutter) / 2);
+    background: var(--root-color-secondary);
+    color: var(--root-color-primary);
+
+    @media only screen and (min-width: 769px) {
+      margin: 0;
+      padding: 30px;
+    }
+
+    & cite {
+      font-style: normal;
+    }
+  }
+
+  .testimonials-slider:focus-visible .flickity-page-dots {
+    outline: 3px solid var(--color-focus);
+  }
+
+  :root {
+    --testimonial-image-size: var(--size-14);
+    --testimonial-box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+    --testimonial-image-radius: 0;
+    --testimonial-slide-width: 33%;
+    --testimonial-slideshow-max-width: none;
+  }
+
+  .testimonial-image {
+    width: var(--testimonial-image-size);
+    height: var(--testimonial-image-size);
+    aspect-ratio: 1 / 1;
+
+    .text-right & {
+      margin-left: auto;
+    }
+
+    & .image-wrap {
+      background: none;
+      width: 100%;
+      height: 100%;
+
+      img {
+        border-radius: var(--testimonial-image-radius);
+        height: 100%;
+      }
+    }
+  }
+
+  .testimonial-image--round {
+    --testimonial-image-radius: var(--radius-full);
+  }
+
+  .testimonials-section {
+    display: block;
+    padding: var(--index-section-padding) 0;
+    overflow: hidden;
+  }
+
+  .testimonials-section .flickity-page-dots {
+    bottom: 0;
+    margin: 0;
+    left: 0;
+    right: 0;
+    width: auto;
+  }
+
+  .testimonials-section.text-left .flickity-page-dots {
+    text-align: left;
+  }
+
+  .testimonials-section.text-right .flickity-page-dots {
+    text-align: right;
+  }
+
+  .testimonials-section.text-center .flickity-page-dots {
+    text-align: center;
+  }
+
+  .testimonials-section__inner {
+    width: 100%;
+  }
+
+  .testimonials-section__inner > [data-image-type] {
+    display: block;
+    width: 50%;
+    margin-left: auto;
+    margin-right: auto;
+
+    img {
+      object-fit: cover;
+    }
+  }
+
+  .testimonials-section__image--square {
+    aspect-ratio: 1 / 1;
+  }
+
+  .testimonials-section__image--portrait {
+    aspect-ratio: 3 / 4;
+  }
+
+  .testimonials-section__image--landscape {
+    aspect-ratio: 4 / 3;
+  }
+
+  @media only screen and (max-width: 768px) {
+    .testimonials-slide .testimonials-slider__text {
+      margin-left: 0;
+      margin-right: 0;
+    }
+
+    .testimonials-section.text-left .testimonials-section__inner > [data-image-type] {
+      margin-left: var(--page-width-padding);
+      margin-right: auto;
+    }
+
+    .testimonials-section.text-right .testimonials-section__inner > [data-image-type] {
+      margin-left: auto;
+      margin-right: var(--page-width-padding);
+    }
+
+    .testimonials-section .flickity-page-dots {
+      margin-left: var(--page-width-padding);
+      margin-right: var(--page-width-padding);
+    }
+  }
+
+  @media only screen and (min-width: 769px) {
+    .testimonials-section__inner {
+      max-width: var(--page-width);
+      margin: 0 auto;
+      padding: 0 var(--page-width-padding);
+    }
+
+    .testimonials-section__slideshow {
+      position: relative;
+    }
+
+    .testimonials-section .flickity-page-dots {
+      left: auto;
+      right: auto;
+      width: 100%;
+    }
+
+    .testimonials-section--with-image .testimonials-section__inner {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      grid-template-rows: auto auto;
+    }
+
+    .testimonials-section--with-image.testimonials-section--layout-image_right .testimonials-section__inner {
+      grid-template-areas: 'slideshow image';
+    }
+
+    .testimonials-section--with-image.testimonials-section--layout-image_left .testimonials-section__inner {
+      grid-template-areas: 'image slideshow';
+    }
+
+    .testimonials-section--with-title.testimonials-section--with-image.testimonials-section--layout-image_right
+      .testimonials-section__inner {
+      grid-template-areas:
+        'header image'
+        'slideshow image';
+    }
+
+    .testimonials-section--with-title.testimonials-section--with-image.testimonials-section--layout-image_left
+      .testimonials-section__inner {
+      grid-template-areas:
+        'image header'
+        'image slideshow';
+    }
+
+    .testimonials-section__header {
+      grid-area: header;
+      align-self: end;
+      padding: 0;
+      width: 100%;
+      max-width: 600px;
+    }
+
+    .testimonials-section__inner > [data-image-type] {
+      grid-area: image;
+      width: 80%;
+    }
+
+    .testimonials-section__slideshow {
+      margin-left: auto;
+      margin-right: auto;
+      max-width: var(--testimonial-slideshow-max-width);
+    }
+
+    .testimonials-section--with-image .testimonials-section__slideshow {
+      grid-area: slideshow;
+      align-self: center;
+      width: 100%;
+    }
+
+    .testimonials-section--with-title .testimonials-section__slideshow {
+      align-self: start;
+    }
+
+    .testimonials-section .testimonials__author .testimonial-image {
+      margin: 0;
+    }
+  }
+{%- endstylesheet -%}

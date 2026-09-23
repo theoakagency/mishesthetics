@@ -1,0 +1,338 @@
+{% doc %}
+  Copyright © 2025 Archetype Themes LP. All rights reserved.
+
+  Blog article card for displaying posts in grid or list layouts.
+
+  @param {object} blog - Blog object
+  @param {object} article - Article object to display
+  @param {string} [style] - Card style ('compact', 'medium', 'large')
+  @param {boolean} [show_tags] - Display article tags
+  @param {boolean} [show_date] - Display publish date
+  @param {boolean} [show_comments] - Display comment count
+  @param {boolean} [show_author] - Display author name
+  @param {boolean} [show_excerpt] - Display article excerpt
+  @param {string} [image_size] - Image aspect ratio ('natural', 'square', 'landscape', 'portrait', 'wide')
+  @param {string} [grid_item_width] - Grid item width
+
+  @example
+  {% render 'list.article-card', article: article, style: 'medium', show_tags: true %}
+{% enddoc %}
+
+{% stylesheet %}
+  /*Article grid items*/
+  .grid-article {
+    flex: 0 0 100%;
+    display: flex;
+    flex-wrap: wrap;
+    text-align: center;
+    margin-bottom: 40px;
+
+    @media only screen and (max-width: 768px) {
+      &[data-style='large'] {
+        justify-content: center;
+      }
+    }
+
+    @media only screen and (min-width: 769px) {
+      &[data-style='medium'],
+      &[data-style='large'] {
+        display: block;
+      }
+    }
+
+    &:last-child {
+      margin-bottom: 0;
+    }
+  }
+
+  .grid-article__image {
+    position: relative;
+    flex: 0 0 100%;
+
+    & .image-wrap {
+      border-radius: var(--roundness);
+    }
+
+    &:not(:has(.grid-article__tags)) {
+      margin-bottom: 20px;
+    }
+  }
+
+  .grid-article__tags {
+    display: block;
+    align-items: center;
+    justify-content: center;
+    transform: translateY(-50%);
+
+    li {
+      margin-bottom: 0;
+    }
+  }
+
+  .grid-article__meta {
+    flex: 0 0 100%;
+  }
+
+  .grid-article[data-style='large'] {
+    & .article__title {
+      font-size: calc(var(--element-text-font-size--body-md) + 10px);
+
+      @media only screen and (max-width: 768px) {
+        font-size: calc(var(--element-text-font-size--body-md) + 7px);
+      }
+    }
+
+    & .article__sub-meta > span {
+      margin: 0 25px 2px;
+    }
+  }
+
+  .grid-article[data-style='medium'] {
+    flex: 0 0 50%;
+
+    & .article__title {
+      font-size: calc(var(--element-text-font-size--body-md) + 2px);
+    }
+
+    @media only screen and (min-width: 769px) {
+      & .article__sub-meta > span {
+        margin: 0 5px 2px;
+      }
+    }
+  }
+
+  /*Compact grid article styles*/
+  .grid-article[data-style='compact'] {
+    flex: 0 0 100%;
+    flex-wrap: nowrap;
+    text-align: left;
+    margin-bottom: 20px;
+    padding: 0;
+    gap: 10px;
+
+    & .grid-article__image {
+      flex: 0 0 40%;
+      align-self: flex-start;
+    }
+
+    & .grid-article__meta {
+      flex: 0 0 60%;
+      padding-left: 15px;
+    }
+
+    & .article__title {
+      font-size: calc(var(--element-text-font-size--body-md) + 1px);
+    }
+
+    /* Only show first tag */
+    & .chip:not(:first-of-type) {
+      display: none;
+    }
+  }
+
+  /*Medium on large screens matches compact styles on small screens*/
+  @media only screen and (max-width: 768px) {
+    .grid-article[data-style='medium'] {
+      flex: 0 0 100%;
+      flex-wrap: nowrap;
+      text-align: left;
+      margin-bottom: 20px;
+      gap: 10px;
+
+      & .grid-article__image {
+        flex: 0 0 40%;
+        align-self: center;
+      }
+
+      & .grid-article__meta {
+        flex: 0 0 60%;
+        padding-left: 15px;
+      }
+
+      & .article__title {
+        font-size: calc(var(--element-text-font-size--body-md) + 1px);
+      }
+
+      /* Only show first tag */
+      & .badge:not(:first-child) {
+        display: none;
+      }
+    }
+  }
+{% endstylesheet %}
+
+{%- liquid
+  assign style = style | default: blank
+  assign show_tags = show_tags | default: section.settings.blog_show_tags, allow_false: true | default: true, allow_false: true
+  assign show_date = show_date | default: section.settings.blog_show_date, allow_false: true | default: true, allow_false: true
+  assign show_comments = show_comments | default: section.settings.blog_show_comments, allow_false: true | default: true, allow_false: true
+  assign show_author = show_author | default: section.settings.blog_show_author, allow_false: true | default: true, allow_false: true
+  assign show_excerpt = show_excerpt | default: section.settings.blog_show_excerpt, allow_false: true | default: true, allow_false: true
+  assign image_size = image_size | default: section.settings.blog_image_size | default: 'wide'
+  assign grid_item_width = grid_item_width | default: 'grid-item--half'
+
+  assign fixed_aspect_ratio = false
+
+  unless image_size == 'natural'
+    assign fixed_aspect_ratio = true
+  endunless
+-%}
+
+{%- liquid
+  if style == 'large'
+    assign sizeVariable = '60vw'
+  elsif style == 'medium'
+    assign sizeVariable = '30vw'
+    assign fallback = '40vw'
+  else
+    assign sizeVariable = '16vw'
+    assign fallback = '40vw'
+  endif
+-%}
+
+<div
+  class="grid__item grid-article {{ grid_item_width }}"
+  {% if style != blank %}
+    data-style="{{ style | escape }}"
+  {% endif %}
+>
+  <div class="grid-article__image">
+    {%- if article.empty? -%}
+      <div class="image-wrap">
+        <div class="grid__image-ratio grid__image-ratio--{{ image_size }}">
+          {%- render 'element.placeholder', name: 'image', no_padding: true -%}
+        </div>
+      </div>
+    {%- else -%}
+      {%- if article.image -%}
+        <a href="{{ article.url }}" aria-label="{{ article.title | escape }}">
+          {%- if fixed_aspect_ratio -%}
+            <div class="image-wrap">
+              <div class="grid__image-ratio grid__image-ratio--{{ image_size }}">
+                {%- render 'element.image',
+                  img: article.image,
+                  sizeVariable: sizeVariable,
+                  fallback: fallback,
+                  widths: '360, 540, 720, 900, 1080'
+                -%}
+              </div>
+            </div>
+          {%- else -%}
+            <div
+              class="image-wrap"
+              style="height: 0; padding-bottom: {{ 100 | divided_by: article.image.aspect_ratio }}%;"
+            >
+              {%- render 'element.image',
+                img: article.image,
+                sizeVariable: sizeVariable,
+                fallback: fallback,
+                widths: '180, 360, 540, 720, 900, 1080'
+              -%}
+            </div>
+          {%- endif -%}
+        </a>
+      {%- endif -%}
+    {%- endif -%}
+
+    {%- if show_tags and article.tags.size > 0 and style != blank -%}
+      {%- capture tag_group -%}
+        {%- for tag in article.tags -%}
+          {%- assign tag_link = blog.url | append: '/tagged/' | append: tag.handle -%}
+          <li>
+            {%- render 'element.chip', label: tag, href: tag_link -%}
+          </li>
+        {%- endfor -%}
+      {%- endcapture -%}
+
+      {%- render 'layout.stack',
+        as: 'ul',
+        classlist: 'grid-article__tags',
+        slot: tag_group,
+        horizontal: true,
+        justify: 'center',
+        gap: '2xs'
+      %}
+    {%- endif -%}
+  </div>
+
+  {%- capture meta_content -%}
+    {%- if article.empty? -%}
+      <a href="{{ article.url }}" class="article__title">Example blog post</a>
+      <div class="article__sub-meta">
+        {%- if show_comments -%}
+          <span>
+            <a href="#">
+              {% assign info_comments_count = 'info.comments_count' | t: count: 0 %}
+              {%- capture fallback_info_comments_count -%}
+                {{ count }} comments
+              {%- endcapture -%}
+              {% render 'utility.translate', t: info_comments_count, fallback: fallback_info_comments_count %}
+            </a>
+          </span>
+        {%- endif -%}
+
+        {%- if show_date -%}
+          <span class="article__sub-meta-date">Jul 17, {{ 'now' | date: '%Y' }}</span>
+        {%- endif -%}
+
+        {%- if show_author -%}
+          <span>by {{ shop.name }}</span>
+        {%- endif -%}
+      </div>
+    {%- else -%}
+      <a href="{{ article.url }}" class="article__title">{{ article.title }}</a>
+      <div class="article__sub-meta">
+        {%- if show_tags and article.tags.size > 0 -%}
+          {%- capture tag_links -%}
+            {%- for tag in article.tags -%}
+              <a href="{{ blog.url }}/tagged/{{ tag | handle }}">{{ tag }}</a>
+            {%- endfor -%}
+          {%- endcapture -%}
+
+          <div class="article__sub-meta-tags">
+            {%- render 'layout.stack',
+              as: 'span',
+              slot: tag_links,
+              horizontal: true,
+              gap: 'xs'
+            -%}
+          </div>
+        {%- endif -%}
+
+        {%- if show_comments and article.comments_count > 0 -%}
+          <span>
+            <a href="{{ article.url }}#comments">
+              {% assign info_comments_count = 'info.comments_count' | t: count: article.comments_count %}
+              {%- capture fallback_info_comments_count -%}
+                {{ article.comments_count }} comment{%- if article.comments_count != 1 -%}s{%- endif -%}
+              {%- endcapture -%}
+              {% render 'utility.translate', t: info_comments_count, fallback: fallback_info_comments_count %}
+            </a>
+          </span>
+        {%- endif -%}
+
+        {%- if show_date -%}
+          <span class="article__sub-meta-date">{{ article.published_at | date: format: 'abbreviated_date' }}</span>
+        {%- endif -%}
+
+        {%- if show_author and style != blank -%}
+          <span>by {{ article.author }}</span>
+        {%- endif -%}
+      </div>
+
+      {%- if show_author and style == blank -%}
+        <div class="article__author">
+          <span>by {{ article.author }}</span>
+        </div>
+      {%- endif -%}
+
+      {% if show_excerpt and style != blank %}
+        <div class="rte article__excerpt clearfix">
+          {{ article.excerpt_or_content | strip_html | truncatewords: 20 }}
+        </div>
+      {% endif %}
+    {%- endif -%}
+  {%- endcapture -%}
+
+  {%- render 'layout.stack', classlist: 'grid-article__meta', slot: meta_content, gap: 'xs' -%}
+</div>

@@ -1,0 +1,138 @@
+{%- doc -%}
+  Color or pattern swatch dot.
+
+  @param {string} [color] - CSS color value
+  @param {string} [image] - Image URL for pattern/texture swatches
+  @param {boolean} [selected] - Show selected ring. Only valid for button tag. Default: false
+  @param {boolean} [disabled] - Disable interaction and show an ✕ mark. Default: false
+  @param {string} [href] - URL. Switches tag to `a` automatically.
+  @param {string} [tag] - HTML tag. Default: 'button'. Use `span` when embedding in radio/checkbox `content`.
+  @param {string} [classes] - Additional CSS classes
+  @param {string} [style] - Inline style overrides
+  @param {string} [aria_label] - Accessible label (`aria-label`). Required for button swatches.
+  @param {string} [id] - HTML id attribute
+  @param {string} [attr] - Additional HTML attributes
+
+  @example
+  {% render 'kit.swatch', color: value.swatch.color, image: image_url, aria_label: swatch_label %}
+  @example
+  {% render 'kit.swatch', color: 'red', href: variant.url, aria_label: 'Red' %}
+{%- enddoc -%}
+
+{%- render 'kit.tokens' -%}
+
+{%- liquid
+  assign selected = selected | default: false, allow_false: true
+  assign disabled = disabled | default: false, allow_false: true
+  assign tag = tag | default: 'button'
+  assign style = style | default: ''
+
+  if href != blank
+    assign tag = 'a'
+  endif
+
+  assign class_list = 'kit-swatch'
+
+  if selected and tag == 'button'
+    assign class_list = class_list | append: ' kit-swatch--selected'
+  endif
+
+  if disabled
+    assign class_list = class_list | append: ' kit-swatch--disabled'
+  endif
+
+  if classes != blank
+    assign class_list = class_list | append: ' ' | append: classes
+  endif
+
+  if color != blank
+    assign style = style | append: '; --kit-swatch-color: ' | append: color
+  endif
+
+  if image != blank
+    assign style = style | append: '; --kit-swatch-image: url(' | append: image | append: ')'
+  endif
+-%}
+
+<{{ tag }}
+  class="{{ class_list }}"
+  {%- if tag == 'a' %}
+    href="{{ href }}"
+    {%- if disabled %} aria-disabled="true"{% endif %}
+  {%- elsif tag == 'button' %}
+    type="button"
+    {%- if disabled %} disabled{% endif %}
+  {%- endif %}
+  {%- if style != blank %}
+    style="{{ style | escape }}"
+  {% endif %}
+  {%- if id != blank %}
+    id="{{ id }}"
+  {% endif %}
+  {%- if aria_label != blank %}
+    aria-label="{{ aria_label | escape }}"
+  {% endif %}
+  {%- if attr != blank %}
+    {{ attr -}}
+  {% endif %}
+></{{ tag }}>
+
+{% stylesheet %}
+  .kit-swatch {
+    --kit-swatch-color: var(--kit-color-secondary);
+    --kit-swatch-image: none;
+
+    display: inline-block;
+    padding: 0;
+    position: relative;
+    width: 2rem;
+    height: 2rem;
+    border-radius: var(--kit-radius-full);
+    background-color: var(--kit-swatch-color);
+    background-image: var(--kit-swatch-image);
+    background-size: cover;
+    background-position: center;
+    overflow: hidden;
+    border: 1px solid color-mix(in srgb, var(--kit-color-primary) var(--kit-color-mix-border), var(--kit-color-secondary));
+    outline: none;
+  }
+
+  .kit-swatch--selected,
+  input:checked ~ .kit-swatch {
+    outline: 1px solid var(--kit-color-primary);
+    outline-offset: 1px;
+    box-shadow: 0 0 0 1px var(--kit-color-secondary);
+  }
+
+  @media (hover: hover) and (pointer: fine) {
+    .kit-swatch:not(:focus-visible, :disabled, .kit-swatch--disabled):hover {
+      outline: 1px solid var(--kit-color-primary);
+      outline-offset: 1px;
+      box-shadow: 0 0 0 1px var(--kit-color-secondary);
+    }
+  }
+
+  .kit-swatch:focus-visible:not(:disabled, .kit-swatch--disabled),
+  input:focus-visible ~ .kit-swatch:not(:disabled, .kit-swatch--disabled) {
+    outline: 1px solid var(--kit-color-focus);
+    outline-offset: 1px;
+  }
+
+  .kit-swatch--disabled::after,
+  button.kit-swatch:disabled::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background-color: var(--kit-color-secondary);
+    mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20'%3E%3Cpath d='M15 5 5 15M5 5l10 10' fill='none' stroke='%23000' stroke-width='1.25' stroke-linecap='round'/%3E%3C/svg%3E")
+      center / contain no-repeat;
+  }
+
+  /* Force either white or light grey for contrast */
+  @supports (color: oklch(from red l c h)) {
+    .kit-swatch--disabled::after,
+    button.kit-swatch:disabled::after {
+      background-color: oklch(from var(--kit-swatch-color) clamp(0.8, (0.9 - l) * 1000, 1) 0 0);
+    }
+  }
+{% endstylesheet %}

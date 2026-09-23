@@ -1,0 +1,146 @@
+{% doc %}
+  Copyright © 2025 Archetype Themes LP. All rights reserved.
+
+  Filterable and sortable product grid with sidebar or top filters.
+
+  @param {object} context - Collection or search object
+  @param {string} [grid_style] - Grid layout ('large', 'medium', 'list')
+  @param {boolean} [enable_filters] - Enable filtering functionality
+  @param {boolean} [enable_sort] - Enable sorting functionality
+  @param {string} [active_tags_location_desktop] - Active tags position ('filterbar', 'sidebar')
+  @param {string} [filter_variant] - Filter style ('checkbox', 'pill')
+  @param {string} [price_range_style] - Price filter style ('slider', 'text')
+  @param {boolean} [enable_reset_all_filters] - Show reset all button
+  @param {boolean} [enable_reset_price_filter] - Show reset price button
+  @param {boolean} [enable_scroll_to_top] - Show scroll to top button
+  @param {boolean} [enable_show_more_filters] - Show more filters button
+  @param {string} [filters_position_desktop] - Filter sidebar position ('left', 'right')
+  @param {boolean} [collapse_filters] - Collapse filters by default
+  @param {string} [hydration] - Hydration strategy
+
+  @example
+  {% render 'list.filter-grid', context: collection, enable_filters: true, grid_style: 'medium' %}
+{% enddoc %}
+
+{% stylesheet %}
+  /*Unload ajax styles*/
+  .collection-grid__wrapper.unload {
+    min-height: 180px;
+    position: relative;
+  }
+
+  @media only screen and (min-width: 769px) {
+    .collection-sidebar {
+      padding-right: 10px;
+      margin-bottom: 20px;
+    }
+  }
+
+  .collection-grid {
+    margin-bottom: var(--index-section-padding);
+  }
+
+  /*Collection sidebar turns into a slide-down drawer on mobile*/
+  @media only screen and (max-width: 768px) {
+    /*Slight padding above grid when quick view buttons extend above grid item*/
+    [data-grid-style='simple'] .collection-grid,
+    [data-grid-style*='grey'] .collection-grid,
+    [data-grid-style*='white'] .collection-grid,
+    [data-grid-style='round'] .collection-grid,
+    [data-grid-style='square'] .collection-grid {
+      padding-top: 10px;
+    }
+  }
+
+  .unload {
+    & [data-section-type='collection-template'] {
+      animation: grid-product__loading 1.5s ease infinite 1.5s;
+    }
+
+    & .collection-grid {
+      opacity: 0.2;
+      transition: opacity 0.3s;
+    }
+  }
+
+  .item-grid {
+    display: block;
+  }
+
+  .item-grid__sidebar {
+    min-height: 0;
+    position: sticky;
+    top: 90px; /*updated with sticky header JS*/
+    max-height: 90vh;
+    overflow-y: auto;
+  }
+{% endstylesheet %}
+
+{%- liquid
+  assign grid_style = grid_style | default: section.settings.grid_style | default: 'medium'
+  assign filters_position_desktop = filters_position_desktop | default: section.settings.filters_position_desktop | default: 'left'
+  assign collapse_filters = collapse_filters | default: section.settings.collapse_filters, allow_false: true | default: true, allow_false: true
+  assign enable_filters = enable_filters | default: section.settings.enable_sidebar, allow_false: true | default: true, allow_false: true
+  assign enable_sort = enable_sort | default: section.settings.enable_sort, allow_false: true | default: true, allow_false: true
+  assign enable_reset_all_filters = enable_reset_all_filters | default: false, allow_false: true
+  assign enable_reset_price_filter = enable_reset_price_filter | default: false, allow_false: true
+  assign enable_show_more_filters = enable_show_more_filters | default: false, allow_false: true
+  assign enable_scroll_to_top = enable_scroll_to_top | default: true, allow_false: true
+  assign active_tags_location_desktop = active_tags_location_desktop | default: 'sidebar'
+  assign filter_variant = filter_variant | default: 'checkbox'
+  assign price_range_style = price_range_style | default: 'slider'
+  assign hydration = hydration | default: 'on:visible'
+-%}
+
+{%- capture grid_content -%}
+  {%- if enable_filters -%}
+    <div data-sticky-sidebar class="grid__item medium-up--one-fifth item-grid__sidebar">
+      <div id="CollectionSidebar">
+        <div class="collection-sidebar small--hide" id="CollectionSidebarFilterWrap">
+          <div class="filter-wrapper">
+            {%- render 'list.filter-grid.filters', context: context, active_tags_location_desktop: active_tags_location_desktop, price_range_style: price_range_style, enable_reset_all_filters: enable_reset_all_filters, enable_reset_price_filter: enable_reset_price_filter, enable_show_more_filters: enable_show_more_filters, collapse_filters: collapse_filters, filter_variant: filter_variant -%}
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="grid__item medium-up--four-fifths item-grid__main">
+      <div class="collection-grid__wrapper">
+        {{- slot -}}
+      </div>
+    </div>
+  {%- else -%}
+    <div class="grid__item">
+      <div class="collection-grid__wrapper">
+        {{- slot -}}
+      </div>
+    </div>
+  {%- endif -%}
+{%- endcapture -%}
+
+<is-land {{ hydration }}>
+  <item-grid
+    class="item-grid item-grid--filters-{{ filter_variant }}{% if enable_show_more_filters %} item-grid--has-show-more{% endif %}"
+    data-section-id="{{ section.id }}"
+    data-section-type="collection-template"
+    scroll-to-top="{{ enable_scroll_to_top }}"
+  >
+    <div id="AjaxContent" class="float-grid clearfix float-grid--filters-{{ filters_position_desktop }}">
+      {{- grid_content -}}
+    </div>
+  </item-grid>
+
+  <template data-island>
+    <script type="module">
+      import 'list.filter-grid'
+    </script>
+  </template>
+</is-land>
+
+{%- unless enable_sort -%}
+  {%- style -%}
+    .collection-sidebar__group--sort {
+      display: none;
+    }
+  {%- endstyle -%}
+{%- endunless -%}

@@ -1,0 +1,228 @@
+{% doc %}
+  Copyright © 2025 Archetype Themes LP. All rights reserved.
+
+  Flexible content section for custom layouts with configurable blocks.
+
+  @param {boolean} [full_width] - Enable full-width layout
+  @param {boolean} [space_around] - Add spacing around section
+
+  @example
+  {% render 'section.advanced-content', full_width: true, space_around: true %}
+{% enddoc %}
+
+{% stylesheet %}
+  .custom-content {
+    display: flex;
+    align-items: stretch;
+    flex-wrap: wrap;
+    width: auto;
+    margin-left: calc(var(--grid-gutter) * -1);
+    row-gap: var(--grid-gutter);
+
+    @media only screen and (max-width: 768px) {
+      margin-left: calc(var(--grid-gutter-small) * -1);
+      row-gap: var(--grid-gutter-small);
+    }
+  }
+
+  .custom__item {
+    flex: 0 0 auto;
+    padding-left: var(--grid-gutter);
+    max-width: 100%;
+
+    @media only screen and (max-width: 768px) {
+      flex: 0 0 auto;
+      padding-left: var(--grid-gutter-small);
+
+      &.small--one-half {
+        flex: 1 0 50%;
+        max-width: 400px;
+        margin-left: auto;
+        margin-right: auto;
+      }
+    }
+
+    & img {
+      display: block;
+    }
+  }
+
+  .custom__item-inner {
+    position: relative;
+    display: inline-block;
+    text-align: left;
+    max-width: 100%;
+    width: 100%;
+  }
+
+  .custom__item-inner--video,
+  .custom__item-inner--html {
+    display: block;
+  }
+
+  .custom__item-inner--image {
+    width: 100%;
+  }
+
+  .custom__item-inner--html img {
+    display: block;
+    margin: 0 auto;
+  }
+
+  .custom__item-inner--placeholder-image {
+    width: 100%;
+  }
+
+  .align--top-middle {
+    text-align: center;
+  }
+
+  .align--top-right {
+    text-align: right;
+  }
+
+  .align--middle-left {
+    align-self: center;
+  }
+
+  .align--center {
+    align-self: center;
+    text-align: center;
+  }
+
+  .align--middle-right {
+    align-self: center;
+    text-align: right;
+  }
+
+  .align--bottom-left {
+    align-self: flex-end;
+  }
+
+  .align--bottom-middle {
+    align-self: flex-end;
+    text-align: center;
+  }
+
+  .align--bottom-right {
+    align-self: flex-end;
+    text-align: right;
+  }
+{% endstylesheet %}
+
+{%- liquid
+  assign full_width = full_width | default: section.settings.full_width, allow_false: true | default: false, allow_false: true
+  assign space_around = space_around | default: section.settings.space_around, allow_false: true | default: true, allow_false: true
+
+  assign lazyload_images = true
+
+  if section.index == 1
+    assign lazyload_images = false
+  endif
+-%}
+
+{%- if space_around -%}
+  <div class="index-section">
+{%- endif -%}
+
+{%- unless full_width -%}
+  <div class="page-width">
+{%- endunless -%}
+
+<div class="custom-content">
+  {%- for block in section.blocks -%}
+    {%- liquid
+      case block.settings.width
+        when '25%'
+          assign block_width = 'small--one-whole one-quarter'
+        when '33%'
+          assign block_width = 'small--one-whole one-third'
+        when '50%'
+          assign block_width = 'small--one-whole one-half'
+        when '66%'
+          assign block_width = 'small--one-whole two-thirds'
+        when '75%'
+          assign block_width = 'small--one-whole three-quarters'
+        when '100%'
+          assign block_width = 'one-whole'
+      endcase
+    -%}
+    <div
+      class="custom__item {{ block_width }}{% if block.settings.alignment %} align--{{ block.settings.alignment }}{% endif %}"
+      {{ block.shopify_attributes }}
+    >
+      <div class="custom__item-inner custom__item-inner--{{ block.type }}{% if block.settings.image == blank and block.type == 'image' %} custom__item-inner--placeholder-image{% endif %}">
+        {%- case block.type -%}
+          {%- when 'liquid' -%}
+            {%- if block.settings.code != blank -%}
+              <div class="rte clearfix">
+                {{ block.settings.code }}
+              </div>
+            {%- else -%}
+              <div class="rte clearfix">
+                {% render 'utility.translate',
+                  key: 'info.section_no_content',
+                  fallback: "This section doesn't currently include any content. Add content to this section using the sidebar."
+                %}
+              </div>
+            {%- endif -%}
+          {%- when 'image' -%}
+            {%- if block.settings.link != blank -%}
+              <a href="{{ block.settings.link }}">
+            {%- endif -%}
+            {%- if block.settings.image != blank -%}
+              <div
+                class="image-wrap"
+                style="height: 0; padding-bottom: {{ 100 | divided_by: block.settings.image.aspect_ratio }}%;"
+              >
+                {%- liquid
+                  assign blockWidth = block.settings.width | remove: '%' | times: 1
+                  if forloop.index == 1 and blockWidth >= 50
+                    assign loading = lazyload_images
+                  else
+                    assign loading = true
+                  endif
+                -%}
+                {%- render 'element.image',
+                  img: block.settings.image,
+                  loading: loading,
+                  sizeVariable: block.settings.width,
+                  widths: '360, 540, 720, 900, 1080, 1600'
+                -%}
+              </div>
+            {%- else -%}
+              <div class="image-wrap">
+                {%- render 'element.placeholder', name: 'lifestyle-1' -%}
+              </div>
+            {%- endif -%}
+            {%- if block.settings.link != blank -%}
+              </a>
+            {%- endif -%}
+        {%- endcase -%}
+      </div>
+    </div>
+  {%- endfor -%}
+
+  {%- if section.blocks.size == 0 -%}
+    <div class="page-width">
+      <div class="float-grid clearfix">
+        <div class="grid__item">
+          <div class="rte clearfix">
+            {% render 'utility.translate',
+              key: 'info.section_no_content',
+              fallback: "This section doesn't currently include any content. Add content to this section using the sidebar."
+            %}
+          </div>
+        </div>
+      </div>
+    </div>
+  {%- endif -%}
+</div>
+
+{%- unless full_width -%}
+  </div>
+{%- endunless -%}
+
+{%- if space_around -%}
+  </div>
+{%- endif -%}

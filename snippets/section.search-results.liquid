@@ -1,0 +1,436 @@
+{% doc %}
+  Copyright © 2025 Archetype Themes LP. All rights reserved.
+
+  Search results page with product, page, and article results.
+
+  @param {boolean} [predictive_search_show_vendor] - Display vendor in results
+  @param {boolean} [predictive_search_show_price] - Display price in results
+  @param {boolean} [product_save_amount] - Show savings amount
+  @param {string} [product_save_type] - ('dollar'|'percent') Savings display format
+  @param {boolean} [prefix_enable] - Show product title prefix
+
+  @example
+  {% render 'section.search-results', predictive_search_show_price: true %}
+{% enddoc %}
+
+{% stylesheet %}
+  .results {
+    padding: 0 20px 20px;
+    display: block;
+    width: 100%;
+
+    & ul {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+    }
+
+    & li {
+      transition: background 0.2s ease;
+      padding: 10px;
+      margin-bottom: 0;
+
+      &:hover {
+        background: rgba(0, 0, 0, 0.05);
+      }
+
+      & a {
+        display: flex;
+        align-items: center;
+      }
+    }
+  }
+
+  .results--queries {
+    & span {
+      font-weight: bolder;
+    }
+
+    & mark {
+      background-color: transparent;
+      font-weight: normal;
+    }
+  }
+
+  .results-products__info > span {
+    margin-left: 10px;
+  }
+
+  .results--products #predictive-search-products {
+    margin-bottom: 20px;
+  }
+
+  .results-products__image {
+    width: 100%;
+    min-width: 80px;
+    max-width: 80px;
+    height: 80px;
+  }
+
+  .results-products__info {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .predictive-search-results {
+    display: flex;
+    flex-wrap: wrap;
+    flex-direction: column;
+    overflow-y: auto;
+    padding: 40px 0 0;
+
+    & h3 {
+      padding-bottom: 10px;
+      border-bottom: 1px solid;
+      border-color: color-mix(in srgb, var(--color-primary) var(--shade-12), var(--color-secondary));
+      margin-bottom: 10px;
+    }
+  }
+
+  .predictive-search-results--none {
+    padding-top: 20px;
+  }
+
+  .predictive-search__no-results {
+    display: block;
+    width: 100%;
+
+    &:hover {
+      opacity: 0.5;
+    }
+  }
+
+  .results__group-1 {
+    flex: 100% 0 0;
+
+    & > div:not(.results--queries) {
+      display: none;
+    }
+  }
+
+  .results__group-2 {
+    flex: 100% 0 0;
+  }
+
+  .results__search-btn {
+    width: 100%;
+    padding: 10px;
+    transition: background-color 0.2s ease;
+    border: 1px solid;
+    border-color: color-mix(in srgb, var(--color-primary) var(--shade-12), var(--color-secondary));
+
+    &:hover {
+      background-color: rgba(0, 0, 0, 0.05);
+    }
+
+    & .element-icon {
+      width: 14px;
+      height: 14px;
+    }
+  }
+
+  @container (min-width: 800px) {
+    .predictive-search-results {
+      flex-direction: row;
+      flex-wrap: nowrap;
+    }
+
+    .results {
+      padding: 0 40px 20px;
+    }
+
+    .results__group-1 {
+      flex: 1 0 0;
+
+      & div:not(.results--queries) {
+        display: block;
+      }
+    }
+
+    .results__group-2 {
+      flex: 2 0 0;
+
+      & > div:not(.results--products) {
+        display: none;
+      }
+    }
+
+    .results__search-btn {
+      text-align: left;
+      padding: 10px 0 10px 40px;
+    }
+  }
+{% endstylesheet %}
+
+{% liquid
+  assign predictive_search_show_price = predictive_search_show_price | default: section.settings.predictive_search_show_price, allow_false: true | default: true, allow_false: true
+  assign predictive_search_show_vendor = predictive_search_show_vendor | default: section.settings.predictive_search_show_vendor, allow_false: true | default: true, allow_false: true
+  assign product_save_amount = product_save_amount | default: settings.product_save_amount, allow_false: true | default: true, allow_false: true
+  assign product_save_type = product_save_type | default: settings.product_save_type | default: 'dollar'
+  assign prefix_enable = prefix_enable | default: settings.prefix_enable, allow_false: true | default: false, allow_false: true
+
+  if predictive_search_show_price
+    assign predictive_search_show_price = true
+  endif
+
+  if predictive_search_show_vendor
+    assign predictive_search_show_vendor = true
+  endif
+
+  assign resources = predictive_search.resources
+  assign columnCount = resources.queries.size | plus: resources.pages.size | plus: resources.articles.size | plus: resources.collections.size
+  assign totalCount = resources.queries.size | plus: resources.pages.size | plus: resources.articles.size | plus: resources.collections.size | plus: resources.products.size
+%}
+
+{%- if predictive_search.performed -%}
+  <div
+    class="predictive-search-results {% if totalCount == 0 %}predictive-search-results--none{% endif %}"
+    id="predictive-search-results"
+  >
+    {% if totalCount > 0 %}
+      <div
+        class="results__group-1"
+        {% if columnCount == 0 %}
+          style="display: none"
+        {% endif %}
+      >
+        {%- if predictive_search.resources.queries.size > 0 -%}
+          <div class="results results--queries">
+            <h3 class="heading-sm" id="predictive-search-suggestions">
+              {% render 'utility.translate', key: 'labels.suggestions', fallback: 'Suggestions' %}
+            </h3>
+            <ul role="listbox" aria-labelledby="predictive-search-queries">
+              {%- for query in predictive_search.resources.queries -%}
+                <li role="option">
+                  <a href="{{ query.url }}">
+                    <span>{{ query.styled_text }}</span>
+                  </a>
+                </li>
+              {%- endfor -%}
+            </ul>
+          </div>
+        {%- endif -%}
+        {%- if predictive_search.resources.pages.size > 0 -%}
+          <div class="results results--pages">
+            <h3 class="heading-sm" id="predictive-search-pages">
+              {% render 'utility.translate', key: 'labels.pages', fallback: 'Pages' %}
+            </h3>
+            <ul role="listbox" aria-labelledby="predictive-search-pages">
+              {%- for page in predictive_search.resources.pages -%}
+                <li role="option">
+                  <a href="{{ page.url }}">
+                    <span>{{ page.title }}</span>
+                  </a>
+                </li>
+              {%- endfor -%}
+            </ul>
+          </div>
+        {%- endif -%}
+        {%- if predictive_search.resources.articles.size > 0 -%}
+          <div class="results results--articles">
+            <h3 class="heading-sm" id="predictive-search-articles">
+              {% render 'utility.translate', key: 'labels.articles', fallback: 'Articles' %}
+            </h3>
+            <ul role="listbox" aria-labelledby="predictive-search-articles">
+              {%- for article in predictive_search.resources.articles -%}
+                <li role="option">
+                  <a href="{{ article.url }}">
+                    <span>{{ article.title }}</span>
+                  </a>
+                </li>
+              {%- endfor -%}
+            </ul>
+          </div>
+        {%- endif -%}
+        {%- if predictive_search.resources.collections.size > 0 -%}
+          <div class="results results--collections">
+            <h3 class="heading-sm" id="predictive-search-collections">
+              {% render 'utility.translate', key: 'labels.collections', fallback: 'Collections' %}
+            </h3>
+            <ul role="listbox" aria-labelledby="predictive-search-collections">
+              {%- for collection in predictive_search.resources.collections -%}
+                <li role="option">
+                  <a href="{{ collection.url }}">
+                    <span>{{ collection.title }}</span>
+                  </a>
+                </li>
+              {%- endfor -%}
+            </ul>
+          </div>
+        {%- endif -%}
+      </div>
+
+      <div class="results__group-2">
+        {%- if predictive_search.resources.products.size > 0 -%}
+          <div class="results results--products">
+            <h3 class="heading-sm" id="predictive-search-products">
+              {% render 'utility.translate', key: 'labels.products', fallback: 'Products' %}
+            </h3>
+            <ul role="listbox" aria-labelledby="predictive-search-products">
+              {%- for product in predictive_search.resources.products -%}
+                <li role="option">
+                  <a href="{{ product.url }}">
+                    <div class="results-products__image grid__image-ratio">
+                      {% if product.media != blank %}
+                        {%- render 'element.image',
+                          img: product.featured_media,
+                          widths: '80, 160, 240',
+                          classlist: 'animate-instant'
+                        -%}
+                      {% endif %}
+                    </div>
+                    <div class="results-products__info">
+                      {%- if prefix_enable and product.metafields.archetype.prefix.value != blank -%}
+                        <span class="grid-product__vendor">
+                          {{- product.metafields.archetype.prefix.value | escape -}}
+                        </span>
+                      {%- endif -%}
+
+                      <span>{{ product.title }}</span>
+                      {% if predictive_search_show_vendor %}
+                        <span class="grid-product__vendor">{{ product.vendor }}</span>
+                      {% endif %}
+                      {% if predictive_search_show_price %}
+                        {%- if on_sale -%}
+                          {%- render 'element.text',
+                            locale: 'labels.regular_price',
+                            text: 'Regular price',
+                            visually_hidden: true
+                          -%}
+
+                          {%- render 'element.price',
+                            price: product.compare_at_price,
+                            variant: 'heading-xs',
+                            strikethrough: true
+                          -%}
+
+                          {%- render 'element.text',
+                            locale: 'labels.sale_price',
+                            text: 'Sale price',
+                            visually_hidden: true
+                          -%}
+                        {%- endif -%}
+
+                        {%- if product.price_varies -%}
+                          {%- assign price_min = product.price_min | money -%}
+                          {%- assign labels_from_price = 'labels.from_price' | t: price: price_min %}
+
+                          <span class="grid-product__price" aria-label="{{ labels_from_price }}">
+                            {%- render 'element.text', text: 'from ', variant: 'body-sm' -%}
+                            {%- render 'element.price', price: product.price_min -%}
+                          </span>
+                        {%- else -%}
+                          {%- render 'element.price', price: product.price, classlist: 'grid-product__price' -%}
+                        {%- endif -%}
+                        {%- if on_sale -%}
+                          {%- if product_save_amount -%}
+                            {%- liquid
+                              if product_save_type == 'dollar'
+                                assign saved_amount = product.compare_at_price | minus: product.price | money
+                              else
+                                assign saved_amount = product.compare_at_price | minus: product.price | times: 100.0 | divided_by: product.compare_at_price | round
+                              endif
+                            -%}
+
+                            {% assign info_save_amount = 'info.save_amount' | t: saved_amount: saved_amount %}
+                            {%- capture fallback_info_save_amount -%}
+                              Save {{ saved_amount }}
+                            {%- endcapture -%}
+                            {%- capture save_amount_text -%}
+                              {%- render 'utility.translate', t: info_save_amount, fallback: fallback_info_save_amount -%}
+                            {%- endcapture -%}
+
+                            {%- render 'element.text',
+                              as: 'span',
+                              variant: 'body-sm',
+                              text: save_amount_text
+                            -%}
+                          {%- endif -%}
+                        {%- endif -%}
+                      {% endif %}
+                    </div>
+                  </a>
+                </li>
+              {%- endfor -%}
+            </ul>
+          </div>
+        {%- endif -%}
+        {%- if predictive_search.resources.pages.size > 0 -%}
+          <div class="results results--pages">
+            <h3 class="heading-sm" id="predictive-search-pages">
+              {% render 'utility.translate', key: 'labels.pages', fallback: 'Pages' %}
+            </h3>
+            <ul role="listbox" aria-labelledby="predictive-search-pages">
+              {%- for page in predictive_search.resources.pages -%}
+                <li role="option">
+                  <a href="{{ page.url }}">
+                    <span>{{ page.title }}</span>
+                  </a>
+                </li>
+              {%- endfor -%}
+            </ul>
+          </div>
+        {%- endif -%}
+        {%- if predictive_search.resources.articles.size > 0 -%}
+          <div class="results results--articles">
+            <h3 class="heading-sm" id="predictive-search-articles">
+              {% render 'utility.translate', key: 'labels.articles', fallback: 'Articles' %}
+            </h3>
+            <ul role="listbox" aria-labelledby="predictive-search-articles">
+              {%- for article in predictive_search.resources.articles -%}
+                <li role="option">
+                  <a href="{{ article.url }}">
+                    <span>{{ article.title }}</span>
+                  </a>
+                </li>
+              {%- endfor -%}
+            </ul>
+          </div>
+        {%- endif -%}
+        {%- if predictive_search.resources.collections.size > 0 -%}
+          <div class="results results--collections">
+            <h3 class="heading-sm" id="predictive-search-collections">
+              {% render 'utility.translate', key: 'labels.collections', fallback: 'Collections' %}
+            </h3>
+            <ul role="listbox" aria-labelledby="predictive-search-collections">
+              {%- for collection in predictive_search.resources.collections -%}
+                <li role="option">
+                  <a href="{{ collection.url }}">
+                    <span>{{ collection.title }}</span>
+                  </a>
+                </li>
+              {%- endfor -%}
+            </ul>
+          </div>
+        {%- endif -%}
+      </div>
+    {% else %}
+      <div class="results">
+        <a
+          class="predictive-search__no-results"
+          href="{{ routes.search_url }}?q={{ predictive_search.terms | escape }}"
+        >
+          {% assign info_search_no_results_html = 'info.search_no_results_html' | t: terms: predictive_search.terms %}
+          {%- capture fallback_info_search_no_results_html -%}
+            No results for "{{ predictive_search.terms }}". Try a different keyword
+          {%- endcapture -%}
+          {% render 'utility.translate',
+            t: info_search_no_results_html,
+            fallback: fallback_info_search_no_results_html
+          %}
+        </a>
+      </div>
+    {% endif %}
+  </div>
+
+  {% if totalCount > 0 %}
+    <button class="results__search-btn">
+      {% assign actions_show_all_results = 'actions.show_all_results' | t: terms: predictive_search.terms %}
+      {%- capture fallback_actions_show_all_results -%}
+        Show all results for "{{ predictive_search.terms }}"
+      {%- endcapture -%}
+      {% render 'utility.translate', t: actions_show_all_results, fallback: fallback_actions_show_all_results %}
+      {% render 'element.icon', name: 'arrow-right' %}
+    </button>
+  {% endif %}
+{%- endif -%}

@@ -1,0 +1,43 @@
+{%- doc -%}
+  Copyright © 2025 Archetype Themes LP. All rights reserved.
+
+  Renders the image filter for the collection grid.
+
+  @param {object} filter - Filter object
+  @param {boolean} [enable_swatch_labels] - Enable swatch labels
+
+  @example
+  {% render 'list.filter-grid.image-filter', filter: filter %}
+{%- enddoc -%}
+
+{%- liquid
+  assign enable_swatch_labels = enable_swatch_labels | default: section.settings.enable_swatch_labels, allow_false: true | default: true, allow_false: true
+-%}
+
+<div class="image-filter__wrapper">
+  <ul class="no-bullets tag-list">
+    {%- for filter_value in filter.values -%}
+      <li class="tag tag--image {% if filter_value.active %}tag--active{% endif %} {% if enable_swatch_labels %}tag--show-label{% endif %}">
+        <label for="tag-{{ filter_value.value | handle }}" class="tag__checkbox-wrapper text-label">
+          <input
+            id="tag-{{ filter_value.value | handle }}"
+            type="checkbox"
+            class="tag__input"
+            name="{{ filter_value.param_name }}"
+            value="{{ filter_value.value }}"
+            {% if filter_value.active %}
+              checked
+            {% endif %}
+          >
+
+          <div class="image-filter__image-wrapper">
+            {%- render 'element.image', img: filter_value.image, loading: 'eager' -%}
+            <span class="tag__text {% unless enable_swatch_labels %}hide{% endunless %}">
+              {{ filter_value.label }}
+            </span>
+          </div>
+        </label>
+      </li>
+    {%- endfor -%}
+  </ul>
+</div>

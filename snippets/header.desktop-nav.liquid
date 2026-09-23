@@ -1,0 +1,517 @@
+{% doc %}
+  Copyright © 2025 Archetype Themes LP. All rights reserved.
+
+  Desktop navigation with dropdown and mega menu support for multi-level menus.
+
+  @param {object} main_menu - Linklist object for navigation menu
+  @param {boolean} [hover_menu] - Show menu on hover instead of click, default: false
+  @param {string} [nav_position] - Navigation positioning ('left', 'center', 'right')
+  @param {boolean} [show_mega_products] - Display products in mega menu, default: false
+  @param {boolean} [show_mega_collections] - Display collections in mega menu, default: false
+
+  @example
+  {% render 'header.desktop-nav', main_menu: linklists.main-menu, hover_menu: true, show_mega_products: true %}
+{% enddoc %}
+
+{% stylesheet %}
+  :root {
+    --desktop-menu-chevron-size: 10px;
+    --site-nav-item-padding: 20px;
+  }
+
+  .site-nav__dropdown.megamenu,
+  .megamenu {
+    padding: 40px 0 0;
+    line-height: 1.8;
+  }
+
+  .site-navigation {
+    .text-center & {
+      margin: 0 auto;
+    }
+  }
+
+  .site-navigation--below {
+    margin-left: calc(var(--site-nav-item-padding) * -1);
+
+    /*Top border*/
+    &:before {
+      position: absolute;
+      left: 0;
+      right: 0;
+      content: '';
+      display: block;
+      border-top: 1px solid;
+      border-top-color: var(--color-primary);
+      width: 100%;
+      opacity: 0.1;
+      transition: opacity 0.5s ease 0.3s;
+      z-index: 1;
+
+      /** last header section in the group */
+      .header-section:not(:has(+ .shopify-section-group-header-group))
+        .header-wrapper--overlay:not(.not-light-style)
+        & {
+        border-color: var(--color-sticky-nav-links);
+      }
+
+      .header-wrapper--compressed & {
+        opacity: 0;
+      }
+
+      .site-header__element.is-active & {
+        opacity: 0.15;
+      }
+    }
+  }
+
+  .site-nav__item {
+    position: relative;
+    display: inline-block;
+    margin: 0;
+
+    & li {
+      display: block;
+      margin: 0;
+    }
+
+    & .element-icon-chevron-down {
+      width: var(--desktop-menu-chevron-size);
+      height: var(--desktop-menu-chevron-size);
+    }
+  }
+
+  .site-nav--is-megamenu.site-nav__item {
+    position: static;
+  }
+
+  .megamenu__wrapper {
+    display: flex;
+  }
+
+  /*Always on right side*/
+  .megamenu__featured {
+    flex: 0 0 19%;
+    padding-bottom: 40px;
+
+    [data-grid-style='simple'] & .grid-product {
+      border: 1px solid;
+      border-color: color-mix(in srgb, var(--color-primary) var(--shade-12), var(--color-secondary));
+    }
+  }
+
+  .megamenu__cols {
+    flex: 1 1 81%;
+    flex-flow: column wrap;
+    columns: 4;
+
+    .megamenu--collections & {
+      display: flex;
+      flex: 1;
+      flex-flow: row;
+      gap: 20px;
+      columns: auto auto;
+      padding-bottom: 40px;
+    }
+
+    & a:hover {
+      background-color: var(--root-color-secondary);
+      text-decoration: underline;
+      text-underline-offset: 2px;
+    }
+  }
+
+  .megamenu__col {
+    padding: 0 40px 40px 0;
+    break-inside: avoid;
+
+    .megamenu--collections & {
+      padding: 0;
+      flex-basis: 210px;
+    }
+
+    &:has([data-image-type]) {
+      display: grid;
+      grid-template-columns: 220px 1fr;
+      gap: 10px;
+      flex-basis: 440px;
+
+      [data-image-type] {
+        width: 100%;
+      }
+
+      img {
+        aspect-ratio: 2 / 3;
+        object-fit: cover;
+      }
+    }
+  }
+
+  .megamenu__col-title a {
+    font-weight: var(--element-text-font-weight--heading);
+    font-size: calc(var(--element-text-font-size--body-md) + 1px);
+  }
+
+  /*Center grid items in megamenu when logo centered*/
+  .text-center .megamenu .float-grid {
+    text-align: center;
+
+    & .grid__item {
+      float: none;
+      display: inline-block;
+      vertical-align: top;
+      text-align: left;
+    }
+  }
+
+  .site-nav__dropdown-link {
+    display: block;
+    padding: 8px 15px;
+    white-space: nowrap;
+    font-size: calc(var(--element-text-font-size--body-md) - 1px);
+
+    &:hover {
+      text-decoration: underline;
+      text-underline-offset: 2px;
+    }
+
+    .megamenu & {
+      padding: 1px 0;
+      white-space: normal;
+    }
+  }
+
+  .site-nav__link--underline {
+    position: relative;
+
+    &:after {
+      content: '';
+      display: none;
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      margin: 0 var(--site-nav-item-padding);
+      border-bottom: 2px solid;
+      border-bottom-color: var(--color-primary);
+    }
+
+    /** last header section in the group */
+    /*White underline when no dropdown*/
+    .header-section:not(:has(+ .shopify-section-group-header-group))
+      .header-wrapper--overlay:not(.not-light-style)
+      .site-nav__item:not(.site-nav--has-dropdown)
+      &:after {
+      border-bottom-color: #fff;
+    }
+
+    .site-nav__item:hover &:after {
+      display: block;
+    }
+  }
+
+  .site-nav--has-dropdown.is-focused > a,
+  .site-nav--has-dropdown:hover > a {
+    color: var(--root-color-primary) !important;
+    background-color: var(--root-color-secondary);
+    opacity: 1;
+    transition: none;
+  }
+
+  .site-nav__dropdown {
+    --color-primary: var(--root-color-primary);
+    --color-secondary: var(--root-color-secondary);
+
+    display: block;
+    visibility: hidden;
+    position: absolute;
+    left: 0;
+    z-index: var(--z-index-header-submenu);
+    color: var(--color-primary);
+    background-color: var(--color-secondary);
+    min-width: 100%;
+    padding: calc(var(--gutter) / 3) 0 5px;
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.09);
+
+    details[open] & {
+      visibility: visible;
+    }
+  }
+
+  .site-nav__dropdown-list {
+    margin: 0;
+  }
+
+  .site-nav__dropdown-animate {
+    transform: translateY(-10px);
+    opacity: 0;
+
+    details[open] & {
+      opacity: 1;
+      transform: translateY(0px);
+      transition: opacity 0.3s ease 0.05s, transform 0.25s cubic-bezier(0.165, 0.84, 0.44, 1) 0.05s;
+    }
+  }
+
+  .site-nav__deep-dropdown {
+    background-color: var(--root-color-secondary);
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.09);
+    position: absolute;
+    top: 0;
+    left: 100%;
+    margin: 0;
+    visibility: hidden;
+    opacity: 0;
+    z-index: var(--z-index-header);
+    transform: translate3d(-12px, 0, 0);
+
+    .site-nav__deep-dropdown-trigger:hover &,
+    .is-focused + & {
+      visibility: visible;
+      opacity: 1;
+      transform: translate3d(0, 0, 0);
+      transition: all 300ms cubic-bezier(0.2, 0.06, 0.05, 0.95);
+    }
+
+    &:before {
+      content: '';
+      display: block;
+      position: absolute;
+      top: 0;
+      left: 0;
+      bottom: 0;
+      width: 10px;
+      background-image: linear-gradient(to right, rgba(0, 0, 0, 0.09), transparent);
+      pointer-events: none;
+    }
+  }
+
+  .site-nav__dropdown-link--has-children {
+    .site-nav__deep-dropdown-trigger:hover & {
+      background-color: brightness(var(--root-color-secondary), 95%);
+    }
+
+    &:hover,
+    &:focus {
+      background-color: brightness(var(--root-color-secondary), 95%);
+    }
+  }
+
+  /*Rotate to face right*/
+  .site-nav__deep-dropdown-trigger .element-icon-chevron-down {
+    position: absolute;
+    top: 50%;
+    right: 10px;
+    width: var(--desktop-menu-chevron-size);
+    height: var(--desktop-menu-chevron-size);
+    transform: rotate(-90deg) translateX(50%);
+  }
+
+  .site-nav__details {
+    cursor: pointer;
+  }
+{% endstylesheet %}
+
+{%- liquid
+  assign main_menu = main_menu | default: section.settings.main_menu_link_list
+  assign hover_menu = hover_menu | default: section.settings.hover_menu, allow_false: true | default: false, allow_false: true
+  assign nav_position = nav_position | default: 'below'
+  assign show_mega_products = show_mega_products | default: section.settings.mega_products, allow_false: true | default: true, allow_false: true
+  assign show_mega_collections = show_mega_collections | default: section.settings.mega_collections, allow_false: true
+  assign megamenu_type = 'products'
+
+  if show_mega_collections
+    assign show_mega_products = false
+    assign megamenu_type = 'collections'
+  endif
+
+  unless limit
+    assign limit = main_menu.links.size
+  endunless
+
+  unless offset
+    assign offset = 0
+  endunless
+-%}
+
+<ul class="site-nav site-navigation site-navigation--{{ nav_position }} small--hide">
+  {%- for link in main_menu.links limit: limit offset: offset -%}
+    {%- liquid
+      assign has_dropdown = false
+      assign is_megamenu = false
+
+      if link.levels > 0
+        assign has_dropdown = true
+        if link.levels > 1
+          assign is_megamenu = true
+        endif
+      endif
+
+      assign is_collection = false
+      if show_mega_products or show_mega_collections
+        if is_megamenu and link.url contains routes.collections_url
+          assign collection_handle = link.url | remove: routes.collections_url | remove: '/'
+          assign collection_drop = collections[collection_handle]
+          assign is_collection = true
+        endif
+      endif
+    -%}
+
+    <li class="site-nav__item site-nav__expanded-item{% if has_dropdown %} site-nav--has-dropdown{% endif %}{% if is_megamenu %} site-nav--is-megamenu{% endif %}">
+      {% if is_megamenu or has_dropdown %}
+        <nav-dropdown>
+          <details
+            id="site-nav-item--{{ forloop.index }}"
+            class="site-nav__details"
+            data-hover="{{ hover_menu }}"
+          >
+      {% endif %}
+      {% if is_megamenu or has_dropdown %}
+        <summary
+          data-link="{{ link.url }}"
+          aria-expanded="false"
+          aria-controls="site-nav-item--{{ forloop.index }}"
+          class="site-nav__link site-nav__link--underline{% if has_dropdown %} site-nav__link--has-dropdown{% endif %}"
+        >
+          {{ link.title }}
+          {% render 'element.icon', name: 'chevron-down' %}
+        </summary>
+      {% endif %}
+      {% unless is_megamenu or has_dropdown %}
+        <a
+          href="{{ link.url }}"
+          class="site-nav__link site-nav__link--underline{% if has_dropdown %} site-nav__link--has-dropdown{% endif %}"
+        >
+          {{ link.title }}
+        </a>
+      {% endunless %}
+
+      {%- if is_megamenu -%}
+        {%- assign previous_column_type = '' -%}
+        <div class="site-nav__dropdown megamenu megamenu--{{ megamenu_type }} text-left">
+          <div class="page-width">
+            <div class="site-nav__dropdown-animate megamenu__wrapper">
+              <div class="megamenu__cols">
+                <div class="megamenu__col">
+                  {%- for childlink in link.links -%}
+                    {%- liquid
+                      assign create_new_column = false
+
+                      if childlink.levels > 0 and forloop.index != 1
+                        assign create_new_column = true
+                      endif
+
+                      if childlink.levels == 0 and previous_column_type == 'full'
+                        assign create_new_column = true
+                      endif
+                    -%}
+
+                    {%- if create_new_column -%}
+                      </div>
+                    {%- endif -%}
+                    {%- if create_new_column -%}
+                      <div class="megamenu__col">
+                    {%- endif -%}
+
+                    {%- if childlink.levels > 0
+                      and childlink.type == 'collection_link'
+                      and childlink.object.featured_image != blank
+                      and show_mega_collections
+                    -%}
+                      <a href="{{ childlink.url }}">
+                        {%- render 'element.image',
+                          img: childlink.object.featured_image,
+                          sizeVariable: '20vw',
+                          alt: childlink.object.title,
+                          classlist: 'megamenu__collection-image'
+                        -%}
+                      </a>
+                    {%- endif -%}
+
+                    <div>
+                      <div class="megamenu__col-title">
+                        <a
+                          href="{{ childlink.url }}"
+                          class="site-nav__dropdown-link site-nav__dropdown-link--top-level"
+                        >
+                          {{- childlink.title -}}
+                        </a>
+                      </div>
+
+                      {%- liquid
+                        if childlink.levels > 0
+                          assign previous_column_type = 'full'
+                        else
+                          assign previous_column_type = 'single'
+                        endif
+                      -%}
+
+                      {%- for grandchildlink in childlink.links -%}
+                        <a href="{{ grandchildlink.url }}" class="site-nav__dropdown-link">
+                          {{ grandchildlink.title }}
+                        </a>
+                      {%- endfor -%}
+                    </div>
+                  {%- endfor -%}
+                </div>
+              </div>
+              {%- if is_collection and show_mega_products -%}
+                <div class="megamenu__featured">
+                  <div class="product-grid">
+                    {%- liquid
+                      assign mega_product = collection_drop.products.first
+                      render 'list.product-card', product: mega_product, sizeVariable: '19vw', disabled_high_variants: false
+                    -%}
+                  </div>
+                </div>
+              {%- endif -%}
+            </div>
+          </div>
+        </div>
+      {%- elsif has_dropdown -%}
+        <div class="site-nav__dropdown">
+          <ul class="site-nav__dropdown-animate site-nav__dropdown-list text-left">
+            {%- for childlink in link.links -%}
+              {%- liquid
+                assign has_sub_dropdown = false
+                if childlink.levels > 0
+                  assign has_sub_dropdown = true
+                endif
+              -%}
+
+              <li class="{% if has_sub_dropdown %} site-nav__deep-dropdown-trigger{% endif %}">
+                <a
+                  href="{{ childlink.url }}"
+                  class="site-nav__dropdown-link site-nav__dropdown-link--second-level{% if has_sub_dropdown %} site-nav__dropdown-link--has-children{% endif %}"
+                >
+                  {{ childlink.title | escape }}
+                  {%- if has_sub_dropdown -%}
+                    {% render 'element.icon', name: 'chevron-down' %}
+                  {%- endif -%}
+                </a>
+                {%- if has_sub_dropdown -%}
+                  <ul class="site-nav__deep-dropdown">
+                    {%- for grandchildlink in childlink.links -%}
+                      <li>
+                        <a href="{{ grandchildlink.url }}" class="site-nav__dropdown-link">
+                          {{- grandchildlink.title | escape -}}
+                        </a>
+                      </li>
+                    {%- endfor -%}
+                  </ul>
+                {%- endif -%}
+              </li>
+            {%- endfor -%}
+          </ul>
+        </div>
+      {%- endif -%}
+      {% if is_megamenu or has_dropdown %}
+        </details>
+        </nav-dropdown>
+        <script type="module">
+          import 'header.desktop-nav.nav-dropdown'
+        </script>
+      {% endif %}
+    </li>
+  {%- endfor -%}
+</ul>

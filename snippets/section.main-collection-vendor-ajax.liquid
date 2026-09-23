@@ -1,0 +1,14 @@
+{% doc %}
+  Copyright © 2025 Archetype Themes LP. All rights reserved.
+
+  AJAX endpoint for loading vendor-specific products dynamically.
+
+  @example
+  {% render 'section.main-collection-vendor-ajax' %}
+{% enddoc %}
+
+{%- liquid
+  for product in collection.products limit: 7
+    render 'list.product-card', product: product, collection: collection, disabled_high_variants: false
+  endfor
+-%}

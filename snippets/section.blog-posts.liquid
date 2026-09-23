@@ -1,0 +1,240 @@
+{% doc %}
+  Copyright © 2025 Archetype Themes LP. All rights reserved.
+
+  Featured blog posts grid with customizable article metadata display.
+
+  @param {object} [blog] - Blog to display articles from @param {boolean} [blog_show_tags] - Display article tags
+  @param {boolean} [blog_show_date] - Display publish date @param {boolean} [blog_show_comments] - Display comment count
+  @param {boolean} [blog_show_author] - Display author name @param {boolean} [blog_show_excerpt] - Display article excerpt
+  @param {string} [blog_image_size] - ('natural'|'square'|'landscape'|'portrait'|'wide') Image aspect ratio
+  @param {number} [sidebar_count] - Sidebar post count
+  @param {string} [title] - Section heading
+  @param {string} [heading_position] - ('left'|'center'|'right') Heading alignment
+  @param {string} [heading_size] - ('sm'|'md'|'lg'|'xl') Heading size
+
+  @example
+  {% render 'section.blog-posts', blog: blog, blog_show_tags: true %}
+{% enddoc %}
+
+{% stylesheet %}
+  .blog-layout {
+    display: flex;
+    flex-wrap: nowrap;
+    flex-direction: column;
+  }
+
+  .blog-layout__main {
+    margin-bottom: 20px;
+  }
+
+  .blog-layout__sidebar {
+    order: 1;
+
+    & h4 {
+      margin-block-end: var(--size-5);
+    }
+  }
+
+  /* Any section that isn't the main layout or sidebar should be full width */
+  .blog-layout > div:not(.blog-layout__main):not(.blog-layout__sidebar) {
+    flex: 1 0 100%;
+  }
+
+  @media only screen and (min-width: 769px) {
+    .blog-layout {
+      flex-direction: row;
+      flex-wrap: wrap;
+    }
+
+    .blog-layout__main {
+      flex: 1 1 calc(60% - 90px);
+    }
+
+    .blog-layout__sidebar {
+      order: 0;
+      flex: 0 0 calc(40% - 90px);
+      align-self: flex-start;
+
+      padding-left: 0;
+      margin-left: 0;
+      border-left: 0;
+      padding-right: 45px;
+      margin-right: 45px;
+      border-right: 1px solid;
+      border-right-color: color-mix(in srgb, var(--color-primary) var(--shade-12), var(--color-secondary));
+
+      [dir='rtl'] & {
+        padding-right: 0;
+        margin-right: 0;
+        border-right: 0;
+        padding-left: 45px;
+        margin-left: 45px;
+        border-left: 1px solid;
+        border-left-color: color-mix(in srgb, var(--color-primary) var(--shade-12), var(--color-secondary));
+      }
+    }
+
+    .blog-layout__main + .blog-layout__sidebar {
+      padding-right: 0;
+      margin-right: 0;
+      border-right: 0;
+      padding-left: 45px;
+      margin-left: 45px;
+      border-left: 1px solid;
+      border-left-color: color-mix(in srgb, var(--color-primary) var(--shade-12), var(--color-secondary));
+
+      [dir='rtl'] & {
+        padding-left: 0;
+        margin-left: 0;
+        border-left: 0;
+        padding-right: 45px;
+        margin-right: 45px;
+        border-right: 1px solid;
+        border-right-color: color-mix(in srgb, var(--color-primary) var(--shade-12), var(--color-secondary));
+      }
+    }
+  }
+{% endstylesheet %}
+
+{%- liquid
+  assign blog = section.settings.blog | default: blog
+  assign blog_show_tags = blog_show_tags | default: section.settings.blog_show_tags, allow_false: true | default: true, allow_false: true
+  assign blog_show_date = blog_show_date | default: section.settings.blog_show_date, allow_false: true | default: true, allow_false: true
+  assign blog_show_comments = blog_show_comments | default: section.settings.blog_show_comments, allow_false: true | default: false, allow_false: true
+  assign blog_show_author = blog_show_author | default: section.settings.blog_show_author, allow_false: true | default: false, allow_false: true
+  assign blog_show_excerpt = blog_show_excerpt | default: section.settings.blog_show_excerpt, allow_false: true | default: false, allow_false: true
+  assign blog_image_size = blog_image_size | default: section.settings.blog_image_size | default: 'wide'
+  assign sidebar_count = sidebar_count | default: section.settings.sidebar_count | default: 4
+  assign title = title | default: section.settings.title
+  assign heading_position = heading_position | default: section.settings.heading_position | default: 'left'
+  assign heading_size = heading_size | default: section.settings.heading_size | default: 'md'
+  assign text_direction = text_direction | default: 'ltr'
+  assign divider = divider | default: section.settings.divider, allow_false: true | default: false, allow_false: true
+
+  if blog_show_tags
+    assign sidebar_count = 3
+  endif
+
+  assign have_blog = true
+
+  if blog.empty? or blog.articles.size == 0
+    assign have_blog = false
+  endif
+-%}
+
+{% style %}
+  {% if heading_position == 'right' %}
+    #shopify-section-{{ section.id }} .section-header__link {
+      padding-left: 20px;
+    }
+
+    @media only screen and (max-width: 768px) {
+      #shopify-section-{{ section.id }} .section-header__link {
+        padding-left: 10px;
+      }
+    }
+  {% elsif heading_position == 'center' %}
+    #shopify-section-{{ section.id }} .section-header {
+      position: relative;
+    }
+
+    #shopify-section-{{ section.id }} .section-header__link {
+      position: absolute;
+      top: 0;
+      right: 0;
+    }
+
+    @media only screen and (max-width: 768px) {
+      #shopify-section-{{ section.id }} .section-header__link {
+        position: relative;
+      }
+    }
+  {% endif %}
+
+  @media only screen and (max-width: 768px) {
+    #shopify-section-{{ section.id }} .section-header__title {
+      text-align: left;
+    }
+
+    {% if text_direction == 'rtl' %}
+      #shopify-section-{{ section.id }} .section-header__title {
+        text-align: right;
+      }
+    {% endif %}
+  }
+{% endstyle %}
+
+{%- if divider -%}<div class="section--divider">{%- endif -%}
+
+<div class="page-width">
+  {%- if title != blank -%}
+    <header class="section-header section-header--with-link">
+      <h2 class="section-header__title heading-{{ heading_size }} text-{{ heading_position }}">
+        {{ title | escape }}
+      </h2>
+      <a href="{{ blog.url }}" class="section-header__link">
+        {% render 'utility.translate', key: 'actions.view_all', fallback: 'View all' -%}
+      </a>
+    </header>
+  {%- endif -%}
+
+  <div class="blog-layout">
+    <div class="blog-layout__main">
+      <div class="new-grid">
+        {% liquid
+          if have_blog
+            for article in blog.articles limit: 1
+              render 'list.article-card', style: 'large', article: article, blog: blog
+            endfor
+          else
+            render 'list.article-card', style: 'large', image_size: 'landscape', article: article, blog: blog
+          endif
+        %}
+      </div>
+    </div>
+    <div class="blog-layout__sidebar">
+      {%- liquid
+        render 'element.text', as: 'h4', variant: 'heading-sm', locale: 'labels.latest_posts', text: 'Latest posts'
+
+        if have_blog
+          for article in blog.articles limit: sidebar_count offset: 1
+            render 'list.article-card', style: 'compact', article: article, blog: blog
+          endfor
+        else
+          for i in (1..sidebar_count)
+            render 'list.article-card', style: 'compact', image_size: 'landscape', blog: blog
+          endfor
+        endif
+      -%}
+
+      {%- if blog_show_tags and blog.all_tags.size > 0 -%}
+        <hr class="hr--small hr--clear">
+        {%- render 'element.text',
+          as: 'h4',
+          variant: 'heading-sm',
+          locale: 'actions.explore_more',
+          text: 'Explore more'
+        -%}
+
+        {%- capture tag_group -%}
+          {%- for tag in blog.all_tags -%}
+            <li>
+              {%- assign tag_link = blog.url | append: '/tagged/' | append: tag.handle -%}
+              {%- render 'element.chip', label: tag, href: tag_link -%}
+            </li>
+          {%- endfor -%}
+        {%- endcapture -%}
+
+        {% render 'layout.stack',
+          as: 'ul',
+          classlist: 'tag-group no-bullets',
+          slot: tag_group,
+          horizontal: true,
+          gap: 'sm'
+        %}
+      {%- endif -%}
+    </div>
+  </div>
+</div>
+
+{%- if divider -%}</div>{%- endif -%}

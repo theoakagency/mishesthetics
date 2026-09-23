@@ -1,0 +1,23 @@
+{% doc %}
+  Copyright © 2025 Archetype Themes LP. All rights reserved.
+
+  Standalone size chart modal trigger.
+
+  @param {object} [block] - Block object
+
+  @example
+  {% render 'block.product-size-chart', block: block %}
+{% enddoc %}
+
+{%- capture size_chart_title -%}
+  {% render 'utility.translate', key: 'labels.size_chart', fallback: 'Size chart' %}
+  {% render 'element.icon', name: 'size-chart' %}
+{%- endcapture -%}
+
+<div class="size-chart__standalone" {{ block.shopify_attributes }}>
+  {%- render 'overlay.tool-tip.trigger',
+    title: size_chart_title,
+    content: block.settings.size_chart.content,
+    context: 'size-chart'
+  -%}
+</div>

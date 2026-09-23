@@ -1,0 +1,156 @@
+{% doc %}
+  Copyright © 2025 Archetype Themes LP. All rights reserved.
+
+  Main search template with filters, pagination, and product grid.
+
+  @param {number} [paginate_by] - Products per page
+  @param {string} [active_tags_location_desktop] - ('filterbar'|'sidebar') Filter placement
+  @param {string} [filter_variant] - ('checkbox'|'pill') Filter style @param
+  @param {string} [price_range_style] - ('slider'|'text') Price filter style
+  @param {boolean} [enable_reset_all_filters] - Show reset all button
+  @param {boolean} [enable_reset_price_filter] - Show reset price button
+  @param {boolean} [enable_scroll_to_top] - Show scroll to top button
+  @param {string} [color_scheme] - ('none'|'1'|'2'|'3') Color scheme
+  @param {boolean} [collapse_filters] - Collapse filters by default
+  @param {boolean} [enable_show_more_filters] - Show more filters button
+
+  @example
+  {% render 'section.main-search', paginate_by: 24, filter_variant: 'checkbox' %}
+{% enddoc %}
+
+{% stylesheet %}
+  section-main-search {
+    display: block;
+  }
+
+  .main-search__content {
+    padding-top: 5px;
+
+    @media only screen and (min-width: 769px) {
+      padding-top: 60px;
+    }
+  }
+
+  .search-bar {
+    max-width: 100%;
+  }
+
+  .search-bar--page {
+    max-width: 300px;
+    margin-top: calc(var(--gutter) / -2);
+  }
+
+  .search-bar .element-icon {
+    width: 24px;
+    height: 24px;
+    vertical-align: middle;
+  }
+{% endstylesheet %}
+
+{%- liquid
+  assign paginate_by = paginate_by | default: section.settings.paginate_by | default: 40
+  assign collapse_filters = collapse_filters | default: section.settings.collapse_filters, allow_false: true | default: true, allow_false: true
+  assign active_tags_location_desktop = active_tags_location_desktop | default: 'sidebar'
+  assign filter_variant = filter_variant | default: 'checkbox'
+  assign price_range_style = price_range_style | default: 'slider'
+  assign enable_reset_all_filters = enable_reset_all_filters | default: false, allow_false: true
+  assign enable_reset_price_filter = enable_reset_price_filter | default: false, allow_false: true
+  assign color_scheme = color_scheme | default: section.settings.color_scheme | default: 'none'
+  assign enable_show_more_filters = enable_show_more_filters | default: false, allow_false: true
+  assign enable_scroll_to_top = enable_scroll_to_top | default: true, allow_false: true
+  assign grid_style = grid_style | default: section.settings.grid_style | default: 'medium'
+
+  if cart.attributes.product_view != blank
+    assign grid_style = cart.attributes.product_view
+  endif
+
+  # Get search cards content
+  capture search_cards
+    if slot_search_cards != blank
+      echo slot_search_cards
+    else
+      paginate search.results by paginate_by
+        for item in search.results
+          if item.object_type == 'product'
+            render 'list.product-card', product: item, disabled_high_variants: false
+          else
+            render 'list.search-card', item: item
+          endif
+        endfor
+
+        if paginate.pages > 1
+          render 'element.pagination', paginate: paginate
+        endif
+      endpaginate
+    endif
+  endcapture
+-%}
+
+{%- capture search_content -%}
+  {%- render 'list.filter-grid.controls',
+    context: search,
+    grid_style: grid_style,
+    active_tags_location_desktop: active_tags_location_desktop,
+    enable_reset_all_filters: enable_reset_all_filters,
+    enable_reset_price_filter: enable_reset_price_filter
+  -%}
+  <div class="new-grid product-grid collection-grid" data-view="{{ grid_style }}" data-scroll-to>
+    {{ search_cards }}
+  </div>
+{%- endcapture -%}
+
+<section-main-search class="page-width page-content color-scheme-{{ color_scheme }}">
+  {%- render 'element.breadcrumbs' -%}
+
+  <header class="section-header">
+    <h1 class="section-header__title">
+      {% render 'utility.translate', key: 'labels.search', fallback: 'Search' %}
+    </h1>
+    <p class="medium-up--hide" data-collection-count>
+      {% assign info_search_result_count = 'info.search_result_count' | t: count: search.results_count %}
+      {%- capture fallback_info_search_result_count -%}
+        {{ search.results_count }} result{%- if ssearch.results_count != 1 -%}s{%- endif -%}
+      {%- endcapture -%}
+      {% render 'utility.translate', t: info_search_result_count, fallback: fallback_info_search_result_count %}
+    </p>
+  </header>
+
+  {%- render 'form.predictive-search', context: 'search-page' -%}
+
+  {%- if search.performed -%}
+    {%- if search.results_count == 0 -%}
+      {%- capture no_results_message -%}
+        {% assign info_search_no_results_html = 'info.search_no_results_html'
+          | t: terms: search.terms
+          | replace: '*', ''
+        %}
+        {%- capture fallback_info_search_no_results_html -%}
+          No results for "{{ search.terms | replace: '*', '' }}". Try a different keyword
+        {%- endcapture -%}
+        {% render 'utility.translate',
+          t: info_search_no_results_html,
+          fallback: fallback_info_search_no_results_html
+        %}
+      {%- endcapture -%}
+      {%- render 'element.divider', size: 'large' -%}
+      {%- render 'layout.section', slot: no_results_message, padding: 'bottom', style: 'text-align: center;' -%}
+    {%- else -%}
+      <div class="main-search__content">
+        {%- render 'list.filter-grid',
+          context: search,
+          grid_style: grid_style,
+          slot: search_content,
+          paginate_by: paginate_by,
+          active_tags_location_desktop: active_tags_location_desktop,
+          filter_variant: filter_variant,
+          price_range_style: price_range_style,
+          enable_reset_all_filters: enable_reset_all_filters,
+          enable_reset_price_filter: enable_reset_price_filter,
+          enable_show_more_filters: enable_show_more_filters,
+          collapse_filters: collapse_filters,
+          enable_scroll_to_top: enable_scroll_to_top
+        -%}
+      </div>
+    {%- endif -%}
+  {%- endif -%}
+</section-main-search>

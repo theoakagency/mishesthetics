@@ -1,0 +1,122 @@
+{% doc %}
+  Copyright © 2025 Archetype Themes LP. All rights reserved.
+
+  Interactive maps for displaying store locations and geographic information.
+
+  @param {string} [access_token] - Mapbox API key
+  @param {string} [map_address] - Address for the map
+  @param {image} [image] - Background image object
+  @param {string} [aspect_ratio] - Aspect ratio of the map
+  @param {number} [zoom] - Zoom level of the map
+  @param {string} [hydration] - Hydration strategy for the component
+
+  @example
+  {% render 'element.map', access_token: '123456789', map_address: '123 Main St' %}
+{% enddoc %}
+
+{%- liquid
+  assign access_token = access_token | default: section.settings.api_key
+  assign map_address = map_address | default: section.settings.map_address
+  assign style_url = style_url | default: section.settings.style_url
+  assign image = image | default: section.settings.background_image
+  assign aspect_ratio = aspect_ratio | default: section.settings.aspect_ratio
+  assign zoom = zoom | default: section.settings.zoom | default: 12
+  assign hydration = hydration | default: 'on:visible'
+
+  assign display_map = false
+
+  if access_token != blank and map_address != blank
+    assign display_map = true
+  endif
+
+  # Only assign image attribute values if image is set
+  if image != blank
+    if section.index == 1
+      assign loading = 'eager'
+      assign fetchpriority = 'high'
+    else
+      assign loading = 'lazy'
+      assign fetchpriority = 'auto'
+    endif
+  endif
+-%}
+
+{% if display_map and image == blank %}
+  <is-land {{ hydration }}>
+    <mapbox-map
+      class="element-map {% if aspect_ratio %}element-map--{{ aspect_ratio }}{% endif %}"
+      address="{{ map_address }}"
+      zoom="{{ zoom }}"
+      access-token="{{ access_token }}"
+      style-url="{{ style_url }}"
+    ></mapbox-map>
+
+    <template data-island>
+      <script type="module">
+        import 'element.map'
+      </script>
+    </template>
+  </is-land>
+{% else %}
+  <div class="element-map">
+    {% if image != blank %}
+      {{-
+        image
+        | image_url: width: image.width
+        | image_tag:
+          widths: '200,300,400,500,600,700,800,900,1000,1200,1400,1600,1800,2000,2200,2400,2600,2800,3000,3200',
+          class: 'element-map__image',
+          loading: loading,
+          fetchpriority: fetchpriority
+      -}}
+    {% else %}
+      <div class="element-map__onboarding">
+        {%- render 'element.placeholder', name: 'lifestyle-1' -%}
+      </div>
+    {% endif %}
+  </div>
+{% endif %}
+
+{% render 'style.primitive-tokens' %}
+{% render 'style.normalize' %}
+
+{% stylesheet %}
+  .element-map {
+    display: block;
+    height: 100%;
+    position: relative;
+    border-radius: var(--roundness);
+  }
+
+  .element-map--none,
+  .element-map--square {
+    aspect-ratio: 1;
+  }
+
+  .element-map--portrait {
+    aspect-ratio: 2 / 3;
+  }
+
+  .element-map--landscape {
+    aspect-ratio: 16 / 9;
+  }
+
+  /* TODO: should be added as a object-cover utility class */
+  .element-map__image {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  .element-map__onboarding {
+    position: absolute;
+    top: 0;
+    left: 0;
+    bottom: 0;
+    width: 100%;
+    background-size: cover;
+    background-position: 50% 50%;
+    background-repeat: no-repeat;
+    z-index: 0;
+  }
+{% endstylesheet %}

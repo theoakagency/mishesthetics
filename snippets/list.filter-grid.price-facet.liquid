@@ -1,0 +1,104 @@
+{%- doc -%}
+  Copyright © 2025 Archetype Themes LP. All rights reserved.
+
+  Renders the price facet for the collection grid.
+
+  @param {object} filter - Filter object
+
+  @example
+  {% render 'list.filter-grid.price-facet', filter: filter %}
+{%- enddoc -%}
+
+{%- liquid
+  capture input_gte_id
+    echo id_prefix
+    echo filter.label | escape
+    echo '-GTE'
+  endcapture
+
+  capture input_gte_label
+    render 'utility.translate', key: 'labels.from', fallback: 'From'
+  endcapture
+
+  assign input_gte_placeholder = filter.range_max | money_without_currency
+
+  assign input_gte_value = ''
+  if filter.min_value.value
+    assign input_gte_value = filter.min_value.value | money_without_currency
+  endif
+
+  capture input_lte_id
+    echo id_prefix
+    echo filter.label | escape
+    echo '-LTE'
+  endcapture
+
+  capture input_lte_label
+    render 'utility.translate', key: 'labels.to', fallback: 'To'
+  endcapture
+
+  assign input_lte_value = ''
+  if filter.max_value.value
+    assign input_lte_value = filter.max_value.value | money_without_currency
+  endif
+-%}
+
+{%- capture input_gte_attributes -%}
+  inputmode="decimal"
+  data-pattern="\d| |,|\."
+  data-min="0"
+  data-max="{{ filter.range_max | money_without_currency }}"
+{%- endcapture -%}
+
+{%- capture input_lte_attributes -%}
+  inputmode="decimal"
+  data-pattern="\d| |,|\."
+  data-min="0"
+  data-max="{{ filter.range_max | money_without_currency }}"
+{%- endcapture -%}
+
+{% capture input_gte %}
+  {%  render 'element.text', variant: 'body', text: cart.currency.symbol, as: 'span' %}
+  {%- render 'element.input',
+    type: 'text',
+    classlist: 'field__input',
+    label: input_gte_label,
+    name: filter.min_value.param_name,
+    id: input_gte_id,
+    value: input_gte_value,
+    placeholder: '0',
+    attributes: input_gte_attributes,
+    transparent: true
+  -%}
+{% endcapture %}
+
+{% capture input_gte_stack %}
+  {%  render 'layout.stack', slot: input_gte, gap: '2xs', horizontal: true, align: 'center' %}
+{% endcapture %}
+
+{% capture input_lte %}
+  {%  render 'element.text', variant: 'body', text: cart.currency.symbol, as: 'span' %}
+  {%-
+    render 'element.input',
+    type: 'text',
+    classlist: 'field__input',
+    label: input_lte_label,
+    name: filter.max_value.param_name,
+    id: input_lte_id,
+    value: input_lte_value,
+    placeholder: input_gte_placeholder,
+    attributes: input_lte_attributes,
+    transparent: true
+  -%}
+{% endcapture %}
+
+{% capture input_lte_stack %}
+  {%  render 'layout.stack', slot: input_lte, gap: '2xs', horizontal: true, align: 'center' %}
+{% endcapture %}
+
+{% capture price_facet %}
+  {{ input_gte_stack }}
+  {{ input_lte_stack }}
+{% endcapture %}
+
+{% render 'layout.stack', slot: price_facet, gap: 'sm', horizontal: true %}

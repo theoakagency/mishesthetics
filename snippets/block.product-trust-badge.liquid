@@ -1,0 +1,39 @@
+{% doc %}
+  Copyright © 2025 Archetype Themes LP. All rights reserved.
+
+  Trust badge image display for security, shipping, or guarantee symbols.
+
+  @param {object} [block] - Block object
+  @param {string} [image_container_width] - ('small'|'medium'|'large') Width of image container
+
+  @example
+  {% render 'block.product-trust-badge', block: block, image_container_width: 'medium' %}
+{% enddoc %}
+
+{%- liquid
+  assign image_container_width = image_container_width | default: section.settings.image_container_size | default: 'medium'
+  assign product_description_width = 'medium-up--one-half'
+  case image_container_width
+    when 'small'
+      assign product_description_width = 'medium-up--three-fifths'
+    when 'large'
+      assign product_description_width = 'medium-up--two-fifths'
+  endcase
+-%}
+
+{%- if block.settings.trust_image != blank -%}
+  <div {{ block.shopify_attributes }}>
+    <div style="max-width: {{ block.settings.trust_image.width }}px; margin: 0 auto;">
+      <div
+        class="image-wrap "
+        style="height: 0; padding-bottom: {{ 100 | divided_by: block.settings.trust_image.aspect_ratio }}%;"
+      >
+        {%- render 'element.image',
+          img: block.settings.trust_image,
+          widths: '360, 540, 700, 1024',
+          sizeVariable: product_description_width
+        -%}
+      </div>
+    </div>
+  </div>
+{%- endif -%}

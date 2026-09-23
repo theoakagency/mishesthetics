@@ -1,0 +1,197 @@
+{% doc %}
+  Copyright © 2025 Archetype Themes LP. All rights reserved.
+
+  Collapsible content containers that expand and collapse to reveal or hide information.
+
+  @param {string} [title] - Title text for the toggle
+  @param {string} [slot] - Content to show when accordion is toggled open
+  @param {boolean} [open] - Whether the accordion is open by default
+  @param {string} [group] - Name of an exclusive accordion group. Accordions sharing a group behave as tabs: opening one closes the others. Omit to let the accordion open and close on its own
+  @param {string} [icon_open] - Icon for open state, defaults to chevron-up
+  @param {string} [icon_closed] - Icon for closed state, defaults to chevron-down
+  @param {string} [id] - ID attribute for the wrapper
+  @param {string} [classlist] - Class list
+  @param {string} [style] - Style attribute
+  @param {string} [attributes] - Additional attributes
+
+  @example
+  {% render 'element.accordion', title: 'Frequently Asked Questions', slot: 'Hello world, this is some content', open: true %}
+{% enddoc %}
+
+{% liquid
+  assign title = title | default: ''
+  assign slot = slot | default: ''
+  assign open = open | default: false
+  assign group = group | default: ''
+  assign icon_open = icon_open | default: 'chevron-up'
+  assign icon_closed = icon_closed | default: 'chevron-down'
+  assign attributes = attributes | default: ''
+  assign classlist = classlist | default: '' | append: ' element-accordion' | strip
+  assign style = style | default: ''
+  assign id = id | default: ''
+%}
+
+<accordion-toggle
+  class="{{ classlist }}"
+
+  {%- if id != blank -%}
+    id="{{ id }}"
+  {%- endif -%}
+
+  {%- if attributes != blank -%}
+    {{ attributes }}
+  {%- endif -%}
+
+  {%- if style != blank -%}
+    style="{{ style | escape }}"
+  {%- endif -%}
+>
+  <details
+    {%- if group != blank %}
+      name="{{ group | escape }}"
+    {% endif -%}
+
+    {% if open %}
+      open
+    {% endif %}
+  >
+    <summary class="element-accordion__toggle">
+      {% render 'element.text', variant: 'heading-xs', text: title, as: 'span' %}
+
+      <span class="element-accordion__toggle-open">
+        {% render 'element.icon', name: icon_open, classlist: 'element-accordion__toggle-icon' %}
+      </span>
+      <span class="element-accordion__toggle-close">
+        {% render 'element.icon', name: icon_closed, classlist: 'element-accordion__toggle-icon' %}
+      </span>
+    </summary>
+
+    <div class="element-accordion__content">
+      {{ slot }}
+    </div>
+  </details>
+
+  <script type="module">
+    import 'element.accordion'
+  </script>
+</accordion-toggle>
+
+{% render 'style.primitive-tokens' %}
+{% render 'style.normalize' %}
+
+{% stylesheet %}
+  :root {
+    --element-accordion-py: var(--size-4-5);
+    --element-accordion-px: 0;
+    --element-accordion-border-width: var(--size-0-25);
+    --element-accordion-border-style: solid;
+    --element-accordion-color-primary: var(--color-primary);
+    --element-accordion-color-secondary: var(--color-secondary);
+    --element-accordion-shade-border: 16%;
+    --element-accordion-shade-border-hover: 100%;
+    --element-accordion-transition-duration: 200ms;
+    --element-accordion-transition-easing: ease-in-out;
+    --element-accordion-icon-size: var(--size-4);
+  }
+
+  .element-accordion {
+    /* Layout & Typography */
+    --_py: var(--element-accordion-py);
+    --_px: var(--element-accordion-px);
+    --_border-width: var(--element-accordion-border-width);
+    --_border-style: var(--element-accordion-border-style);
+
+    /* Colors */
+    --_color-primary: var(--element-accordion-color-primary);
+    --_color-secondary: var(--element-accordion-color-secondary);
+    --_shade-border: var(--element-accordion-shade-border);
+    --_shade-border-hover: var(--element-accordion-shade-border-hover);
+
+    /* Transition */
+    --_transition-duration: var(--element-accordion-transition-duration);
+    --_transition-easing: var(--element-accordion-transition-easing);
+
+    --element-icon-size: var(--element-accordion-icon-size);
+
+    display: block;
+    padding-inline: var(--_px);
+    border-width: 0;
+    border-style: var(--_border-style);
+    border-block-end-width: var(--_border-width);
+    border-block-end-color: color-mix(in srgb, var(--_color-primary) var(--_shade-border), transparent);
+
+    @media only screen and (max-width: 768px) {
+      --_py: var(--size-3);
+    }
+
+    &:hover {
+      --_shade-border: var(--_shade-border-hover);
+    }
+  }
+
+  details {
+    &::details-content,
+    .element-accordion__content {
+      block-size: 0;
+      opacity: 0;
+      overflow-y: clip;
+      interpolate-size: allow-keywords;
+      transition: content-visibility var(--_transition-duration) allow-discrete,
+        opacity var(--_transition-duration) var(--_transition-easing) var(--_transition-duration),
+        block-size var(--_transition-duration) var(--_transition-easing),
+        padding-block var(--_transition-duration) var(--_transition-easing);
+    }
+
+    &[open] {
+      &::details-content,
+      .element-accordion__content {
+        block-size: auto;
+        opacity: 1;
+        overflow-y: visible;
+
+        @starting-style {
+          block-size: 0;
+          opacity: 0;
+          overflow-y: clip;
+        }
+      }
+    }
+  }
+
+  summary {
+    list-style-type: none;
+
+    &::-webkit-details-marker {
+      display: none;
+    }
+  }
+
+  .element-accordion__toggle {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    column-gap: var(--size-4);
+    padding-block: var(--_py);
+    overflow-wrap: break-word;
+    cursor: pointer;
+  }
+
+  .element-accordion__content {
+    padding-block-end: var(--_py);
+    padding-inline: var(--size-0-25);
+  }
+
+  .element-accordion__toggle-open {
+    display: none;
+
+    details[open] & {
+      display: inline;
+    }
+  }
+
+  .element-accordion__toggle-close {
+    details[open] & {
+      display: none;
+    }
+  }
+{% endstylesheet %}

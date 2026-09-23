@@ -1,0 +1,62 @@
+{% doc %}
+  Copyright © 2025 Archetype Themes LP. All rights reserved.
+
+  Return to collection link for product page navigation.
+
+  @param {object} [collection] - Collection to link back to
+  @param {string} [color_scheme] - ('none'|'1'|'2'|'3') Color scheme
+
+  @example
+  {% render 'section.collection-return', collection: collection %}
+{% enddoc %}
+
+{% stylesheet %}
+  /*Return to collection link*/
+  .return-section {
+    margin-top: var(--index-section-padding);
+    padding: var(--index-section-padding) 0;
+  }
+
+  .return-link {
+    text-align: center;
+    padding: 15px 25px;
+
+    & .element-icon {
+      width: 20px;
+      margin-right: 8px;
+    }
+  }
+{% endstylesheet %}
+
+{%- liquid
+  assign color_scheme = color_scheme | default: section.settings.color_scheme | default: 'none'
+  assign actions_back_to = 'actions.back_to' | t: collection: collection.title
+  assign fallback_actions_back_to = 'Back to ' | append: collection.title
+
+  capture button_back_text
+    render 'utility.translate', t: actions_back_to, fallback: fallback_actions_back_to
+  endcapture
+-%}
+
+{%- liquid
+  assign button_back_url = collection.url
+  if collection.handle == 'frontpage'
+    assign button_back_url = '/'
+  endif
+-%}
+
+{% if collection %}
+  <div class="return-section color-scheme-{{ color_scheme }}">
+    {%- render 'utility.color-scheme-texture', color_scheme: color_scheme -%}
+
+    <div class="page-width text-center" style="z-index: 1;">
+      {%- render 'element.button',
+        text: button_back_text,
+        href: button_back_url,
+        classlist: 'return-link',
+        icon: 'arrow-left',
+        icon_position: 'start'
+      -%}
+    </div>
+  </div>
+{% endif %}

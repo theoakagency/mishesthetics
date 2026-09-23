@@ -1,0 +1,256 @@
+{% doc %}
+  Copyright © 2025 Archetype Themes LP. All rights reserved.
+
+  Individual cart item display with product details, quantity controls, and removal options.
+
+  @param {line_item} item - Cart line item object to render
+
+  @example
+  {% render 'cart.line-item', item: cart.items[0] %}
+{% enddoc %}
+
+{% stylesheet %}
+  /* General cart item styles */
+  .cart__item {
+    display: grid;
+    grid-template-areas:
+      'cartImage cartTitle .'
+      'cartImage cartQuantity cartPrice'
+      '. cartRemove cartPrice';
+    grid-template-columns: 150px auto auto;
+    grid-column-gap: 20px;
+    align-items: center;
+    margin-bottom: 20px;
+    padding-bottom: 20px;
+    border-bottom: 1px solid;
+    border-bottom-color: color-mix(in srgb, var(--color-primary) var(--shade-12), var(--color-secondary));
+
+    /*Smaller image in drawer*/
+    .site-header__cart & {
+      grid-template-columns: 100px auto auto;
+      grid-column-gap: 10px;
+    }
+
+    @media only screen and (max-width: 959px) {
+      grid-template-areas:
+        'cartImage cartTitle cartTitle'
+        'cartImage cartQuantity cartPrice'
+        'cartImage cartRemove cartPrice';
+    }
+
+    &:last-of-type {
+      border-bottom: 0;
+    }
+  }
+
+  .cart__image {
+    grid-area: cartImage;
+    align-self: flex-start;
+
+    & a {
+      position: relative;
+      display: block;
+      width: 100%;
+      height: 100px;
+    }
+
+    & .image-wrap img,
+    & img {
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      left: 0;
+      top: 0;
+      display: block;
+      object-fit: contain;
+    }
+  }
+
+  .cart__item-title {
+    grid-area: cartTitle;
+  }
+
+  .cart__item-quantity {
+    grid-area: cartQuantity;
+  }
+
+  .cart__item-remove {
+    grid-area: cartRemove;
+
+    & a {
+      display: inline-block;
+      margin-top: 10px;
+    }
+
+    /*Hide in drawer*/
+    .cart__drawer-form & {
+      display: none;
+    }
+  }
+
+  .cart__item-price {
+    grid-area: cartPrice;
+  }
+
+  .cart__item-name {
+    display: block;
+    font-size: calc(var(--element-text-font-size--body-md) + 1px);
+    margin-bottom: 8px;
+  }
+
+  .cart__item--variants {
+    font-size: calc(var(--element-text-font-size--body-md) - 2px);
+    margin-bottom: 10px;
+
+    & span {
+      font-weight: var(--element-text-font-weight--heading);
+    }
+  }
+
+  .cart__price {
+    display: block;
+
+    &:not(.cart__price--strikethrough) {
+      font-weight: var(--element-text-font-weight--heading);
+      font-size: calc(var(--element-text-font-size--body-md) + 2px);
+    }
+  }
+
+  .cart__price--strikethrough {
+    text-decoration: line-through;
+  }
+
+  /* Cart properties */
+  .cart__item--properties {
+    font-size: calc(var(--element-text-font-size--body-md) - 2px);
+    margin-bottom: 10px;
+    line-height: 1.3;
+
+    & span {
+      font-weight: 700;
+    }
+  }
+{% endstylesheet %}
+
+{%- liquid
+  assign item = item | default: blank
+-%}
+
+<div class="cart__item" data-key="{{ item.key }}">
+  <div class="cart__image">
+    {% if item.image != blank %}
+      <a href="{{ item.url }}" class="image-wrap">
+        {%- render 'element.image',
+          img: item,
+          sizes: '150px',
+          alt: item.product.title,
+          widths: '180, 360, 540',
+          classlist: 'animate-instant'
+        -%}
+      </a>
+    {% endif %}
+  </div>
+
+  <div class="cart__item-title">
+    <a href="{{ item.url }}" class="cart__item-name">
+      {{ item.product.title }}
+    </a>
+
+    {%- unless item.product.has_only_default_variant -%}
+      <div class="cart__item--variants">
+        {%- for option in item.options_with_values -%}
+          <div>
+            <span>{{ option.name }}:</span> {{ option.value }}
+          </div>
+        {%- endfor -%}
+      </div>
+    {%- endunless -%}
+
+    {%- if item.selling_plan_allocation != empty -%}
+      <div class="cart__item--variants">
+        {{ item.selling_plan_allocation.selling_plan.name }}
+      </div>
+    {%- endif -%}
+
+    {%- assign property_size = item.properties | size -%}
+
+    {% if property_size > 0 %}
+      {% for p in item.properties %}
+        {%- assign first_character_in_key = p.first | truncate: 1, '' -%}
+        {% unless p.last == blank or first_character_in_key == '_' %}
+          <div class="cart__item--properties">
+            <span>{{ p.first }}:</span>
+            {% if p.last contains '/uploads/' %}
+              <a href="{{ p.last }}">{{ p.last | split: '/' | last }}</a>
+            {% else %}
+              {{ p.last }}
+            {% endif %}
+          </div>
+        {% endunless %}
+      {% endfor %}
+    {% endif %}
+  </div>
+
+  <div class="cart__item-quantity">
+    {%- assign quantity_selector_id = 'cart_updates_' | append: item.key -%}
+    {% capture quantity_selector_attributes %}
+      for="{{ quantity_selector_id }}"
+    {% endcapture -%}
+
+    {%- render 'element.text',
+      as: 'label',
+      locale: 'labels.quantity',
+      text: 'Quantity',
+      attributes: quantity_selector_attributes,
+      visually_hidden: true
+    -%}
+    {%- render 'element.quantity-selector',
+      id: quantity_selector_id,
+      name: 'updates[]',
+      value: item.quantity,
+      min: 0,
+      cart_item_key: item.key
+    -%}
+  </div>
+
+  <div class="cart__item-remove">
+    <a href="{{ routes.cart_change_url }}?id={{ item.key }}&amp;quantity=0" class="text-link">
+      {% render 'utility.translate', key: 'actions.remove', fallback: 'Remove' %}
+    </a>
+  </div>
+
+  <div class="cart__item-price text-right">
+    {% if item.original_price != item.final_price %}
+      {%- render 'element.text', locale: 'labels.regular_price', text: 'Regular price', visually_hidden: true -%}
+      {%- render 'element.price', classlist: 'cart__price', price: item.original_price, strikethrough: true -%}
+
+      {%- render 'element.text', locale: 'labels.sale_price', text: 'Sale price', visually_hidden: true -%}
+      {%- render 'element.price', classlist: 'cart__price cart__discount', price: item.final_price -%}
+    {% else %}
+      {%- render 'element.price', classlist: 'cart__price', price: item.original_price -%}
+    {% endif %}
+
+    {%- if item.unit_price_measurement != blank -%}
+      {%- capture unit_price_base_unit -%}
+        <span class="product__unit-base--{{ section.id }}">
+          {%- if item.unit_price_measurement -%}
+            {%- if item.unit_price_measurement.reference_value != 1 -%}
+              {{ item.unit_price_measurement.reference_value }}
+            {%- endif -%}
+            {{ item.unit_price_measurement.reference_unit }}
+          {%- endif -%}
+        </span>
+      {%- endcapture -%}
+
+      <span class="product__unit-price">{{ item.unit_price | money }}/{{ unit_price_base_unit }}</span>
+    {%- endif -%}
+
+    {%- if item.line_level_discount_allocations != blank -%}
+      {%- for discount_allocation in item.line_level_discount_allocations -%}
+        <small class="cart__discount">
+          {{- discount_allocation.discount_application.title }} (-{{ discount_allocation.amount | money }})</small
+        >
+      {%- endfor -%}
+    {%- endif -%}
+  </div>
+</div>

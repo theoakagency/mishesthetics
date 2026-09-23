@@ -1,0 +1,24 @@
+{% doc %}
+  Copyright © 2025 Archetype Themes LP. All rights reserved.
+
+  Quick add-to-cart modal for rapid product purchases from collection pages.
+
+  @param {string} [content] - The content to display in the quick add modal
+  @param {string} [hydration] - The hydration strategy, default: 'on:idle'
+
+  @example
+  {% render 'overlay.quick-add', content: add_form_content %}
+{% enddoc %}
+
+{%- liquid
+  assign content = content | default: blank
+  assign hydration = hydration | default: 'on:idle'
+-%}
+
+<quick-add defer-hydration>
+  {{ content }}
+</quick-add>
+
+<script type="module">
+  import 'overlay.quick-add'
+</script>

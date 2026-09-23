@@ -1,0 +1,233 @@
+{% doc %}
+  Copyright © 2025 Archetype Themes LP. All rights reserved.
+
+  Full-screen hero video with text overlay and call-to-action.
+
+  @param {boolean} [full_width] - Enable full-width layout
+  @param {string} [title] - Main heading text
+  @param {number} [title_size] - Title font size
+  @param {string} [text_highlight] - Text highlight style
+  @param {string} [subheading] - Subtitle text
+  @param {string} [link_text] - CTA button text
+  @param {string} [link] - CTA button URL
+  @param {string} [color_accent] - Accent color value
+  @param {string} [text_align] - Text alignment
+  @param {object} [video] - Native video file
+  @param {string} [video_url] - External video URL (YouTube/Vimeo)
+  @param {number} [overlay_opacity] - Overlay opacity
+  @param {number} [height] - Height
+  @param {number} [height_mobile] - Mobile height
+  @param {string} [hydration] - Hydration strategy
+
+  @example
+  {% render 'section.hero-video', full_width: true, video_url: 'https://youtu.be/example' %}
+{% enddoc %}
+
+{% stylesheet %}
+  .hero__media-container {
+    position: absolute;
+    top: 0;
+    left: 0;
+    height: 100%;
+    width: 100%;
+  }
+
+  .hero__media {
+    position: absolute;
+    top: 0;
+    left: 0;
+    height: 100%;
+    width: 100%;
+  }
+
+  .hero__media {
+    z-index: var(--z-index-hero-image);
+  }
+
+  .hero.video-parent-section {
+    display: block;
+  }
+
+  .hero__media iframe,
+  .hero__media video {
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+
+    .video-interactable & {
+      pointer-events: auto;
+    }
+
+    .video-parent-section.loading & {
+      opacity: 0.01; /*sneaky way to avoid talking to an invisible YT iframe*/
+    }
+
+    .video-parent-section.loaded & {
+      opacity: 1;
+      animation: zoom-fade 1s cubic-bezier(0.26, 0.54, 0.32, 1) 0s forwards;
+      transition: none; /*fixes safari animation conflict*/
+    }
+  }
+
+  /*MP4 sizing*/
+  .hero__media video {
+    position: relative;
+    object-fit: cover;
+    font-family: 'object-fit: cover';
+  }
+
+  /*YouTube iframes need more specific sizing*/
+  .hero__media iframe {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 300%;
+    left: -100%;
+    max-width: none;
+
+    /*This min-width may need to change slightly depending on
+	  embedded video dimensions. Can do on a per-shop basis*/
+    @media screen and (min-width: 1140px) {
+      width: 100%;
+      height: 300%;
+      left: auto;
+      top: -100%;
+    }
+  }
+{% endstylesheet %}
+
+{%- liquid
+  assign full_width = full_width | default: section.settings.full_width, allow_false: true | default: true, allow_false: true
+  assign title = title | default: section.settings.title
+  assign title_size = title_size | default: section.settings.title_size | default: 70
+  assign text_highlight = text_highlight | default: section.settings.text_highlight | default: 'serif'
+  assign subheading = subheading | default: section.settings.subheading
+  assign link_text = link_text | default: section.settings.link_text
+  assign link = link | default: section.settings.link
+  assign color_accent = color_accent | default: section.settings.color_accent | default: '#fff'
+  assign text_align = text_align | default: section.settings.text_align | default: 'vertical-center horizontal-center'
+  assign video = video | default: section.settings.video
+  assign video_url = video_url | default: section.settings.video_url
+  assign overlay_opacity = overlay_opacity | default: section.settings.overlay_opacity | default: 0
+  assign height = height | default: section.settings.height | default: 650
+  assign height_mobile = height_mobile | default: section.settings.height_mobile | default: 300
+  assign hydration = hydration | default: 'on:visible'
+-%}
+
+<section>
+  {%- unless full_width -%}
+    <div class="page-width hero--padded">
+  {%- endunless -%}
+
+  {%- style -%}
+    .hero--{{ section.id }} {
+      height: {{ height_mobile }}px;
+    }
+    .hero--{{ section.id }} .hero__title {
+      font-size: {{ title_size | times: 0.5 }}px;
+    }
+    @media only screen and (min-width: 769px) {
+      .hero--{{ section.id }} {
+        height: {{ height }}px;
+      }
+      .hero--{{ section.id }} .hero__title {
+        font-size: {{ title_size }}px;
+      }
+    }
+
+    {%- assign button_alpha = color_accent | color_extract: 'alpha' -%}
+    {% unless button_alpha == 0.0 %}
+      .hero--{{ section.id }} .btn {
+        background: {{ color_accent }} !important;
+        border-color: {{ color_accent }} !important;
+
+        {%- assign accent_brightness = color_accent | color_extract: 'lightness' -%}
+
+        {% if accent_brightness > 40 %}
+          color: #000 !important;
+        {% endif %}
+      }
+    {% endunless %}
+
+    {% if overlay_opacity > 0 %}
+      .hero--{{ section.id }} .hero__text-wrap:after {
+        content: '';
+        position: absolute;
+        left: 0;
+        right: 0;
+        top: 0;
+        bottom: 0;
+        z-index: 3;
+        background-color: #000;
+        opacity: {{ overlay_opacity | divided_by: 100.0 }};
+      }
+    {% endif %}
+  {%- endstyle -%}
+
+  <is-land {{ hydration }}>
+    <div class="video-parent-section hero hero--{{ section.id }}">
+      <div class="hero__media hero__media--{{ section.id }}">
+        <div class="hero__media-container">
+          {%- if video != blank -%}
+            {% render 'element.video', video: video, autoplay: true, loop: true, background: true %}
+          {%- else -%}
+            {% render 'element.video', external_video: video_url, autoplay: true, loop: true, background: true %}
+          {%- endif -%}
+        </div>
+      </div>
+
+      <div class="hero__text-wrap">
+        <div class="page-width">
+          <div class="hero__text-content {{ text_align }}">
+            {% unless title == blank and subheading == blank and link_text == blank %}
+              <div class="hero__text-shadow overlay">
+                {%- unless title == blank -%}
+                  <h2
+                    class="
+                      heading-xl
+                      hero__title
+                      {% if text_highlight %}
+                        text-highlight
+                        text-highlight--{{ text_highlight }}
+                      {% endif %}
+                    "
+                  >
+                    <div data-animate="rise-up">
+                      {{ title | newline_to_br }}
+                    </div>
+                  </h2>
+                {%- endunless -%}
+                {%- if subheading or link -%}
+                  {%- unless subheading == blank -%}
+                    <div class="hero__subtitle">
+                      <div data-animate="rise-up">
+                        {{ subheading | escape }}
+                      </div>
+                    </div>
+                  {%- endunless -%}
+
+                  {%- if link_text != blank -%}
+                    {%- liquid
+                      assign link_href = link | default: video_url
+                      assign inverted = false
+                      if color_accent and color_accent == 'rgba(0,0,0,0)'
+                        assign inverted = true
+                      endif
+                    -%}
+                    <div class="hero__link">
+                      {%- render 'element.button', href: link_href, text: link_text, inverted: inverted -%}
+                    </div>
+                  {%- endif -%}
+                {%- endif -%}
+              </div>
+            {% endunless %}
+          </div>
+        </div>
+      </div>
+    </div>
+  </is-land>
+
+  {%- unless full_width -%}
+    </div>
+  {%- endunless -%}
+</section>

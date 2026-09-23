@@ -1,0 +1,94 @@
+{% doc %}
+  Copyright © 2025 Archetype Themes LP. All rights reserved.
+
+  Product tag badges for categorization and filtering.
+
+  @param {product} [product] - Product object
+  @param {string} [scheme] - Color scheme for tags
+  @param {string} [style] - Visual style preset
+  @param {string} [align] - Tag alignment
+
+  @example
+  {% render 'product.tags', product: product, align: 'center' %}
+{% enddoc %}
+
+{% stylesheet %}
+  .product-tags {
+    --gap: 6px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--gap);
+  }
+
+  .product-grid-item .product-tags {
+    padding: 0 16px 16px;
+
+    @media only screen and (max-width: 959px) {
+      padding: 0 15px 15px;
+    }
+  }
+
+  .product-tag {
+    .btn {
+      border: none;
+      display: inline-flex;
+      gap: 4px;
+      align-items: center;
+      justify-content: space-between;
+      white-space: nowrap;
+      min-width: 0;
+    }
+
+    svg {
+      flex-shrink: 0;
+      width: 16px;
+      height: 16px;
+    }
+  }
+{% endstylesheet %}
+
+{% liquid
+  assign product = section.settings.product | default: product
+
+  assign product_tags_count = 0
+  assign scheme = scheme | default: settings.color_scheme_product_tag
+  assign style = style | default: settings.product_tag_style
+  assign align = align | default: 'start'
+  assign product_tags = ''
+
+  for tag in product.tags
+    if tag contains 'at_'
+      assign product_tags = product_tags | append: tag | append: ','
+      assign product_tags_count = product_tags_count | plus: 1
+    endif
+  endfor
+
+  assign product_tags_array = product_tags | split: ','
+%}
+
+{% comment %}
+  Loop through the product tags and split the tag into an array
+  The first part of the array is the prefix, the second is the icon, and the third is the text
+  If the prefix is 'at' then render the tag
+{% endcomment %}
+
+{% if product_tags_count > 0 %}
+  {% capture tags_content %}
+    {% for tag in product_tags_array %}
+      {% assign formatted_tag = tag | remove_first: 'at_' %}
+
+      {% assign tag_id = formatted_tag | strip %}
+      {% assign tag_text = 'tags.' | append: tag_id | replace: '-', '_' | t %}
+
+      {% unless tag_text contains 'Translation missing' %}
+        {% assign tag_handle = tag | handleize %}
+        {% assign tag_link = routes.all_products_collection_url | append: '/' | append: tag_handle %}
+        {% render 'element.chip', href: tag_link, label: tag_text, icon: tag_id %}
+      {% endunless %}
+    {% endfor %}
+  {% endcapture %}
+
+  {% if tags_content != blank %}
+    {% render 'layout.stack', slot: tags_content, gap: 'xs', justify: align, horizontal: true %}
+  {% endif %}
+{% endif %}

@@ -1,0 +1,42 @@
+{%- doc -%}
+  Copyright © 2025 Archetype Themes LP. All rights reserved.
+
+  Render the swatch filter for the collection grid.
+
+  @param {object} filter - Filter object
+  @param {boolean} [enable_swatch_labels] - Enable swatch labels
+  @param {boolean} [tags_combine] - Combine tags
+
+  @example
+  {% render 'list.filter-grid.swatch-filter', filter: filter %}
+{%- enddoc -%}
+
+{%- liquid
+  assign enable_swatch_labels = enable_swatch_labels | default: section.settings.enable_swatch_labels, allow_false: true | default: true, allow_false: true
+  assign tags_combine = tags_combine | default: false, allow_false: true
+-%}
+
+{% capture swatch_items %}
+  {%- for filter_value in filter.values -%}
+    {%  assign input_id = filter_value.value | handle %}
+    {%- capture checkbox_label_text -%}
+      {{ filter_value.label }} ({{ filter_value.count }})
+    {%- endcapture -%}
+
+    {%  capture checkbox_label %}
+      {%- render 'element.swatch', swatch: filter_value.swatch -%}
+      {%  render 'element.text', variant: 'body', text: checkbox_label_text, as: 'span' %}
+    {%  endcapture %}
+
+    {%  render 'element.checkbox',
+      label: checkbox_label,
+      value: filter_value.value,
+      name: filter_value.param_name,
+      checked: filter_value.active,
+      display_icon: false,
+      id: input_id
+    %}
+  {%- endfor -%}
+{% endcapture %}
+
+{% render 'layout.grid', slot: swatch_items, gap: 'xs', columns_xs: 2, columns_md: 1 %}

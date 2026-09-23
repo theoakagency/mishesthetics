@@ -1,0 +1,344 @@
+/*
+ * ------------------------------------------------------------
+ * IMPORTANT: The contents of this file are auto-generated.
+ *
+ * This file may be updated by the Shopify admin theme editor
+ * or related systems. Please exercise caution as any changes
+ * made to this file may be overwritten.
+ * ------------------------------------------------------------
+ */
+{
+  "sections": {
+    "slideshow-split": {
+      "type": "slideshow-split",
+      "blocks": {
+        "slide-1": {
+          "type": "slide",
+          "settings": {
+            "top_subheading": "",
+            "title": "Everything for the perfect lift",
+            "title_size": 40,
+            "subheading": "Pristine lift solutions, tools, and training, designed by one Lash Artist for all Lash Artists.",
+            "link": "shopify://collections/lash-lift-supplies",
+            "link_text": "Shop lash lift",
+            "link_2": "",
+            "link_text_2": "",
+            "text_position": "right",
+            "image": "shopify://shop_images/IMG_5018.jpg",
+            "indent_image": false,
+            "color_scheme": "2"
+          }
+        }
+      },
+      "block_order": [
+        "slide-1"
+      ],
+      "custom_css": [
+        "@media screen and (max-width: 768px) {.element-button {display: flex; justify-content: center; width: 100%; }}"
+      ],
+      "settings": {
+        "full_width": false,
+        "height": 600,
+        "height_mobile": 370,
+        "style": "minimal",
+        "autoplay": true,
+        "autoplay_speed": 7
+      }
+    },
+    "featured-collections": {
+      "type": "featured-collections",
+      "blocks": {
+        "collection-1": {
+          "type": "collection",
+          "settings": {
+            "collection": "lash-lift-supplies",
+            "title": "Lash Lift"
+          }
+        },
+        "collection-2": {
+          "type": "collection",
+          "settings": {
+            "collection": "lash-education",
+            "title": "Education"
+          }
+        },
+        "collection-3": {
+          "type": "collection",
+          "settings": {
+            "collection": "lash-adhesives-liquids",
+            "title": "Adhesives & Liquids"
+          }
+        },
+        "collection-4": {
+          "type": "collection",
+          "settings": {
+            "collection": "lash-tweezers",
+            "title": "Tweezers"
+          }
+        },
+        "collection-5": {
+          "type": "collection",
+          "settings": {
+            "collection": "mink-n-matte-lash-trays",
+            "title": "Mink N' Matte Trays"
+          }
+        },
+        "collection-6": {
+          "type": "collection",
+          "settings": {
+            "collection": "lash-aftercare",
+            "title": "Aftercare"
+          }
+        }
+      },
+      "block_order": [
+        "collection-1",
+        "collection-2",
+        "collection-3",
+        "collection-4",
+        "collection-5",
+        "collection-6"
+      ],
+      "settings": {
+        "title": "Shop by Category",
+        "heading_size": "h2",
+        "heading_position": "left",
+        "divider": false
+      }
+    },
+    "featured-collection": {
+      "type": "featured-collection",
+      "settings": {
+        "title": "Best Sellers",
+        "heading_size": "h2",
+        "heading_position": "left",
+        "home_featured_products": "best-sellers",
+        "count": 5,
+        "products_per_row": 5,
+        "mobile_scrollable": true,
+        "view_all": true,
+        "divider": false
+      }
+    },
+    "text_and_image_qMJz4B": {
+      "type": "text-and-image",
+      "name": "t:labels.image_with_text",
+      "settings": {
+        "image": "shopify://shop_images/Lash_Training_Cover_Photo.jpg",
+        "image_mask": "square",
+        "image2_mask": "none",
+        "subtitle": "",
+        "title": "Courses & training",
+        "heading_size": "h2",
+        "text": "<p>Korean Lash Lift online courses, in-person training, and seminars, from beginner to advanced.</p>",
+        "button_label": "Learn more",
+        "button_link": "shopify://collections/lash-education",
+        "button_style": "primary",
+        "align_text": "left",
+        "image_width": "50",
+        "layout": "left",
+        "color_scheme": "2",
+        "divider": false,
+        "top_padding": true,
+        "bottom_padding": true
+      }
+    },
+    "rich_text_PFLziL": {
+      "type": "rich-text",
+      "blocks": {
+        "heading_WwhipR": {
+          "type": "heading",
+          "settings": {
+            "title": "Never run out",
+            "heading_size": "h2"
+          }
+        },
+        "text_PfxWXG": {
+          "type": "text",
+          "settings": {
+            "enlarge_text": true,
+            "text": "<p>Subscribe to your go-to adhesive and save 15% on every delivery.</p>"
+          }
+        },
+        "button_nhrthm": {
+          "type": "button",
+          "settings": {
+            "link": "shopify://collections/lash-adhesives-liquids",
+            "link_text": "Shop adhesives"
+          }
+        }
+      },
+      "block_order": [
+        "heading_WwhipR",
+        "text_PfxWXG",
+        "button_nhrthm"
+      ],
+      "name": "t:labels.rich_text",
+      "settings": {
+        "align_text": "center",
+        "narrow_column": true,
+        "color_scheme": "1",
+        "divider": false
+      }
+    },
+    "newsletter": {
+      "type": "newsletter",
+      "blocks": {
+        "title": {
+          "type": "title",
+          "settings": {
+            "title": "Save 10% on your first purchase",
+            "heading_size": "h2"
+          }
+        },
+        "text": {
+          "type": "text",
+          "settings": {
+            "text": "<p>Sign up today and we'll send you a 10% discount code towards your first purchase.</p>"
+          }
+        },
+        "form": {
+          "type": "form",
+          "settings": {}
+        }
+      },
+      "block_order": [
+        "title",
+        "text",
+        "form"
+      ],
+      "disabled": true,
+      "settings": {
+        "color_scheme": "3",
+        "align_text": "center",
+        "image_width": "33",
+        "image_mask": "none",
+        "image_position": "right",
+        "divider": false,
+        "top_padding": false,
+        "bottom_padding": false
+      }
+    },
+    "text-with-icons": {
+      "type": "text-with-icons",
+      "blocks": {
+        "text_block-1": {
+          "type": "text_block",
+          "settings": {
+            "icon": "sales-tag",
+            "title": "Unique Brands",
+            "text": "<p>We source products from young independent designers and established brands.</p>"
+          }
+        },
+        "text_block-2": {
+          "type": "text_block",
+          "settings": {
+            "icon": "plant",
+            "title": "Sustainable Materials",
+            "text": "<p>We carefully curate only products designed with the environment in mind. </p>"
+          }
+        },
+        "text_block-3": {
+          "type": "text_block",
+          "settings": {
+            "icon": "store",
+            "title": "Multiple Locations",
+            "text": "<p>Our unique stores are located across Toronto, New York City and Los Angeles.</p>"
+          }
+        }
+      },
+      "block_order": [
+        "text_block-1",
+        "text_block-2",
+        "text_block-3"
+      ],
+      "disabled": true,
+      "settings": {
+        "title": "",
+        "align_text": "center",
+        "desktop_columns_per_row": 3,
+        "icon_color": "#a6cfce",
+        "button_label": "",
+        "button_link": "",
+        "divider": false
+      }
+    },
+    "blog-posts": {
+      "type": "blog-posts",
+      "disabled": true,
+      "settings": {
+        "title": "From the Blog",
+        "heading_size": "h2",
+        "heading_position": "left",
+        "blog": "news",
+        "blog_show_tags": false,
+        "blog_show_date": false,
+        "blog_show_comments": false,
+        "blog_show_author": false,
+        "blog_show_excerpt": false,
+        "blog_image_size": "landscape",
+        "divider": true
+      }
+    },
+    "1790057253c88c07b7": {
+      "type": "apps",
+      "blocks": {
+        "yotpo_product_reviews_reviews_carousel_mHjqXQ": {
+          "type": "shopify://apps/yotpo-product-reviews/blocks/reviews_carousel/eb7dfd7d-db44-4334-bc49-c893b51b36cf",
+          "settings": {
+            "product": ""
+          }
+        }
+      },
+      "block_order": [
+        "yotpo_product_reviews_reviews_carousel_mHjqXQ"
+      ],
+      "settings": {
+        "full_width": false,
+        "space_around": true
+      }
+    },
+    "17900588409f7f7947": {
+      "type": "apps",
+      "blocks": {
+        "instafeed_app_block_UatiX7": {
+          "type": "shopify://apps/instafeed/blocks/app-block/c447db20-095d-4a10-9725-b5977662c9d5",
+          "settings": {
+            "title": "",
+            "title_color": "",
+            "title_size_v2": 0,
+            "alignment": "center",
+            "instafeed_margin_top": 0,
+            "instafeed_margin_bottom": 0,
+            "instafeed_margin_sides": 0,
+            "show_instagram_link": false,
+            "link_alignment": "left",
+            "link_color": "#000000",
+            "background_color": "",
+            "feed_id": "",
+            "html_area": ""
+          }
+        }
+      },
+      "block_order": [
+        "instafeed_app_block_UatiX7"
+      ],
+      "settings": {
+        "full_width": false,
+        "space_around": true
+      }
+    }
+  },
+  "order": [
+    "slideshow-split",
+    "featured-collections",
+    "featured-collection",
+    "text_and_image_qMJz4B",
+    "rich_text_PFLziL",
+    "newsletter",
+    "text-with-icons",
+    "blog-posts",
+    "1790057253c88c07b7",
+    "17900588409f7f7947"
+  ]
+}

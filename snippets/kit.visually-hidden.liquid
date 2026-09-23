@@ -1,0 +1,54 @@
+{%- doc -%}
+  Visually hidden content accessible to screen readers.
+
+  @param {string} [text] - The text to render
+  @param {string} [tag] - HTML element to render. Default: 'span'
+  @param {string} [classes] - Additional CSS classes
+  @param {string} [id] - HTML id attribute
+  @param {string} [attr] - Additional HTML attributes
+
+  @example
+  {% render 'kit.visually-hidden', text: 'Skip to content' %}
+  @example
+  As a heading
+  {% render 'kit.visually-hidden', text: 'Navigation', tag: 'h2' %}
+  @example
+  Empty container for dynamic content
+  {% render 'kit.visually-hidden', classes: 'js-live-region', attr: 'aria-live="polite"' %}
+{%- enddoc -%}
+
+{%- liquid
+  assign tag = tag | default: 'span'
+
+  assign class_list = 'kit-visually-hidden'
+
+  if classes != blank
+    assign class_list = class_list | append: ' ' | append: classes
+  endif
+-%}
+
+<{{ tag }}
+  class="{{ class_list }}"
+  {%- if id != blank %}
+    id="{{ id }}"
+  {% endif %}
+  {%- if attr != blank %}
+    {{ attr -}}
+  {% endif %}
+>
+  {{- text -}}
+</{{ tag }}>
+
+{% stylesheet %}
+  .kit-visually-hidden {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border: 0;
+  }
+{% endstylesheet %}

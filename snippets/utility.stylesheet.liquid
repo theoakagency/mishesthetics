@@ -1,0 +1,70 @@
+{% doc %}
+  Copyright © 2025 Archetype Themes LP. All rights reserved.
+
+  Smart stylesheet loading with automatic inlining, async loading, or blocking strategies.
+
+  Loading strategies:
+  - inline: Inlines styles directly in the page
+  - async: Loads stylesheet asynchronously (default, non-blocking)
+  - blocking: Loads stylesheet synchronously
+
+  @param {string} name - The stylesheet asset filename (e.g., 'styles.css')
+  @param {boolean} [remove_duplicate] - Remove duplicate stylesheets from DOM, default: true
+  @param {string} [load] - ('inline'|'async'|'blocking') Loading strategy. Auto-determined by section location if not specified.
+
+  @example
+  {% render 'utility.stylesheet', name: 'component.css', load: 'inline' %}
+{% enddoc %}
+
+{%- liquid
+  assign name = name | default: ''
+  assign remove_duplicate = remove_duplicate | default: true, allow_false: true
+
+  if load == blank
+    if section.location == 'header'
+      assign load = 'inline'
+    elsif section.location == 'template' and section.index <= 3
+      assign load = 'inline'
+    else
+      assign load = 'async'
+    endif
+  endif
+-%}
+
+<style-sheet name="{{ name }}" remove-duplicate="{{ remove_duplicate }}" load="{{ load }}" style="display: none;">
+  {%- case load -%}
+    {%- when 'async' -%}
+      {%- # theme-check-disable AssetPreload -%}
+      <link href="{{ name | asset_url }}" rel="preload" as="style" onload="this.rel='stylesheet'">
+    {%- when 'inline' -%}
+      {%- capture stylesheet_content -%}
+        {{ name | inline_asset_content }}
+      {%- endcapture -%}
+
+      {%- if stylesheet_content contains 'Asset size is too large' -%}
+        {{ name | asset_url | stylesheet_tag }}
+        <script>
+          console.warn('Asset size is too large to inline stylesheet: {{ name }}')
+        </script>
+      {%- elsif stylesheet_content contains 'Asset not found' -%}
+        <script>
+          console.warn('Asset not found: {{ name }}')
+        </script>
+      {%- elsif stylesheet_content == blank -%}
+        <script>
+          console.warn('Stylesheet content is empty: {{ name }}')
+        </script>
+      {%- else -%}
+        <style>
+          {{ stylesheet_content }}
+        </style>
+      {%- endif -%}
+    {%- when 'blocking' -%}
+      {{ name | asset_url | stylesheet_tag }}
+  {%- endcase -%}
+
+  {% comment %} This script is only required if you want to be cleaning up duplicate stylesheets. Does not effect what is rendered, helps with DevTools and style debugging.{% endcomment %}
+  {%- if remove_duplicate -%}
+    <script type="module" src="{{ 'utility.stylesheet.js' | asset_url }}"></script>
+  {%- endif -%}
+</style-sheet>

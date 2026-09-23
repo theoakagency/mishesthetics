@@ -1,0 +1,14 @@
+{% doc %}
+  Copyright © 2025 Archetype Themes LP. All rights reserved.
+
+  Theme editor JavaScript integration for live preview updates in the Shopify editor.
+
+  @example
+  {% render 'head.theme-editor' %}
+{% enddoc %}
+
+{%- if request.design_mode -%}
+  <script type="module">
+    import 'head.theme-editor'
+  </script>
+{%- endif -%}

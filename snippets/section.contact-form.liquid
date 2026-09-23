@@ -1,0 +1,436 @@
+{% doc %}
+  Copyright © 2025 Archetype Themes LP. All rights reserved.
+
+  Contact form with optional image and customizable layout.
+
+  @param {string} [color_scheme] - ('none'|'1'|'2'|'3') Color scheme
+  @param {boolean} [narrow_column] - Use narrow content width
+  @param {string} [title] - Form heading
+  @param {string} [text] - Descriptive text
+  @param {string} [heading_position] - ('left'|'center'|'right') Heading alignment
+  @param {string} [heading_size] - ('sm'|'md'|'lg'|'xl') Heading size
+  @param {object} [customer] - Customer object
+  @param {boolean} [show_phone] - Show phone number field
+  @param {boolean} [overlay] - Overlay content on image
+  @param {string} [content_position] - ('left'|'right') Content placement
+  @param {object} [image] - Background or side image
+
+  @example
+  {% render 'section.contact-form', narrow_column: true, color_scheme: '1' %}
+{% enddoc %}
+
+{%- liquid
+  assign narrow_column = narrow_column | default: section.settings.narrow_column, allow_false: true | default: false, allow_false: true
+  assign title = title | default: section.settings.title
+  assign text = text | default: section.settings.text
+  assign heading_position = heading_position | default: section.settings.heading_position | default: 'center'
+  assign heading_size = heading_size | default: section.settings.heading_size | default: 'md'
+  assign customer = customer | default: customer
+  assign show_phone = show_phone | default: section.settings.show_phone, allow_false: true | default: false, allow_false: true
+  assign color_scheme = color_scheme | default: section.settings.color_scheme | default: 'none'
+  assign overlay = overlay | default: section.settings.overlay_enable, allow_false: true | default: false, allow_false: true
+  assign content_position = content_position | default: section.settings.content_position
+  assign image = image | default: section.settings.image
+
+  assign loading = true
+  if section.index == 1
+    assign loading = false
+  endif
+
+  unless color_scheme
+    assign class_name = 'contact-form-' | append: section.id
+    render 'utility.color-scheme-override', class_name: class_name
+  endunless
+
+  capture input_name_label
+    render 'utility.translate', key: 'labels.name', fallback: 'Name'
+  endcapture
+
+  capture input_name_value
+    if form.name
+      echo form.name
+    elsif customer
+      echo customer.name
+    endif
+  endcapture
+
+  capture input_name_attributes
+    echo 'autocapitalize="words"'
+  endcapture
+
+  capture input_email_label
+    render 'utility.translate', key: 'labels.email', fallback: 'Email'
+  endcapture
+
+  capture input_email_value
+    if form.email
+      echo form.email
+    elsif customer
+      echo customer.email
+    endif
+  endcapture
+
+  capture input_email_attributes
+    echo 'autocorrect="off"'
+    echo 'autocapitalize="off"'
+  endcapture
+
+  capture input_phone_label
+    render 'utility.translate', key: 'labels.phone_number', fallback: 'Phone number'
+  endcapture
+
+  capture input_phone_value
+    if form.phone
+      echo form.phone
+    elsif customer
+      echo customer.phone
+    endif
+  endcapture
+
+  capture input_phone_attributes
+    echo 'pattern="[0-9\-]*"'
+  endcapture
+
+  capture input_message_label
+    render 'utility.translate', key: 'labels.message', fallback: 'Message'
+  endcapture
+
+  capture button_text
+    render 'utility.translate', key: 'actions.send', fallback: 'Send'
+  endcapture
+-%}
+
+<div class="index-section contact-form-{{ section.id }}{% if content_position %} contact-form--content-position-{{ content_position }}{% endif %}{% if overlay %} contact-form--overlay{% endif %} color-scheme-{{ color_scheme }}">
+  {%- render 'utility.color-scheme-texture', color_scheme: color_scheme -%}
+
+  <div class="page-width{% if narrow_column %} page-width--narrow{% endif %}" style="z-index: 1;">
+    {%- if content_position -%}
+      {%- if image -%}
+        {%- render 'element.image',
+          img: image,
+          loading: loading,
+          classlist: 'contact-form__image',
+          sizeVariable: '60vw'
+        -%}
+      {%- else -%}
+        <div data-image-type="placeholder">
+          {%- render 'element.placeholder', name: 'lifestyle-1', classlist: 'contact-form__image' -%}
+        </div>
+      {%- endif -%}
+    {%- endif -%}
+
+    <div class="contact-form__content">
+      {%- if title != blank or text != blank -%}
+        <div class="section-header text-{{ heading_position }}">
+          {%- if title != blank -%}
+            <h2 class="section-header__title heading-{{ heading_size }}">
+              {{ title | escape }}
+            </h2>
+          {%- endif -%}
+          {%- if text != blank -%}
+            <div class="rte section-header__rte clearfix">{{ text }}</div>
+          {%- endif -%}
+        </div>
+      {% endif %}
+
+      <div class="form-vertical">
+        {%- assign form_id = 'contact-' | append: section.id -%}
+        {% comment %} Explicitly set return_to to prevent iOS redirect to home {% endcomment %}
+        {%- assign return_to_url = request.path | append: '?contact_posted=true' -%}
+        {%- form 'contact', id: form_id, return_to: return_to_url -%}
+          {%- if form.posted_successfully? -%}
+            <p class="note note--success">
+              {% render 'utility.translate',
+                key: 'info.contact_confirmation',
+                fallback: "Thanks for contacting us. We'll get back to you as soon as possible."
+              %}
+            </p>
+          {%- endif -%}
+
+          {{ form.errors | default_errors }}
+
+          <div class="float-grid grid--small clearfix">
+            <div class="grid__item medium-up--one-half">
+              {%- render 'element.input',
+                type: 'text',
+                name: 'contact[name]',
+                placeholder: input_name_label,
+                label: input_name_label,
+                value: input_name_value,
+                attributes: input_name_attributes
+              -%}
+            </div>
+
+            <div class="grid__item medium-up--one-half">
+              {%- render 'element.input',
+                type: 'email',
+                name: 'contact[email]',
+                placeholder: input_email_label,
+                label: input_email_label,
+                value: input_email_value,
+                attributes: input_email_attributes
+              -%}
+            </div>
+          </div>
+
+          {%- if show_phone -%}
+            {%- render 'element.input',
+              type: 'tel',
+              name: 'contact[phone]',
+              placeholder: input_phone_label,
+              label: input_phone_label,
+              value: input_phone_value,
+              attributes: input_phone_attributes
+            -%}
+          {%- endif -%}
+
+          {%- render 'element.input',
+            multiline: 5,
+            name: 'contact[body]',
+            placeholder: input_message_label,
+            label: input_message_label,
+            value: form.body
+          -%}
+
+          {%- render 'element.button', text: button_text, type: 'submit' -%}
+
+          {% comment %}
+            Remove the following three lines of code to remove the note
+            about being protected by Google's reCAPTCHA service.
+            By removing it, the small reCAPTCHA widget will appear in the
+            bottom right corner of the page.
+          {% endcomment %}
+          {{ 'shopify.online_store.spam_detection.disclaimer_html' | t }}
+        {%- endform -%}
+      </div>
+    </div>
+  </div>
+</div>
+
+{% stylesheet %}
+  .note,
+  .errors {
+    border-radius: var(--element-input-radius);
+    padding: 6px 12px;
+    margin-bottom: calc(var(--gutter) / 2);
+    border: 1px solid transparent;
+    text-align: left;
+
+    & ul,
+    & ol {
+      margin-top: 0;
+      margin-bottom: 0;
+    }
+
+    & li:last-child {
+      margin-bottom: 0;
+    }
+
+    & p {
+      margin-bottom: 0;
+    }
+  }
+
+  .note {
+    border-color: color-mix(in srgb, var(--color-primary) var(--shade-12), var(--color-secondary));
+  }
+
+  .errors {
+    & ul {
+      list-style: disc outside;
+      margin-left: 20px;
+    }
+  }
+
+  .note--success {
+    color: var(--success-green);
+    background-color: var(--success-green-bg);
+    border-color: var(--success-green);
+
+    & a {
+      color: var(--success-green);
+      text-decoration: underline;
+
+      &:hover {
+        text-decoration: none;
+      }
+    }
+  }
+
+  .form-error,
+  .errors {
+    color: var(--color-error);
+    border-color: var(--color-error);
+
+    & a {
+      color: var(--color-error);
+      text-decoration: underline;
+
+      &:hover {
+        text-decoration: none;
+      }
+    }
+  }
+
+  .contact-form--content-position-left,
+  .contact-form--content-position-right {
+    --overlay-direction: 180deg;
+    --index-section-padding: 0;
+
+    .grid__item {
+      width: 100%;
+    }
+
+    .page-width {
+      max-width: none;
+      padding: 0;
+      display: grid;
+
+      @media only screen and (min-width: 769px) {
+        grid-template-columns: 1fr 1fr;
+      }
+    }
+
+    [data-image-type] {
+      position: relative;
+      grid-area: image;
+
+      &:after {
+        content: '';
+        position: absolute;
+        top: 0;
+        height: 100%;
+        width: 100%;
+      }
+    }
+
+    .section-header {
+      padding: 40px 32px 16px;
+      margin: 0;
+
+      @media only screen and (min-width: 769px) {
+        padding: 80px 80px 24px;
+      }
+    }
+
+    .contact-form__content {
+      grid-area: content;
+    }
+
+    .form-vertical {
+      padding: 40px 32px 24px;
+      margin: 0;
+
+      @media only screen and (min-width: 769px) {
+        padding: 80px 80px 80px;
+      }
+    }
+
+    /* If a section header exists, remove extra top padding from the form */
+    .section-header + .form-vertical {
+      padding-top: 0;
+    }
+
+    &[class*='color-scheme-']:not(.color-scheme-none) input,
+    &[class*='color-scheme-']:not(.color-scheme-none) textarea {
+      background: transparent;
+    }
+
+    .form-vertical [type='submit'].btn {
+      width: 100%;
+    }
+
+    /* Unified overlay gradient using CSS variable */
+    &.contact-form--overlay [data-image-type]:after {
+      background: linear-gradient(var(--overlay-direction), rgba(53, 14, 14, 0) 25%, var(--_overlay-color) 90%);
+    }
+
+    /* Define overlay color for each color scheme */
+    &.color-scheme-none {
+      --_overlay-color: var(--root-color-secondary);
+    }
+
+    &.color-scheme-1 {
+      --_overlay-color: var(--color-scheme-1-secondary);
+    }
+
+    &.color-scheme-2 {
+      --_overlay-color: var(--color-scheme-2-secondary);
+    }
+
+    &.color-scheme-3 {
+      --_overlay-color: var(--color-scheme-3-secondary);
+    }
+  }
+
+  .contact-form--content-position-left {
+    --overlay-direction: 0deg;
+
+    .page-width {
+      grid-template-areas:
+        'content'
+        'image';
+
+      @media only screen and (min-width: 769px) {
+        grid-template-areas: 'content image';
+        grid-template-rows: auto 1fr;
+      }
+    }
+
+    &.contact-form--overlay [data-image-type]:after {
+      @media only screen and (min-width: 769px) {
+        left: 0;
+      }
+    }
+
+    @media only screen and (min-width: 769px) {
+      --overlay-direction: 270deg;
+    }
+  }
+
+  .contact-form--content-position-right {
+    .page-width {
+      grid-template-areas:
+        'image'
+        'content';
+      background: inherit;
+
+      @media only screen and (min-width: 769px) {
+        grid-template-areas: 'image content';
+        grid-template-rows: auto 1fr;
+      }
+    }
+
+    &.contact-form--overlay [data-image-type]:after {
+      @media only screen and (min-width: 769px) {
+        right: 0;
+      }
+    }
+
+    @media only screen and (min-width: 769px) {
+      --overlay-direction: 90deg;
+    }
+  }
+
+  .contact-form__image {
+    opacity: 1;
+
+    @media only screen and (min-width: 769px) {
+      position: absolute;
+      height: 100%;
+      width: 100%;
+      object-fit: cover;
+    }
+  }
+
+  /* Default top spacing when no header is present */
+  .contact-form__content > .form-vertical:first-child {
+    padding-top: 40px;
+  }
+
+  @media only screen and (min-width: 769px) {
+    .contact-form__content > .form-vertical:first-child {
+      padding-top: 80px;
+    }
+  }
+{% endstylesheet %}

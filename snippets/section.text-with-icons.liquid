@@ -1,0 +1,182 @@
+{% doc %}
+  Copyright © 2025 Archetype Themes LP. All rights reserved.
+
+  Icon grid with headings and descriptions for features or benefits.
+
+  @param {boolean} [divider] - Show divider lines between items
+  @param {string} [title] - Section heading
+  @param {string} [align_text] - ('left'|'center'|'right') Text alignment
+  @param {string} [heading_size] - ('sm'|'md'|'lg'|'xl') Heading size
+  @param {string} [button_label] - Button label
+  @param {string} [button_link] - Button URL
+  @param {string} [icon_color] - Icon color
+  @param {string} [icon_weight] - Icon stroke weight
+  @param {number} [desktop_columns_per_row] - Number of columns per row on desktop
+
+  @example
+  {% render 'section.text-with-icons', align_text: 'center', divider: true %}
+{% enddoc %}
+
+{% stylesheet %}
+  /* Shared styles */
+  .text-with-icons__blocks {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    margin-left: -30px;
+    margin-right: -30px;
+
+    @media only screen and (max-width: 768px) {
+      flex-direction: column;
+      margin: 0;
+    }
+  }
+
+  .has-1-per-row .text-with-icons__block {
+    width: 100%;
+  }
+
+  .has-2-per-row .text-with-icons__block {
+    width: 50%;
+  }
+
+  .has-3-per-row .text-with-icons__block {
+    width: 33.333%;
+  }
+
+  .has-4-per-row .text-with-icons__block {
+    width: 25%;
+  }
+
+  .has-5-per-row .text-with-icons__block {
+    width: 20%;
+  }
+
+  .text-with-icons__blocks .text-with-icons__block {
+    display: flex;
+    flex-direction: column;
+    flex: none;
+    padding: 30px;
+
+    @media only screen and (max-width: 768px) {
+      width: 100%;
+      padding: 0 0 60px;
+    }
+  }
+
+  .text-with-icons__block-icon {
+    display: block;
+    margin-bottom: 10px;
+
+    & .element-icon {
+      width: 70px;
+      height: 70px;
+
+      @media only screen and (max-width: 768px) {
+        width: 60px;
+        height: 60px;
+      }
+    }
+  }
+
+  .text-with-icons__button {
+    display: flex;
+    justify-content: center;
+  }
+
+  /* Expanse specific styles */
+  .text-with-icons {
+    margin-bottom: -22px;
+  }
+
+  .text-with-icons__blocks .text-with-icons__block {
+    padding: 0 22px 22px;
+
+    @media only screen and (max-width: 768px) {
+      padding: 0 0 22px;
+    }
+  }
+
+  .text-with-icons__button {
+    padding-bottom: 20px;
+  }
+{% endstylesheet %}
+
+{%- liquid
+  assign divider = divider | default: section.settings.divider, allow_false: true | default: false, allow_false: true
+  assign title = title | default: section.settings.title | default: blank
+  assign align_text = align_text | default: section.settings.align_text | default: 'center'
+  assign heading_size = heading_size | default: section.settings.heading_size | default: 'md'
+  assign button_label = button_label | default: section.settings.button_label | default: blank
+  assign button_link = button_link | default: section.settings.button_link | default: blank
+  assign icon_color = icon_color | default: section.settings.icon_color | default: '#000'
+  assign icon_weight = icon_weight | default: settings.icon_weight | default: '5px'
+  assign desktop_columns_per_row = desktop_columns_per_row | default: section.settings.desktop_columns_per_row | default: 3
+-%}
+
+{%- if divider -%}<div class="section--divider">{%- endif -%}
+
+<div
+  class="text-with-icons"
+  data-section-id="{{ section.id }}"
+  data-section-type="text-with-icons"
+>
+  <div class="page-width">
+    {%- if title != blank -%}
+      <div
+        class="
+          text-with-icons__title
+          section-header
+        "
+      >
+        <h2 class="text-{{ align_text }} heading-{{ heading_size }}">{{ title | escape }}</h2>
+      </div>
+    {%- endif -%}
+    <div
+      class="
+        text-with-icons__blocks
+        has-{{ desktop_columns_per_row }}-per-row
+      "
+      data-block-count="{{ section.blocks.size }}"
+    >
+      {% for block in section.blocks %}
+        <div class="text-with-icons__block text-{{ align_text }}" {{ block.shopify_attributes }}>
+          <div class="text-with-icons__block-icon">
+            {% render 'element.icon', name: block.settings.icon, library: 'tcwi' %}
+          </div>
+          <div class="text-with-icons__block-title">
+            <h3>{{ block.settings.title }}</h3>
+          </div>
+          <div class="text-with-icons__block-text">
+            {{ block.settings.text }}
+          </div>
+        </div>
+      {% endfor %}
+    </div>
+
+    {%- if button_label != blank -%}
+      <div class="text-with-icons__button">
+        {% render 'element.button', href: button_link, text: button_label, inverted: true %}
+      </div>
+    {%- endif -%}
+  </div>
+</div>
+
+{%- if divider -%}</div>{%- endif -%}
+
+{% style %}
+  #shopify-section-{{ section.id }} {
+    --element-icon-color: {{ icon_color }};
+  }
+
+  #shopify-section-{{ section.id }} .element-icon path,
+  #shopify-section-{{ section.id }} .element-icon polygon,
+  #shopify-section-{{ section.id }} .element-icon rect,
+  #shopify-section-{{ section.id }} .element-icon circle,
+  #shopify-section-{{ section.id }} .element-icon ellipse,
+  #shopify-section-{{ section.id }} .element-icon line,
+  #shopify-section-{{ section.id }} .element-icon polyline,
+  #shopify-section-{{ section.id }} .element-icon g {
+    stroke-width: {{ icon_weight | replace: 'px', '' | minus: 1 }}px;
+  }
+{% endstyle %}

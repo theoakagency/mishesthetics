@@ -1,0 +1,14 @@
+{% doc %}
+  Copyright © 2025 Archetype Themes LP. All rights reserved.
+
+  Custom HTML block for injecting arbitrary code into product pages.
+
+  @param {object} [block] - Block object
+
+  @example
+  {% render 'block.product-custom', block: block %}
+{% enddoc %}
+
+<div {{ block.shopify_attributes }}>
+  {{ block.settings.code }}
+</div>

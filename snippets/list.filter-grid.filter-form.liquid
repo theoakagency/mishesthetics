@@ -1,0 +1,71 @@
+{%- doc -%}
+  Copyright © 2025 Archetype Themes LP. All rights reserved.
+
+  Renders a filter form for the collection grid.
+
+  @param {object} context - Collection or search object
+  @param {boolean} [collapse_filters] - Whether to collapse filters
+  @param {string} [price_range_style] - The style of the price range filter
+  @param {string} [filter_variant] - The style of the filters
+  @param {boolean} [enable_show_more_filters] - Show more filters button
+
+  @example
+  {% render 'list.filter-grid.filter-form', context: context %}
+{%- enddoc -%}
+
+{%- liquid
+  assign collapse_filters = collapse_filters | default: section.settings.collapse_filters, allow_false: true | default: true, allow_false: true
+  assign price_range_style = price_range_style | default: 'slider'
+  assign filter_variant = filter_variant | default: 'checkbox'
+  assign enable_show_more_filters = enable_show_more_filters | default: false, allow_false: true
+-%}
+
+<filter-form>
+  <form class="filter-form">
+    {%- for filter in context.filters -%}
+      {%- capture filter_id -%}{{ section.id }}-filter-{{ filter.label | handleize }}{%- endcapture -%}
+      {%- assign filter_index = forloop.index -%}
+      {%- assign collapsed_state = false -%}
+      {%- unless collapse_filters -%}
+        {%- assign collapsed_state = true -%}
+      {%- endunless -%}
+
+      <div class="collection-sidebar__group--{{ filter_index }}">
+        <div class="collection-sidebar__group">
+          {%- liquid
+            capture slot_collapsible
+              case filter.type
+                when 'list', 'boolean'
+                  case filter.presentation
+                    when 'swatch'
+                      render 'list.filter-grid.swatch-filter', filter: filter
+                    when 'text'
+                      render 'list.filter-grid.list-filter', filter: filter, enable_show_more_filters: enable_show_more_filters, filter_index: filter_index, filter_variant: filter_variant
+                    when 'image'
+                      render 'list.filter-grid.image-filter', filter: filter
+                    else
+                      render 'list.filter-grid.fallback-filter', filter: filter
+                  endcase
+                when 'price_range'
+                  case price_range_style
+                    when 'slider'
+                      render 'list.filter-grid.price-range', filter: filter
+                    when 'text'
+                      render 'list.filter-grid.price-range-text', filter: filter
+                  endcase
+              endcase
+            endcapture
+
+            assign attributes = 'data-collapsible-id="' | append: filter_id | append: '"'
+
+            render 'element.accordion', title: filter.label, slot: slot_collapsible, open: collapsed_state, attributes: attributes
+          -%}
+        </div>
+      </div>
+    {%- endfor -%}
+  </form>
+</filter-form>
+
+<script type="module">
+  import 'list.filter-grid.filter-form'
+</script>

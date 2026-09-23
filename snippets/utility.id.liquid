@@ -1,0 +1,38 @@
+{% doc %}
+  Copyright © 2025 Archetype Themes LP. All rights reserved.
+
+  Generates unique ID strings by combining section, block, index, and name values.
+
+  @param {object} [section] - The section object
+  @param {object} [block] - The block object
+  @param {number} [index] - The index of the item
+  @param {string} [name] - The name of the item
+
+  @example
+  {% capture unique_id %}{% render 'utility.id', section: section, block: block, name: 'accordion' %}{% endcapture %}
+{% enddoc %}
+
+{%- liquid
+  assign hyphen_separator = '-'
+  assign comma_separator = ','
+
+  capture id
+    if section != empty
+      echo section.id | prepend: comma_separator
+    endif
+
+    if block != blank
+      echo block.id | prepend: comma_separator
+    endif
+
+    if index != blank
+      echo index | prepend: comma_separator
+    endif
+
+    if name != blank
+      echo name | prepend: comma_separator
+    endif
+  endcapture
+
+  echo id | remove_first: comma_separator | split: comma_separator | join: hyphen_separator
+-%}

@@ -1,0 +1,197 @@
+{% doc %}
+  Copyright © 2025 Archetype Themes LP. All rights reserved.
+
+  Dropdown cart drawer with line items, notes, and checkout controls.
+
+  @param {boolean} [cart_notes_enable] - Enable order notes textarea
+  @param {boolean} [cart_terms_conditions_enable] - Enable terms and conditions checkbox
+  @param {boolean} [header_enable] - Enable cart in header
+  @param {object} [cart_terms_conditions_page] - Page object for terms and conditions link
+  @param {boolean} [cart_additional_buttons] - Show additional payment buttons
+  @param {string} [cart_type] - Cart display type
+
+  @example
+  {% render 'header.cart-drawer', cart_type: 'dropdown', cart_notes_enable: true %}
+{% enddoc %}
+
+{% stylesheet %}
+  .site-header__cart-empty {
+    display: none;
+    padding: 20px;
+
+    .is-empty & {
+      display: block;
+    }
+  }
+
+  .cart-drawer.is-empty {
+    & form {
+      display: none;
+    }
+  }
+
+  /*Scrollable products, fixed footer*/
+  .cart__drawer-form {
+    max-height: 75vh;
+    max-height: calc(100dvh - var(--header-nav-height, 0px));
+    display: flex;
+    flex-direction: column;
+  }
+
+  .cart__scrollable {
+    overflow-y: auto;
+    padding: 20px 20px 0;
+
+    & .scrollable-grid {
+      padding-top: 20px;
+      padding-left: 20px;
+      margin-left: -20px;
+      padding-bottom: 2px;
+    }
+  }
+
+  .cart__footer {
+    padding: 20px;
+    border-top: 1px solid;
+    border-top-color: color-mix(in srgb, var(--color-primary) var(--shade-12), var(--color-secondary));
+  }
+
+  .cart__note {
+    margin-bottom: 20px;
+  }
+{% endstylesheet %}
+
+{%- liquid
+  assign cart_notes_enable = cart_notes_enable | default: settings.cart_notes_enable, allow_false: true | default: true, allow_false: true
+  assign cart_terms_conditions_enable = cart_terms_conditions_enable | default: settings.cart_terms_conditions_enable, allow_false: true | default: true, allow_false: true
+  assign header_enable = header_enable | default: section.settings.header_enable, allow_false: true | default: false, allow_false: true
+  assign cart_type = cart_type | default: settings.cart_type | default: blank
+  assign cart_terms_conditions_page = cart_terms_conditions_page | default: settings.cart_terms_conditions_page
+  assign cart_additional_buttons = cart_additional_buttons | default: settings.cart_additional_buttons, allow_false: true | default: true, allow_false: true
+  assign money_format = shop.money_format
+  capture superscript
+    render 'utility.enable-superscript'
+  endcapture
+
+  capture button_submit_text
+    render 'utility.translate', key: 'actions.checkout', fallback: 'Check out'
+  endcapture
+-%}
+
+{%- capture button_submit_attributes -%}
+  data-terms-required="{{ cart_terms_conditions_enable }}"
+{%- endcapture -%}
+
+{%- capture checkbox_label -%}
+  {% if cart_terms_conditions_page != blank %}
+    {% assign actions_terms_i_agree_html = 'actions.terms_i_agree_html'
+      | t: url: cart_terms_conditions_page.url
+    %}
+    {%- capture fallback_actions_terms_i_agree_html -%}
+    I agree with the <a href='{{ cart_terms_conditions_page.url }}' target='_blank'>terms and conditions</a>
+  {%- endcapture -%}
+    {% render 'utility.translate',
+      t: actions_terms_i_agree_html,
+      fallback: fallback_actions_terms_i_agree_html
+    %}
+  {% else %}
+    {% assign actions_terms_i_agree = 'actions.terms_i_agree' | t %}
+    {% render 'utility.translate',
+      t: actions_terms_i_agree,
+      fallback: 'I agree with the terms and conditions'
+    %}
+  {% endif %}
+{%- endcapture -%}
+
+<header-cart-drawer class="cart-drawer" defer-hydration cart-type="{{ cart_type }}">
+  <form
+    action="{{ routes.cart_url }}"
+    method="post"
+    novalidate
+    data-location="header"
+    class="cart__drawer-form"
+    data-money-format="{{ money_format }}"
+    data-super-script="{{ superscript | strip }}"
+  >
+    <div class="cart__scrollable">
+      {%- if header_enable %}
+        <div data-header></div>
+      {% endif %}
+      <div data-products></div>
+      {%- render 'cart.recommendations', context: 'drawer' -%}
+
+      {% if cart_notes_enable %}
+        <div class="cart__item-row">
+          {%- render 'cart.order-note' -%}
+        </div>
+      {% endif %}
+    </div>
+
+    <div class="cart__footer">
+      <div class="cart__item-sub cart__item-row cart__item--subtotal">
+        <div>
+          {% render 'utility.translate', key: 'labels.subtotal', fallback: 'Subtotal' %}
+        </div>
+        {%- render 'element.price', price: cart.total_price, attributes: 'data-subtotal' -%}
+      </div>
+
+      <div data-discounts></div>
+
+      {% if cart_terms_conditions_enable %}
+        <div class="cart__item-row cart__terms">
+          {%- render 'element.checkbox', classlist: 'cart__terms-checkbox', value: '', label: checkbox_label, name: 'CartTerms' -%}
+        </div>
+      {% endif %}
+
+      <div class="cart__item-row cart__checkout-wrapper payment-buttons">
+        {%- render 'element.button',
+          type: 'submit',
+          name: 'checkout',
+          text: button_submit_text,
+          classlist: 'cart__checkout',
+          attributes: button_submit_attributes
+        -%}
+
+        {% if cart_type == 'dropdown' and additional_checkout_buttons and cart_additional_buttons %}
+          <div class="additional-checkout-buttons">{{ content_for_additional_checkout_buttons }}</div>
+        {% endif %}
+      </div>
+
+      <div class="cart__item-row--footer text-center">
+        <small>
+          {%- if cart.taxes_included -%}
+            {% assign info_shipping_at_checkout_taxes_included = 'info.shipping_at_checkout_taxes_included' | t %}
+            {% render 'utility.translate',
+              t: info_shipping_at_checkout_taxes_included,
+              fallback: 'Taxes included. Shipping and discount codes calculated at checkout.'
+            %}
+          {%- else -%}
+            {% assign info_shipping_at_checkout = 'info.shipping_at_checkout' | t %}
+            {% render 'utility.translate',
+              t: info_shipping_at_checkout,
+              fallback: 'Shipping, taxes, and discount codes calculated at checkout.'
+            %}
+          {%- endif -%}
+        </small>
+      </div>
+    </div>
+    <script type="application/json" data-locales>
+      {
+        "cartTermsConfirmation":
+          {% render 'utility.translate', key: 'info.you_must_agree', fallback: 'You must agree with the terms and conditions of sales to check out', as_json: true -%}
+        ,
+        "cartSavings":
+          {%- assign info_save_amount = 'info.save_amount' | t: saved_amount: "[savings]" -%}
+          {%- render 'utility.translate', t: info_save_amount, fallback: 'Save [savings]', as_json: true, as_json: true -%}
+      }
+    </script>
+  </form>
+
+  <div class="site-header__cart-empty">
+    {% render 'utility.translate', key: 'info.cart_empty', fallback: 'Your cart is currently empty.' %}
+  </div>
+</header-cart-drawer>
+
+<script type="module">
+  import 'header.cart-drawer'
+</script>

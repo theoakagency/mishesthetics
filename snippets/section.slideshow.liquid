@@ -1,0 +1,330 @@
+{% doc %}
+  Copyright © 2025 Archetype Themes LP. All rights reserved.
+
+  Hero image carousel with text overlays and customizable navigation styles.
+
+  @param {boolean} [full_width] - Enable full-width layout
+  @param {boolean} [autoplay] - Auto-advance slides
+  @param {number} [autoplay_speed] - Autoplay interval (5-10 seconds)
+  @param {string} [style] - ('minimal'|'arrows'|'bars'|'dots') Navigation style
+  @param {number} [desktop_size] - Desktop image scale (-100 to 100)
+  @param {number} [mobile_size] - Mobile image scale (-100 to 100)
+  @param {string} [hydration] - Hydration strategy
+
+  @example
+  {% render 'section.slideshow', autoplay: true, autoplay_speed: 7, style: 'dots' %}
+{% enddoc %}
+
+{% stylesheet %}
+  .hero__image-wrapper--no-overlay:before {
+    content: none;
+  }
+{% endstylesheet %}
+
+{%- liquid
+  assign full_width = full_width | default: section.settings.full_width, allow_false: true | default: true, allow_false: true
+  assign autoplay = autoplay | default: section.settings.autoplay, allow_false: true | default: true, allow_false: true
+  assign autoplay_speed = autoplay_speed | default: section.settings.autoplay_speed | default: 7
+  assign style = style | default: section.settings.style | default: 'arrows'
+  assign desktop_size = desktop_size | default: section.settings.desktop_size | default: 0
+  assign mobile_size = mobile_size | default: section.settings.mobile_size | default: 0
+  assign hydration = hydration | default: 'on:visible'
+
+  assign lazyload_images = true
+  if section.index == 1
+    assign lazyload_images = false
+  endif
+-%}
+
+<is-land {{ hydration }}>
+  <slideshow-section section-id="{{ section.id }}">
+    {%- unless full_width -%}
+      <div class="page-width hero--padded">
+    {%- endunless -%}
+    <div id="SlideshowWrapper-{{ section.id }}">
+      {%- if section.blocks.size > 0 -%}
+        <div class="slideshow-wrapper">
+          {%- if autoplay and style == 'bars' and section.blocks.size > 1 -%}
+            {%- style -%}
+              [data-bars][data-autoplay="true"] .flickity-page-dots .dot:after {
+                animation-duration: {{ autoplay_speed | times: 1000 }}ms;
+              }
+            {%- endstyle -%}
+
+            <button
+              type="button"
+              class="visually-hidden slideshow__pause"
+              data-id="{{ section.id }}"
+              aria-live="polite"
+            >
+              <span class="slideshow__pause-stop">
+                {% render 'element.icon', name: 'pause' %}
+                <span class="icon__fallback-text visually-hidden">
+                  {% render 'utility.translate', key: 'actions.slideshow_pause', fallback: 'Slideshow pause' -%}
+                </span>
+              </span>
+              <span class="slideshow__pause-play">
+                {% render 'element.icon', name: 'play' %}
+                <span class="icon__fallback-text visually-hidden">
+                  {% render 'utility.translate', key: 'actions.slideshow_play', fallback: 'Slideshow play' -%}
+                </span>
+              </span>
+            </button>
+          {%- endif -%}
+
+          {%- liquid
+            assign natural_height_ratio = '60%'
+            assign natural_height_ratio_mobile = '100%'
+            for block in section.blocks
+              if block.settings.image != blank
+                assign natural_height_ratio = 100 | divided_by: block.settings.image.aspect_ratio | append: '%'
+                assign natural_height_ratio_mobile = natural_height_ratio
+              endif
+              if block.settings.image_mobile != blank
+                assign natural_height_ratio_mobile = 100 | divided_by: block.settings.image_mobile.aspect_ratio | append: '%'
+              endif
+            endfor
+          -%}
+
+          {%- style -%}
+            .hero-natural--{{ section.id }} {
+              height: 0;
+              padding-bottom: {{ natural_height_ratio | plus: desktop_size }}%;
+            }
+
+            @media screen and (max-width: 768px) {
+              .hero-natural--{{ section.id }} {
+                padding-bottom: {{ natural_height_ratio_mobile | plus: mobile_size }}%;
+              }
+            }
+          {%- endstyle -%}
+
+          <div class="hero-natural--{{ section.id }}">
+            <div
+              id="Slideshow-{{ section.id }}"
+              class="hero hero--{{ section.id }}{% if section.index == 1 %} loaded{% else %} loading{% endif %} loading--delayed"
+              data-natural="true"
+              data-autoplay="{{ autoplay }}"
+              data-speed="{{ autoplay_speed | times: 1000 }}"
+              {% if style == 'arrows' %}
+                data-arrows="true"
+              {% endif %}
+              {% if style == 'dots' %}
+                data-dots="true"
+              {% endif %}
+              {% if style == 'bars' %}
+                data-dots="true"
+                data-bars="true"
+              {% endif %}
+              data-slide-count="{{ section.blocks.size }}"
+            >
+              {%- for block in section.blocks -%}
+                {%- liquid
+                  assign button_color_scheme = button_color_scheme | default: block.settings.button_color_scheme
+
+                  if button_color_scheme.settings.primary != blank
+                    assign button_style = button_style | append: '--element-button-color-primary:' | append: button_color_scheme.settings.primary | append: ';'
+                  endif
+
+                  if button_color_scheme.settings.secondary != blank
+                    assign button_style = button_style | append: '--element-button-color-secondary:' | append: button_color_scheme.settings.secondary | append: ';'
+                  endif
+                -%}
+
+                <div
+                  {{ block.shopify_attributes }}
+                  class="slideshow__slide slideshow__slide--{{ block.id }}{% if section.index == 1 and forloop.index == 1 %} is-selected{% endif %}"
+                  data-index="{{ forloop.index0 }}"
+                  data-id="{{ block.id }}"
+                >
+                  {%- style -%}
+                    .slideshow__slide--{{ block.id }} .hero__title,
+                    .slideshow__slide--{{ block.id }} .hero__title p {
+                      font-size: {{ block.settings.title_size | times: 0.43 }}px;
+                    }
+                    @media only screen and (min-width: 769px) {
+                      .slideshow__slide--{{ block.id }} .hero__title,
+                      .slideshow__slide--{{ block.id }} .hero__title p {
+                        font-size: {{ block.settings.title_size }}px;
+                      }
+                    }
+
+                    {% if block.settings.overlay_opacity > 0 %}
+                      .slideshow__slide--{{ block.id }} .hero__image-wrapper:after {
+                        content: '';
+                        position: absolute;
+                        left: 0;
+                        right: 0;
+                        top: 0;
+                        bottom: 0;
+                        z-index: 3;
+                        background-color: #000;
+                        opacity: {{ block.settings.overlay_opacity | divided_by: 100.0 }};
+                      }
+                    {% endif %}
+                  {%- endstyle -%}
+
+                  {%- liquid
+                    assign hero_text = false
+                    if block.settings.top_subheading != blank or block.settings.title != blank or block.settings.subheading != blank or block.settings.link_text != blank
+                      assign hero_text = true
+                    endif
+
+                    assign has_mobile_image = false
+                    if block.settings.image_mobile != blank
+                      assign has_mobile_image = true
+                    endif
+                  -%}
+
+                  <div
+                    class="hero__image-wrapper {% unless hero_text %} hero__image-wrapper--no-overlay{% endunless %}"
+                  >
+                    {% comment %} Full width images so don't need to adjust sizes attribute, fallback is 100vw {% endcomment %}
+                    {%- liquid
+                      if forloop.index == 1
+                        assign loading = lazyload_images
+                      else
+                        assign loading = true
+                      endif
+                    -%}
+                    {%- if block.settings.image != blank -%}
+                      {% capture image_classes %}
+                          hero__image hero__image--{{ block.id }}
+                          {% if has_mobile_image %} small--hide{% endif %}
+                        {% endcapture %}
+                      {%- render 'element.image',
+                        img: block.settings.image,
+                        loading: loading,
+                        classlist: image_classes
+                      -%}
+                      {%- if has_mobile_image -%}
+                        {% capture image_classes %}
+                            hero__image hero__image--{{ block.id }} medium-up--hide
+                          {% endcapture %}
+                        {%- render 'element.image',
+                          img: block.settings.image_mobile,
+                          loading: loading,
+                          classlist: image_classes
+                        -%}
+                      {%- endif -%}
+                    {%- else -%}
+                      {%- if template == 'password' -%}
+                        {%- assign password_image = 'password-page-background.jpg' -%}
+                        {%- render 'element.image',
+                          asset: password_image,
+                          host: 'theme',
+                          loading: lazyload_images,
+                          type: 'asset',
+                          classlist: 'hero__image'
+                        -%}
+                      {%- else -%}
+                        {%- render 'element.placeholder', name: 'lifestyle-1' -%}
+                      {%- endif -%}
+                    {%- endif -%}
+                  </div>
+
+                  {%- if block.settings.link != blank and block.settings.link_2 == blank -%}
+                    <a href="{{ block.settings.link }}" class="hero__slide-link" aria-hidden="true"></a>
+                  {%- endif -%}
+
+                  {%- if hero_text -%}
+                    <div class="hero__text-wrap">
+                      <div class="page-width">
+                        <div class="hero__text-content {{ block.settings.text_align }}">
+                          <div class="hero__text-shadow overlay">
+                            {%- unless block.settings.top_subheading == blank -%}
+                              <div class="hero__top-subtitle">
+                                <div class="hero__animation-contents">
+                                  {{ block.settings.top_subheading | escape }}
+                                </div>
+                              </div>
+                            {%- endunless -%}
+
+                            {%- unless block.settings.title == blank -%}
+                              <h2
+                                class="
+                                  heading-xl hero__title
+                                  {% if block.settings.text_highlight %}
+                                    text-highlight
+                                    text-highlight--{{ block.settings.text_highlight }}
+                                  {% endif %}
+                                "
+                              >
+                                <div class="hero__animation-contents">
+                                  {{ block.settings.title | newline_to_br }}
+                                </div>
+                              </h2>
+                            {%- endunless -%}
+
+                            {%- if block.settings.subheading or block.settings.link or block.settings.link_2 -%}
+                              {%- unless block.settings.subheading == blank -%}
+                                <div class="hero__subtitle">
+                                  <div class="hero__animation-contents">
+                                    {{ block.settings.subheading | escape }}
+                                  </div>
+                                </div>
+                              {%- endunless -%}
+
+                              {%- if block.settings.text_align contains 'horizontal-center' -%}
+                                {%- assign justify_buttons = 'center' -%}
+                              {%- endif -%}
+
+                              {%- if block.settings.link_text != blank or block.settings.link_text_2 != blank -%}
+                                {% capture button_content %}
+                                  {%- if block.settings.link_text != blank -%}
+                                    {%- render 'element.button',
+                                      href: block.settings.link,
+                                      text: block.settings.link_text,
+                                      style: button_style
+                                    -%}
+                                  {%- endif -%}
+
+                                  {%- if block.settings.link_text_2 != blank -%}
+                                    {%- render 'element.button',
+                                      href: block.settings.link_2,
+                                      text: block.settings.link_text_2,
+                                      style: button_style
+                                    -%}
+                                  {%- endif -%}
+                                {% endcapture %}
+
+                                {% render 'layout.stack',
+                                  slot: button_content,
+                                  horizontal: true,
+                                  gap: 'xs',
+                                  justify: justify_buttons
+                                %}
+                              {%- endif -%}
+                            {%- endif -%}
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  {%- endif -%}
+                </div>
+              {%- endfor -%}
+            </div>
+          </div>
+        </div>
+      {%- endif -%}
+
+      {%- if section.blocks.size == 0 -%}
+        <div class="placeholder-noblocks" style="text-align: center; padding: 40px;">
+          {% render 'utility.translate',
+            key: 'info.section_no_content',
+            fallback: "This section doesn't currently include any content. Add content to this section using the sidebar."
+          %}
+        </div>
+      {%- endif -%}
+    </div>
+    {%- unless full_width -%}
+      </div>
+    {%- endunless -%}
+  </slideshow-section>
+
+  <template data-island>
+    <script type="module">
+      import 'module.slideshow'
+    </script>
+  </template>
+</is-land>

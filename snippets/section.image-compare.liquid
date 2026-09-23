@@ -1,0 +1,296 @@
+{% doc %}
+  Copyright © 2025 Archetype Themes LP. All rights reserved.
+
+  Before/after image comparison slider for showcasing changes or differences.
+
+  @param {string} [heading] - Section heading
+  @param {string} [heading_size] - ('sm'|'md'|'lg'|'xl') Heading size
+  @param {string} [heading_position] - ('left'|'center'|'right') Heading alignment
+  @param {number} [height] - Slider height (400-900px)
+  @param {string} [color] - Slider button color
+  @param {string} [slider_style] - ('classic'|'minimal') Slider style
+  @param {boolean} [full_width] - Enable full-width layout
+  @param {string} [hydration] - Hydration strategy
+
+  @example
+  {% render 'section.image-compare', slider_style: 'classic', height: 600 %}
+{% enddoc %}
+
+{% stylesheet %}
+  /**
+	 * This is the stylesheet entrypoint for the image-compare section.
+	 * This file and all its inclusions will be processed through esbuild
+	 */
+
+  .comparison {
+    position: relative;
+    display: block;
+    width: 100%;
+    background: #222;
+    overflow: hidden;
+  }
+
+  .comparison__draggable {
+    position: absolute;
+    top: 0;
+    height: 100%;
+    width: 50%;
+    overflow: hidden;
+    z-index: 2;
+  }
+
+  .comparison__image {
+    width: 100%;
+    height: 100%;
+    max-width: none;
+    object-fit: cover;
+    display: block;
+    user-select: none;
+    opacity: 1;
+    animation: none;
+  }
+
+  .comparison__image-wrapper {
+    width: 100%;
+    height: 100%;
+  }
+
+  .comparison__button {
+    width: 64px;
+    height: 64px;
+    position: absolute;
+    border-radius: 50%;
+    left: 50%;
+    top: 50%;
+    transform: translate(-32px, -50%);
+    cursor: pointer;
+    z-index: 3;
+    display: flex;
+    flex-wrap: nowrap;
+    justify-content: center;
+    align-items: center;
+    border: 3px solid #fff;
+    padding: 0;
+
+    .comparison--style-minimal & {
+      border: 0;
+      background: transparent;
+      width: auto;
+      min-width: 112px;
+      transform: translate(-56px, -50%);
+
+      & svg {
+        margin: 0 20px;
+
+        @supports (-webkit-touch-callout: none) {
+          position: absolute;
+
+          &.element-icon-chevron-left {
+            left: 2px;
+            width: 9px;
+          }
+
+          &.element-icon-chevron-right {
+            right: 2px;
+            width: 9px;
+          }
+        }
+      }
+    }
+
+    .comparison--style-classic & {
+      @media only screen and (max-width: 768px) {
+        width: 48px;
+        height: 48px;
+        transform: translate(-24px, -50%);
+      }
+    }
+
+    & svg {
+      width: 12px;
+      height: auto;
+      pointer-events: none;
+      margin: 0 5px;
+    }
+
+    &::before {
+      content: '';
+      width: 2px;
+      position: absolute;
+      background-color: #fff !important;
+    }
+
+    &::after {
+      content: '';
+      width: 2px;
+      height: 50%;
+      position: absolute;
+      bottom: 0;
+      left: 50%;
+      transform: translate(-50%, 0);
+      background-color: #fff !important;
+    }
+  }
+{% endstylesheet %}
+
+{%- liquid
+  assign heading = heading | default: section.settings.heading
+  assign heading_size = heading_size | default: section.settings.heading_size | default: 'md'
+  assign heading_position = heading_position | default: section.settings.heading_position | default: 'left'
+  assign height = height | default: section.settings.height | default: 600
+  assign color = color | default: section.settings.color | default: '#fff'
+  assign slider_style = slider_style | default: section.settings.slider_style | default: 'classic'
+  assign full_width = full_width | default: section.settings.fullwidth, allow_false: true | default: false, allow_false: true
+  assign hydration = hydration | default: 'on:visible'
+
+  assign lazyload_images = true
+  if section.index == 1
+    assign lazyload_images = false
+  endif
+  assign background_brightness = color | brightness_difference: '#000'
+  assign hydration = hydration | default: 'on:idle'
+-%}
+
+{% style %}
+  .comparison-{{ section.id }} {
+    height: {{ height }}px;
+  }
+
+  @media only screen and (max-width: 768px) {
+    .comparison-{{ section.id }} {
+      height: {{ height | divided_by: 2 }}px;
+    }
+  }
+
+  {% if slider_style == 'classic' %}
+    .comparison-{{ section.id }} .comparison__button {
+      background-color: {{ color }};
+    }
+
+    {% if background_brightness < 125 %}
+      .comparison-{{ section.id }} .comparison__button svg {
+        fill: #fff;
+      }
+    {% else %}
+      .comparison-{{ section.id }} .comparison__button svg {
+        fill: #000;
+      }
+    {% endif %}
+
+    .comparison-{{ section.id }} .comparison__button::before {
+      height: {{ height | divided_by: 2 }}px;
+      bottom: 60px;
+    }
+
+    .comparison-{{ section.id }} .comparison__button::after {
+      height: {{ height | divided_by: 2 }}px;
+      top: 60px;
+    }
+
+    @media only screen and (max-width: 768px) {
+      .comparison-{{ section.id }} .comparison__button::before {
+        bottom: 42px;
+      }
+
+      .comparison-{{ section.id }} .comparison__button::after {
+        top: 42px;
+      }
+    }
+  {% else %}
+    .comparison-{{ section.id }} .comparison__button svg {
+      fill: {{ color }};
+    }
+
+    .comparison-{{ section.id }} .comparison__button::before {
+      height: {{ height }}px;
+      bottom: 0;
+    }
+
+    .comparison-{{ section.id }} .comparison__button::after {
+      height: {{ height }}px;
+      top: 0;
+    }
+
+  {% endif %}
+{% endstyle %}
+
+<div class="index-section">
+  {% if heading != blank %}
+    <div class="section-header page-width">
+      <h2 class="heading-{{ heading_size }} text-{{ heading_position }}">{{ heading | escape }}</h2>
+    </div>
+  {% endif %}
+  <div
+    {% unless full_width %}
+      class="page-width"
+    {% endunless %}
+  >
+    <is-land {{ hydration }}>
+      <image-compare
+        class="comparison comparison-{{ section.id }} comparison--style-{{ slider_style }}"
+        section-id="{{ section.id }}"
+      >
+        {% for block in section.blocks %}
+          {% if forloop.index == 1 %}<div class="comparison__draggable" data-draggable>{% endif %}
+
+          {% if block.settings.image != blank %}
+            {%- capture image_classes -%}
+              comparison__image comparison__image--{{ forloop.index }} {% if block.settings.blur %}blur{% endif %}
+            {%- endcapture -%}
+            <div
+              class="comparison__image-wrapper"
+              {{ block.shopify_attributes }}
+              {% if forloop.index == 1 %}
+                data-primary-image
+              {% else %}
+                data-secondary-image
+              {% endif %}
+            >
+              {% comment %}
+                Full width image so don't need to adjust sizes attribute, fallback is 100vw
+                We could provide sizes (ex. 50% of viewport) only if we were able to update
+                the image markup everytime the slider changed
+              {% endcomment %}
+              {%- liquid
+                if forloop.index == 1
+                  assign loading = lazyload_images
+                else
+                  assign loading = true
+                endif
+              -%}
+              {%- render 'element.image',
+                img: block.settings.image,
+                img_width: 2000,
+                loading: loading,
+                classlist: image_classes
+              -%}
+            </div>
+          {% else %}
+            {%- render 'element.placeholder', name: 'image', classlist: 'comparison__image' -%}
+          {% endif %}
+
+          {% if forloop.index == 1 %}</div>{% endif %}
+        {% endfor %}
+        <button
+          class="comparison__button"
+          data-button
+          type="button"
+          role="slider"
+          aria-orientation="horizontal"
+          aria-valuemin="0"
+          aria-valuemax="100"
+          aria-valuenow="50"
+        >
+          <span aria-hidden="true">{% render 'element.icon', name: 'chevron-left' %}</span>
+          <span aria-hidden="true">{% render 'element.icon', name: 'chevron-right' %}</span>
+        </button>
+      </image-compare>
+
+      <template data-island>
+        <script type="module">
+          import 'section.image-compare'
+        </script>
+      </template>
+    </is-land>
+  </div>
+</div>

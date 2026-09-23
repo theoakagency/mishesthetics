@@ -1,0 +1,482 @@
+{% doc %}
+  Copyright © 2025 Archetype Themes LP. All rights reserved.
+
+  Customer address book with add, edit, and delete functionality.
+
+  @param {string} [hydration] - Hydration strategy
+
+  @example
+  {% render 'section.main-addresses' %}
+{% enddoc %}
+
+{%- liquid
+  assign hydration = hydration | default: 'on:visible'
+
+  capture input_first_name_label
+    render 'utility.translate', key: 'labels.first_name', fallback: 'First name'
+  endcapture
+
+  capture input_last_name_label
+    render 'utility.translate', key: 'labels.last_name', fallback: 'Last name'
+  endcapture
+
+  capture input_company_label
+    render 'utility.translate', key: 'labels.company', fallback: 'Company'
+  endcapture
+
+  capture input_address1_label
+    render 'utility.translate', key: 'labels.address1', fallback: 'Address1'
+  endcapture
+
+  capture input_address2_label
+    render 'utility.translate', key: 'labels.address2', fallback: 'Address2'
+  endcapture
+
+  capture input_city_label
+    render 'utility.translate', key: 'labels.city', fallback: 'City'
+  endcapture
+
+  capture input_zip_label
+    render 'utility.translate', key: 'labels.zip', fallback: 'Zip'
+  endcapture
+
+  capture input_phone_label
+    render 'utility.translate', key: 'labels.phone', fallback: 'Phone'
+  endcapture
+
+  capture input_default_address_label
+    render 'utility.translate', key: 'actions.set_default_address', fallback: 'Set default address'
+  endcapture
+
+  capture input_add_address_label
+    render 'utility.translate', key: 'actions.add_address', fallback: 'Add address'
+  endcapture
+
+  capture input_edit_address_label
+    render 'utility.translate', key: 'actions.edit_address', fallback: 'Edit address'
+  endcapture
+
+  capture input_delete_address_label
+    render 'utility.translate', key: 'actions.delete_address', fallback: 'Delete address'
+  endcapture
+
+  capture input_update_address_label
+    render 'utility.translate', key: 'actions.update_address', fallback: 'Update address'
+  endcapture
+-%}
+
+<is-land {{ hydration }}>
+  <section-main-addresses>
+    {%- paginate customer.addresses by 5 -%}
+      <div class="page-width page-width--narrow page-content">
+        {%- if settings.show_breadcrumbs -%}
+          <nav class="breadcrumb" role="navigation" aria-label="breadcrumbs">
+            <a href="{{ routes.account_url }}">
+              {% render 'utility.translate', key: 'labels.my_account', fallback: 'My account' -%}
+            </a>
+            <span class="divider" aria-hidden="true">/</span>
+            {% render 'utility.translate', key: 'labels.addresses', fallback: 'Addresses' %}
+          </nav>
+        {%- endif -%}
+
+        <header class="section-header section-header--with-link">
+          <h1 class="section-header__title">
+            {% render 'utility.translate', key: 'labels.addresses', fallback: 'Addresses' %}
+          </h1>
+          <button type="button" class="section-header__link address-new-toggle">
+            {% render 'utility.translate', key: 'actions.add_address', fallback: 'Add address' %}
+          </button>
+        </header>
+
+        <div id="AddressNewForm" class="form-vertical js-address-form text-left hide">
+          {%- form 'customer_address', customer.new_address -%}
+            <h2>
+              {% render 'utility.translate', key: 'actions.add_address', fallback: 'Add address' %}
+            </h2>
+
+            <div class="float-grid grid--small clearfix">
+              <div class="grid__item one-half small--one-whole">
+                {%- render 'element.input',
+                  type: 'text',
+                  id: 'AddressFirstNameNew',
+                  label: input_first_name_label,
+                  placeholder: input_first_name_label,
+                  name: 'address[first_name]',
+                  value: form.first_name,
+                  attributes: 'autocapitalize="words"'
+                -%}
+              </div>
+
+              <div class="grid__item one-half small--one-whole">
+                {%- render 'element.input',
+                  type: 'text',
+                  id: 'AddressLastNameNew',
+                  label: input_last_name_label,
+                  placeholder: input_last_name_label,
+                  name: 'address[last_name]',
+                  value: form.last_name,
+                  attributes: 'autocapitalize="words"'
+                -%}
+              </div>
+            </div>
+
+            {%- render 'element.input',
+              type: 'text',
+              id: 'AddressCompanyNew',
+              label: input_company_label,
+              placeholder: input_company_label,
+              name: 'address[company]',
+              value: form.company,
+              attributes: 'autocapitalize="words"'
+            -%}
+
+            {%- render 'element.input',
+              type: 'text',
+              id: 'AddressAddress1New',
+              label: input_address1_label,
+              placeholder: input_address1_label,
+              name: 'address[address1]',
+              value: form.address1
+            -%}
+
+            {%- render 'element.input',
+              type: 'text',
+              id: 'AddressAddress2New',
+              label: input_address2_label,
+              placeholder: input_address2_label,
+              name: 'address[address2]',
+              value: form.address2
+            -%}
+
+            <div class="float-grid grid--small clearfix">
+              <div class="grid__item medium-up--one-half">
+                {%- render 'element.input',
+                  type: 'text',
+                  id: 'AddressCityNew',
+                  label: input_city_label,
+                  placeholder: input_city_label,
+                  name: 'address[city]'
+                -%}
+              </div>
+
+              <div
+                class="grid__item medium-up--one-half js-address-country"
+                data-country-id="AddressCountryNew"
+                data-province-container-id="AddressProvinceContainerNew"
+                data-province-id="AddressProvinceNew"
+              >
+                <select
+                  id="AddressCountryNew"
+                  class="input"
+                  name="address[country]"
+                  data-default="{{form.country}}"
+                >
+                  {{ country_option_tags }}
+                </select>
+              </div>
+
+              <div class="grid__item" id="AddressProvinceContainerNew" style="display: none;">
+                <select
+                  id="AddressProvinceNew"
+                  class="input"
+                  name="address[province]"
+                  data-default="{{form.province}}"
+                ></select>
+              </div>
+
+              <div class="grid__item medium-up--one-half">
+                {%- render 'element.input',
+                  type: 'text',
+                  id: 'AddressZipNew',
+                  label: input_zip_label,
+                  placeholder: input_zip_label,
+                  name: 'address[zip]',
+                  value: form.zip,
+                  attributes: 'autocapitalize="characters"'
+                -%}
+              </div>
+
+              <div class="grid__item medium-up--one-half">
+                {%- render 'element.input',
+                  type: 'tel',
+                  id: 'AddressPhoneNew',
+                  label: input_phone_label,
+                  placeholder: input_phone_label,
+                  name: 'address[phone]',
+                  value: form.phone
+                -%}
+              </div>
+            </div>
+
+            <p>
+              {%- render 'element.checkbox',
+                id: 'address_default_address_new',
+                label: input_default_address_label,
+                name: 'address[default]',
+                value: form.default
+              -%}
+            </p>
+
+            <p>
+              {%- render 'element.button', type: 'submit', id: 'addresses-add-submit', text: input_add_address_label -%}
+            </p>
+            <p>
+              <label for="addresses-cancel-submit" class="visually-hidden">
+                {% render 'utility.translate', key: 'actions.cancel', fallback: 'Cancel' -%}
+              </label>
+              <button type="button" id="addresses-cancel-submit" class="text-link address-new-toggle">
+                {% render 'utility.translate', key: 'actions.cancel', fallback: 'Cancel' %}
+              </button>
+            </p>
+          {%- endform -%}
+        </div>
+
+        {%- for address in customer.addresses -%}
+          {%- if address == customer.default_address -%}
+            <p class="heading-sm">
+              {% render 'utility.translate', key: 'labels.default', fallback: 'Default' %}
+            </p>
+          {%- endif -%}
+
+          {{ address | format_address }}
+
+          <p>
+            {%- capture input_edit_attributes -%}
+              data-form-id="{{ address.id }}"
+            {%- endcapture -%}
+
+            {%- render 'element.button',
+              type: 'button',
+              classlist: 'address-edit-toggle',
+              text: input_edit_address_label,
+              attributes: input_edit_attributes
+            -%}
+
+            {%- capture input_delete_attributes -%}
+              data-form-id="{{ address.id }}"
+              data-confirm-message="{% render 'utility.translate', key: 'actions.confirm_address_delete', fallback: 'Are you sure you wish to delete this address?' -%}"
+            {%- endcapture -%}
+
+            {%- render 'element.button',
+              type: 'button',
+              classlist: 'address-delete',
+              text: input_delete_address_label,
+              attributes: input_delete_attributes,
+              inverted: true
+            -%}
+          </p>
+
+          <div id="EditAddress_{{ address.id }}" class="form-vertical js-address-form text-left hide">
+            {%- form 'customer_address', address -%}
+              <hr class="hr--large">
+              <h2>
+                {% render 'utility.translate', key: 'actions.edit_address', fallback: 'Edit address' %}
+              </h2>
+
+              <div class="float-grid grid--small clearfix">
+                <div class="grid__item one-half small--one-whole">
+                  {%- capture address_first_name_id -%}
+                    AddressFirstName_{{form.id}}
+                  {%- endcapture -%}
+
+                  {%- render 'element.input',
+                    type: 'text',
+                    id: address_first_name_id,
+                    label: input_first_name_label,
+                    placeholder: input_first_name_label,
+                    name: 'address[first_name]',
+                    value: form.first_name,
+                    attributes: 'autocapitalize="words"'
+                  -%}
+                </div>
+
+                <div class="grid__item one-half small--one-whole">
+                  {%- capture address_last_name_id -%}
+                      AddressLastName_{{form.id}}
+                    {%- endcapture -%}
+
+                  {%- render 'element.input',
+                    type: 'text',
+                    id: address_last_name_id,
+                    label: input_last_name_label,
+                    placeholder: input_last_name_label,
+                    name: 'address[last_name]',
+                    value: form.last_name,
+                    attributes: 'autocapitalize="words"'
+                  -%}
+                </div>
+              </div>
+
+              {%- capture address_company_id -%}
+                  AddressCompany_{{form.id}}
+                {%- endcapture -%}
+
+              {%- render 'element.input',
+                type: 'text',
+                id: address_company_id,
+                label: input_company_label,
+                placeholder: input_company_label,
+                name: 'address[company]',
+                value: form.company,
+                attributes: 'autocapitalize="words"'
+              -%}
+
+              {%- capture address_address1_id -%}
+                AddressAddress1_{{form.id}}
+              {%- endcapture -%}
+
+              {%- render 'element.input',
+                type: 'text',
+                id: address_address1_id,
+                label: input_address1_label,
+                placeholder: input_address1_label,
+                name: 'address[address1]',
+                value: form.address1,
+                attributes: 'autocapitalize="words"'
+              -%}
+
+              {%- capture address_address2_id -%}
+                AddressAddress2_{{form.id}}
+              {%- endcapture -%}
+
+              {%- render 'element.input',
+                type: 'text',
+                id: address_address2_id,
+                label: input_address2_label,
+                placeholder: input_address2_label,
+                name: 'address[address2]',
+                value: form.address2,
+                attributes: 'autocapitalize="words"'
+              -%}
+
+              {%- capture address_city_id -%}
+                AddressCity_{{form.id}}
+              {%- endcapture -%}
+
+              {%- render 'element.input',
+                type: 'text',
+                id: address_city_id,
+                label: input_city_label,
+                placeholder: input_city_label,
+                name: 'address[city]',
+                value: form.city,
+                attributes: 'autocapitalize="words"'
+              -%}
+
+              <div
+                class="js-address-country"
+                data-country-id="AddressCountry_{{form.id}}"
+                data-province-container-id="AddressProvinceContainer_{{form.id}}"
+                data-province-id="AddressProvince_{{form.id}}"
+              >
+                <select
+                  id="AddressCountry_{{form.id}}"
+                  class="input"
+                  name="address[country]"
+                  data-default="{{form.country}}"
+                >
+                  {{ country_option_tags }}
+                </select>
+              </div>
+
+              <div id="AddressProvinceContainer_{{form.id}}" style="display: none;">
+                <select
+                  id="AddressProvince_{{form.id}}"
+                  class="input"
+                  name="address[province]"
+                  data-default="{{form.province}}"
+                ></select>
+              </div>
+
+              <div class="float-grid grid--small clearfix">
+                <div class="grid__item one-half small--one-whole">
+                  {%- capture address_zip_id -%}
+                    AddressZip_{{form.id}}
+                  {%- endcapture -%}
+
+                  {%- render 'element.input',
+                    type: 'text',
+                    id: address_zip_id,
+                    label: input_zip_label,
+                    placeholder: input_zip_label,
+                    name: 'address[zip]',
+                    value: form.zip,
+                    attributes: 'autocapitalize="characters"'
+                  -%}
+                </div>
+
+                <div class="grid__item one-half small--one-whole">
+                  {%- capture address_phone_id -%}
+                    AddressPhone_{{form.id}}
+                  {%- endcapture -%}
+
+                  {%- render 'element.input',
+                    type: 'tel',
+                    id: address_phone_id,
+                    label: input_phone_label,
+                    placeholder: input_phone_label,
+                    name: 'address[phone]',
+                    value: form.phone
+                  -%}
+                </div>
+              </div>
+
+              <p>
+                {%- capture address_default_address_id -%}
+                  address_default_address_{{form.id}}
+                {%- endcapture -%}
+
+                {%- assign checked = false -%}
+                {%- if address == customer.default_address -%}
+                  {%- assign checked = true -%}
+                {%- endif -%}
+
+                {%- render 'element.checkbox',
+                  id: address_default_address_id,
+                  label: input_default_address_label,
+                  name: 'address[default]',
+                  checked: checked
+                -%}
+              </p>
+
+              <p>
+                {%- render 'element.button',
+                  type: 'submit',
+                  id: 'addresses-update-submit',
+                  text: input_update_address_label
+                -%}
+              </p>
+              <p>
+                <label for="address-edit-toggle" class="visually-hidden">
+                  {% render 'utility.translate', key: 'actions.cancel', fallback: 'Cancel' -%}
+                </label>
+                <button
+                  type="button"
+                  id="address-edit-toggle"
+                  class="text-link address-edit-toggle"
+                  data-form-id="{{ form.id }}"
+                >
+                  {% render 'utility.translate', key: 'actions.cancel', fallback: 'Cancel' %}
+                </button>
+              </p>
+            {%- endform -%}
+          </div>
+
+          <hr class="hr--medium">
+        {%- endfor -%}
+
+        {%- liquid
+          if paginate.pages > 1
+            render 'element.pagination', paginate: paginate
+          endif
+        -%}
+      </div>
+    {%- endpaginate -%}
+  </section-main-addresses>
+
+  <template data-island>
+    <script type="module">
+      import 'section.main-addresses'
+    </script>
+  </template>
+</is-land>

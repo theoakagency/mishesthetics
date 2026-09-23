@@ -1,0 +1,261 @@
+{% doc %}
+  Copyright © 2025 Archetype Themes LP. All rights reserved.
+
+  Age gate popup with approval/decline flow and cookie-based persistence.
+
+  @param {boolean} [enable_test_mode] - Show popup on every page load for testing
+  @param {string} [color_scheme] - Color scheme for popup
+  @param {object} [image] - Background image
+  @param {boolean} [blur_image] - Apply blur effect to background
+  @param {string} [heading] - Main heading text
+  @param {string} [text] - Subheading text
+  @param {string} [decline_button_label] - Decline button label
+  @param {string} [approve_button_label] - Approve button label
+  @param {string} [decline_heading] - Decline state heading
+  @param {string} [decline_text] - Decline state subheading
+  @param {string} [return_button_label] - Return button label
+  @param {string} [hydration] - Hydration strategy
+
+  @example
+  {% render 'section.age-verification-popup', enable_test_mode: true, heading: 'Are you 18 or older?' %}
+{% enddoc %}
+
+{% stylesheet %}
+  /* Age verification popup */
+  .age-verification-popup {
+    & .rte {
+      margin-top: 20px;
+      margin-bottom: 20px;
+
+      @media only screen and (min-width: 769px) {
+        margin-bottom: 30px;
+      }
+    }
+
+    & .age-verification-popup__btns-wrapper {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 10px;
+    }
+
+    & .age-verification-modal-content {
+      overflow: hidden;
+    }
+  }
+
+  .age-verification-popup__background-image-wrapper {
+    overflow: hidden;
+    width: 100%;
+    height: 100%;
+    position: absolute;
+  }
+
+  .age-verification-popup__background-image {
+    object-fit: cover;
+    width: 100%;
+    height: 100%;
+  }
+
+  .age-verification-popup__content--active {
+    opacity: 1;
+    transition: opacity 1.5s ease-in;
+  }
+
+  .age-verification-popup__content--inactive,
+  .age-verification-popup__content--inactive * {
+    opacity: 0;
+    width: 0;
+    height: 0;
+    position: absolute;
+    visibility: hidden;
+    padding: 0;
+    border: 0;
+    margin: 0;
+    line-height: 0;
+    font-size: 0;
+  }
+
+  .age-verification-popup__decline-content--inactive,
+  .age-verification-popup__decline-content--inactive * {
+    opacity: 0;
+    width: 0;
+    height: 0;
+    position: absolute;
+    visibility: hidden;
+    padding: 0;
+    border: 0;
+    margin: 0;
+    line-height: 0;
+    font-size: 0;
+  }
+
+  .age-verification-popup__decline-content--active {
+    opacity: 1;
+    transition: opacity 1.5s ease-in;
+  }
+
+  .age-verification-popup__content-wrapper {
+    position: relative;
+    text-align: center;
+    max-width: 520px;
+    margin: 0 auto;
+    z-index: 1;
+  }
+
+  /* Expanse specific styles */
+  .age-verification-popup {
+    top: 0;
+    bottom: 0;
+
+    &.age-verification-popup--image-false {
+      position: fixed !important;
+      z-index: 30 !important;
+
+      &.modal:before {
+        background-color: transparent;
+        animation: none;
+      }
+
+      & .modal__inner {
+        box-shadow: none;
+        background-color: transparent;
+      }
+
+      &.color-scheme-none {
+        background-color: var(--root-color-secondary);
+      }
+    }
+  }
+{% endstylesheet %}
+
+{%- liquid
+  assign enable_test_mode = enable_test_mode | default: section.settings.enable_test_mode, allow_false: true | default: false, allow_false: true
+  assign color_scheme = color_scheme | default: section.settings.color_scheme | default: 'none'
+  assign image = image | default: section.settings.image
+  assign blur_image = blur_image | default: section.settings.blur_image, allow_false: true | default: false, allow_false: true
+  assign heading = heading | default: section.settings.heading
+  assign text = text | default: section.settings.text
+  assign decline_button_label = decline_button_label | default: section.settings.decline_button_label
+  assign approve_button_label = approve_button_label | default: section.settings.approve_button_label
+  assign decline_heading = decline_heading | default: section.settings.decline_heading
+  assign decline_text = decline_text | default: section.settings.decline_text
+  assign return_button_label = return_button_label | default: section.settings.return_button_label
+  assign hydration = hydration | default: 'on:idle'
+-%}
+
+<is-land {{ hydration }}>
+  <age-verification-popup
+    id="AgeVerificationPopup-{{ section.id }}"
+    class="
+      age-verification-popup modal modal--square modal--mobile-friendly
+      {% if image != blank %}
+        age-verification-popup--image-true
+      {% else %}
+        age-verification-popup--image-false
+        color-scheme-{{ color_scheme }}
+      {% endif %}
+    "
+    data-test-mode="{{ enable_test_mode }}"
+    section-id="{{ section.id }}"
+  >
+    {%- if image == blank -%}
+      {%- render 'utility.color-scheme-texture', color_scheme: color_scheme -%}
+    {%- endif -%}
+
+    {% if image != blank %}
+      <div class="age-verification-popup__background-image-wrapper" data-background-image>
+        {% comment %} Full width image so don't need to adjust sizes attribute, fallback is 100vw {% endcomment %}
+        {%- render 'element.image',
+          img: image,
+          img_width: 2400,
+          classlist: 'age-verification-popup__background-image'
+        -%}
+      </div>
+      {% style %}
+        .age-verification-popup__background-image {
+          {% if blur_image %}
+            filter: blur(4px);
+            transform: scale(1.03);
+          {% endif %}
+        }
+      {% endstyle %}
+    {% endif %}
+
+    <div class="modal__inner" data-nosnippet>
+      <div class="modal__centered">
+        <div
+          class="
+            age-verification-modal-content
+            modal__centered-content modal__centered-content--padded
+              color-scheme-{{ color_scheme }}
+          "
+        >
+          {%- if image != blank -%}
+            {%- render 'utility.color-scheme-texture', color_scheme: color_scheme -%}
+          {%- endif -%}
+          <div class="age-verification-popup__content-wrapper">
+            <div
+              class="age-verification-popup__content age-verification-popup__content--active"
+              data-age-verification-popup-content
+            >
+              {%- liquid
+                capture verification_content
+                  if heading != blank
+                    render 'element.text', as: 'h2', variant: 'heading-xl', text: heading
+                  endif
+
+                  if text != blank
+                    render 'element.text', text: text, variant: 'rte', classlist: 'enlarge-text'
+                  endif
+
+                  capture buttons
+                    if decline_button_label != blank
+                      render 'element.button', text: decline_button_label, inverted: true, attributes: 'data-age-verification-popup-decline-button'
+                    endif
+
+                    if approve_button_label != blank
+                      render 'element.button', text: approve_button_label, attributes: 'data-age-verification-popup-exit-button'
+                    endif
+                  endcapture
+
+                  render 'layout.stack', slot: buttons, gap: 'xs', horizontal: true, justify: 'center'
+                endcapture
+
+                render 'layout.stack', slot: verification_content, gap: 'sm'
+              -%}
+            </div>
+            <div
+              class="age-verification-popup__decline-content age-verification-popup__decline-content--inactive"
+              data-age-verification-popup-decline-content
+            >
+              {%- liquid
+                capture decline_content
+                  if decline_heading != blank
+                    render 'element.text', as: 'h2', variant: 'heading-xl', text: decline_heading
+                  endif
+
+                  if decline_text != blank
+                    render 'element.text', text: decline_text, variant: 'rte', classlist: 'enlarge-text'
+                  endif
+
+                  if return_button_label != blank
+                    render 'element.button', text: return_button_label, inverted: true, attributes: 'data-age-verification-popup-return-button'
+                  endif
+                endcapture
+
+                render 'layout.stack', slot: decline_content, gap: 'sm', align: 'center'
+              -%}
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </age-verification-popup>
+
+  <template data-island>
+    <script type="module">
+      import 'section.age-verification-popup'
+    </script>
+  </template>
+</is-land>

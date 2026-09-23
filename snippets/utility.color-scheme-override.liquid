@@ -1,0 +1,40 @@
+{% doc %}
+  Copyright © 2025 Archetype Themes LP. All rights reserved.
+
+  Generates CSS custom properties for custom text and background color overrides.
+
+  @param {string} [class_name] - The class name to apply color overrides to
+  @param {string} [id] - Unique identifier for CSS variables, defaults to section.id
+  @param {string} [text_color] - Custom text color value
+  @param {string} [background_color] - Custom background color value
+
+  @example
+  {% render 'utility.color-scheme-override', class_name: 'hero-section', text_color: '#ffffff', background_color: '#000000' %}
+{% enddoc %}
+
+{% liquid
+  assign id = id | default: section.id
+  assign text_color = text_color | default: section.settings.text_color
+  assign background_color = background_color | default: section.settings.background_color
+%}
+
+{% style %}
+  :root {
+    {% if text_color %}
+      --{{ id }}-text-color: {{ text_color }};
+    {% else %}
+      --{{ id }}-text-color: var(--root-color-primary);
+    {% endif %}
+
+    {% if background_color %}
+      --{{ id }}-background-color: {{ background_color }};
+    {% else %}
+      --{{ id }}-background-color: var(--root-color-secondary);
+    {% endif %}
+  }
+
+  .{{ class_name }} {
+    color: var(--{{ id }}-text-color);
+    background-color: var(--{{ id }}-background-color);
+  }
+{% endstyle %}

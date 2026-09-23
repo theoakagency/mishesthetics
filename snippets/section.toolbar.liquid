@@ -1,0 +1,234 @@
+{% doc %}
+  Copyright © 2025 Archetype Themes LP. All rights reserved.
+
+  Top toolbar with language, currency selectors, and social links.
+
+  @param {string} [text] - Text to display
+  @param {string} [direction] - ('normal'|'reverse') Scroll direction
+  @param {number} [speed] - Marquee scroll speed (1-10)
+  @param {object} [menu_link_list] - Menu link list to display
+  @param {boolean} [show_locale_selector] - Show language selector
+  @param {boolean} [show_currency_selector] - Show currency selector
+  @param {boolean} [show_currency_flags] - Show currency flags
+  @param {boolean} [toolbar_social] - Show social icons
+  @param {string} [color_scheme] - ('none'|'1'|'2'|'3') Color scheme
+
+  @example
+  {% render 'section.toolbar', show_currency_selector: true, toolbar_social: true %}
+{% enddoc %}
+
+{% stylesheet %}
+  .toolbar {
+    position: relative;
+    font-size: calc(var(--element-text-font-size--body-md) * 0.85);
+
+    .is-light & {
+      background-color: transparent;
+      color: var(--color-sticky-nav-links);
+
+      & a {
+        color: var(--color-sticky-nav-links);
+      }
+    }
+
+    &:after {
+      position: absolute;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      content: '';
+      display: block;
+      border-bottom: 1px solid;
+      border-bottom-color: var(--color-primary);
+      width: 100%;
+      opacity: 0.15;
+
+      .is-light & {
+        border-color: var(--color-sticky-nav-links);
+      }
+    }
+  }
+
+  .toolbar__content {
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+
+    &:has(.toolbar__scrolling-text) {
+      gap: 20px;
+    }
+  }
+
+  .toolbar__item {
+    flex: 0 1 auto;
+    padding: 0 5px;
+
+    &:first-child {
+      padding-left: 0;
+    }
+
+    &:last-child {
+      padding-right: 0;
+    }
+
+    & select,
+    & .faux-select {
+      font-size: 14px;
+      padding-top: 5px;
+      padding-bottom: 5px;
+      padding-left: 0;
+      border: 0;
+      background: transparent;
+      color: currentColor;
+    }
+  }
+
+  .toolbar__item--social {
+    flex: 0 1 auto;
+    padding: 0;
+
+    .toolbar__content:has(.toolbar__item--social) & {
+      @media only screen and (min-width: 769px) {
+        flex: 0 auto;
+      }
+    }
+
+    .toolbar__content:not(:has(.toolbar__scrolling-text)) & {
+      @media only screen and (max-width: 768px) {
+        display: none;
+      }
+    }
+
+    .toolbar__content:has(.toolbar__item--social:empty) & {
+      display: none;
+    }
+  }
+
+  .toolbar__item--multi-selectors {
+    .toolbar__content:has(.toolbar__scrolling-text) & {
+      padding-left: 0;
+    }
+  }
+
+  .toolbar__item--announcements {
+    flex: 1 1 auto;
+  }
+
+  .toolbar__social {
+    text-align: right;
+
+    & a {
+      display: block;
+      padding: 5px;
+    }
+
+    & .element-icon {
+      position: relative;
+      vertical-align: middle;
+      width: 16px;
+      height: 16px;
+    }
+
+    .toolbar__content:has(.scrolling-text__inner) & {
+      padding-top: 0.375rem;
+      padding-bottom: 0.375rem;
+      justify-content: flex-end;
+    }
+
+    .toolbar__content:has(.scrolling-text__inner:empty) & {
+      @media only screen and (max-width: 768px) {
+        justify-content: center;
+      }
+    }
+  }
+
+  .toolbar__scrolling-text {
+    flex: 1;
+    overflow: hidden;
+
+    @media only screen and (min-width: 769px) {
+      margin-right: auto;
+    }
+
+    .toolbar__content:has(.scrolling-text__inner:empty) & {
+      display: none;
+    }
+
+    .scrolling-text {
+      background: transparent;
+      color: inherit;
+
+      span {
+        font-size: inherit;
+        padding: 0.375rem 0;
+      }
+    }
+
+    .scrolling-text__inner {
+      margin: 0;
+    }
+  }
+
+  .toolbar__menu-link-list {
+    flex: 0 1 auto;
+    margin-left: auto;
+    justify-content: flex-end;
+
+    @media only screen and (max-width: 768px) {
+      display: none;
+    }
+  }
+{% endstylesheet %}
+
+{%- liquid
+  assign text = text | default: section.settings.text
+  assign direction = direction | default: section.settings.direction
+  assign speed = speed | default: section.settings.speed
+  assign menu_link_list = menu_link_list | default: section.settings.menu_link_list
+  assign show_locale_selector = show_locale_selector | default: section.settings.show_locale_selector, allow_false: true | default: true, allow_false: true
+  assign show_currency_selector = show_currency_selector | default: section.settings.show_currency_selector, allow_false: true | default: true, allow_false: true
+  assign show_currency_flags = show_currency_flags | default: section.settings.show_currency_flags, allow_false: true | default: true, allow_false: true
+  assign toolbar_social = toolbar_social | default: section.settings.toolbar_social, allow_false: true | default: true, allow_false: true
+  assign color_scheme = color_scheme | default: section.settings.color_scheme | default: 'none'
+-%}
+
+<section>
+  <div class="toolbar color-scheme-{{ color_scheme }}">
+    <div class="page-width">
+      <div class="toolbar__content">
+        {%- if text != blank -%}
+          {%- render 'element.marquee',
+            classlist: 'toolbar__scrolling-text',
+            slot: text,
+            direction: direction,
+            speed: speed,
+            gap: 'md'
+          -%}
+        {%- else -%}
+          {%- render 'section.toolbar.announcement-bar' -%}
+        {%- endif -%}
+
+        {%- if menu_link_list != blank -%}
+          {%- render 'section.toolbar.menu-link-list', wrapper_class: 'toolbar__menu-link-list no-bullets' -%}
+        {%- endif -%}
+
+        {%- if toolbar_social -%}
+          <div class="toolbar__item toolbar__item--social">
+            {%- render 'social.icons', wrapper_class: 'inline-list toolbar__social' -%}
+          </div>
+        {%- endif -%}
+
+        {%- if show_locale_selector or show_currency_selector -%}
+          <div class="toolbar__item toolbar__item--multi-selectors small--hide">
+            {%- render 'form.localization',
+              context: 'toolbar',
+              show_locale_selector: show_locale_selector,
+              show_currency_selector: show_currency_selector,
+              show_currency_flags: show_currency_flags
+            -%}
+          </div>
+        {%- endif -%}
+      </div>
+    </div>
+  </div>
+</section>

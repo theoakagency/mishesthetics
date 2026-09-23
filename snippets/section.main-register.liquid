@@ -1,0 +1,107 @@
+{% doc %}
+  Copyright © 2025 Archetype Themes LP. All rights reserved.
+
+  Customer registration template with account creation form.
+
+  @example
+  {% render 'section.main-register' %}
+{% enddoc %}
+
+{%- liquid
+  capture input_first_name_label
+    render 'utility.translate', key: 'labels.first_name', fallback: 'First name'
+  endcapture
+
+  capture input_last_name_label
+    render 'utility.translate', key: 'labels.last_name', fallback: 'Last name'
+  endcapture
+
+  capture input_email_label
+    render 'utility.translate', key: 'labels.email', fallback: 'Email'
+  endcapture
+
+  capture input_password_label
+    render 'utility.translate', key: 'labels.password', fallback: 'Password'
+  endcapture
+
+  capture input_submit_label
+    render 'utility.translate', key: 'actions.create', fallback: 'Create'
+  endcapture
+-%}
+
+{%- capture input_first_name_attributes -%}
+  {%- if form.first_name -%}
+    value="{{ form.first_name }}"
+  {%- endif -%}
+  autocapitalize="words"
+  autofocus
+{%- endcapture -%}
+
+{%- capture input_last_name_attributes -%}
+  {%- if form.last_name -%}
+    value="{{ form.last_name }}"
+  {%- endif -%}
+  autocapitalize="words"
+{%- endcapture -%}
+
+{%- capture input_email_attributes -%}
+  {%- if form.email -%}
+    value="{{ form.email }}"
+  {%- endif -%}
+  autocorrect="off"
+  autocapitalize="off"
+{%- endcapture -%}
+
+<div class="page-width page-width--tiny page-content">
+  <header class="section-header">
+    <h1 class="section-header__title">
+      {% render 'utility.translate', key: 'actions.create_account', fallback: 'Create Account' %}
+    </h1>
+  </header>
+
+  <div class="form-vertical">
+    {%- form 'create_customer' -%}
+      {{ form.errors | default_errors }}
+
+      {%- render 'element.input',
+        type: 'text',
+        name: 'customer[first_name]',
+        label: input_first_name_label,
+        placeholder: input_first_name_label,
+        id: 'FirstName',
+        attributes: input_first_name_attributes
+      -%}
+
+      {%- render 'element.input',
+        type: 'text',
+        name: 'customer[last_name]',
+        label: input_last_name_label,
+        placeholder: input_last_name_label,
+        id: 'LastName',
+        attributes: input_last_name_attributes
+      -%}
+
+      {%- render 'element.input',
+        type: 'email',
+        name: 'customer[email]',
+        label: input_email_label,
+        placeholder: input_email_label,
+        id: 'Email',
+        attributes: input_email_attributes
+      -%}
+
+      {%- render 'element.input',
+        type: 'password',
+        name: 'customer[password]',
+        label: input_password_label,
+        placeholder: input_password_label,
+        id: 'CreatePassword',
+        attributes: input_password_attributes
+      -%}
+
+      <p>
+        {%- render 'element.button', type: 'submit', text: input_submit_label, full: true -%}
+      </p>
+    {%- endform -%}
+  </div>
+</div>

@@ -1,0 +1,226 @@
+{% doc %}
+  Copyright © 2025 Archetype Themes LP. All rights reserved.
+
+  Collection card for displaying collections in grid layouts.
+
+  @param {block} [block] - Block object for theme editor integration
+  @param {collection} collection - Collection object to display
+  @param {string} [collection_title] - Override collection title
+  @param {image} [collection_grid_image] - Custom collection image
+  @param {string} [collection_grid_shape] - Image shape preset
+  @param {string} [collection_grid_image_fill] - Image fill behavior
+  @param {color} [collection_grid_color] - Overlay color
+  @param {string} [grid_view] - Grid view class
+
+  @example
+  {% render 'list.collection-card', collection: collection, collection_grid_shape: 'square' %}
+{% enddoc %}
+
+{% stylesheet %}
+  .collection-item {
+    position: relative;
+    display: block;
+    flex: 1 1 100%;
+    text-align: center;
+    margin-bottom: 5px;
+
+    @media only screen and (min-width: 769px) {
+      margin-bottom: 15px;
+    }
+  }
+
+  .collection-image-wrap {
+    position: relative;
+    transition: all 0.2s ease;
+
+    &.collection-image-color--undefined {
+      --z-index-overlay: 1;
+      &:after {
+        background-color: rgba(0, 0, 0, 0.027);
+        pointer-events: none;
+        transition: all 0.2s ease;
+        border-radius: var(--roundness);
+      }
+    }
+
+    &.collection-image-color--white {
+      &:before {
+        background-color: #fff;
+        transition: all 0.2s ease;
+        border-radius: var(--roundness);
+      }
+    }
+
+    &.collection-image-color--grey {
+      --z-index-overlay: 1;
+      &:after {
+        background-color: rgba(0, 0, 0, 0.027);
+        pointer-events: none;
+        transition: all 0.2s ease;
+        border-radius: var(--roundness);
+      }
+    }
+
+    &.collection-image--circle:hover {
+      border-radius: 50%;
+    }
+
+    &:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 3px 10px rgb(0, 0, 0, 0.1);
+      border-radius: var(--roundness);
+
+      &:after {
+        background-color: rgba(0, 0, 0, 0);
+      }
+    }
+
+    .collection-item:active & {
+      transform: scale(0.97);
+      transition: transform 0.05s ease-out;
+    }
+  }
+
+  .collection-image {
+    position: static;
+  }
+
+  .collection-image img {
+    position: absolute;
+    top: 0;
+    left: 0;
+    height: 100%;
+    width: 100%;
+    object-fit: contain;
+    padding: var(--collection-tile-margin, 10%);
+  }
+
+  .collection-image img,
+  .collection-image svg {
+    border-radius: var(--roundness);
+  }
+
+  .collection-image--is-collection img,
+  .collection-image-fill-space--true img {
+    object-fit: cover;
+  }
+
+  .collection-image--placeholder {
+    opacity: 1;
+
+    & svg {
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+    }
+  }
+
+  .collection-image--circle {
+    border-radius: 50%;
+    overflow: hidden;
+
+    &:after {
+      border-radius: 50%;
+    }
+  }
+
+  .collection-image--circle,
+  .collection-image--square {
+    padding-bottom: 100%;
+  }
+
+  .collection-image--landscape {
+    padding-top: 75%;
+  }
+
+  .collection-image--portrait {
+    padding-top: 150%;
+  }
+
+  .collection-item__title {
+    display: block;
+    margin-top: 12px;
+    font-weight: var(--element-text-font-weight--heading);
+    padding: 0 7%;
+  }
+
+  .overlay--before::before {
+    content: '';
+    display: block;
+    position: absolute;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    z-index: var(--z-index-overlay, auto);
+  }
+{% endstylesheet %}
+
+{%- liquid
+  assign block = block | default: blank
+  assign collection = section.settings.collection | default: collection
+  assign collection_title = collection_title | default: blank
+  assign collection_grid_image = collection_grid_image | default: settings.collection_grid_image | default: 'collection'
+  assign collection_grid_shape = collection_grid_shape | default: settings.collection_grid_shape | default: 'square'
+  assign collection_grid_image_fill = collection_grid_image_fill | default: settings.collection_grid_image_fill, allow_false: true | default: true, allow_false: true
+  assign collection_grid_color = collection_grid_color | default: settings.collection_grid_color | default: 'grey'
+
+  assign collection_link = collection.url
+  if block.settings.title != blank
+    assign title_output = block.settings.title
+  else
+    if collection == blank
+      assign title_output = 'labels.example_collection' | t
+      assign collection_link = '/collections/all'
+    elsif collection_title != blank
+      assign title_output = collection_title
+    else
+      assign title_output = collection.title | escape
+    endif
+  endif
+-%}
+
+<div class="grid-item {{ grid_view }}" {{ block.shopify_attributes }}>
+  <a href="{{ collection_link }}" class="collection-item">
+    {%- liquid
+      if collection_grid_image == 'collection' and collection.image
+        assign collection_image = collection.image
+        assign using_collection_image = true
+      else
+        assign collection_image = collection.products.first.featured_media.preview_image
+        assign using_collection_image = false
+      endif
+    -%}
+
+    <div
+      class="
+        collection-image-wrap collection-image--{{ collection_grid_shape }}
+        collection-image-fill-space--{{ collection_grid_image_fill }}
+        collection-image-color--{{ collection_grid_color | default: 'undefined' }}
+        overlay
+        {% if collection_grid_color == 'white' %}overlay--before{% endif %}
+      "
+    >
+      {%- if collection == blank or collection_image == blank -%}
+        {%- capture placeholder -%}collection-{% cycle 1, 2, 3, 4, 5, 6 %}{%- endcapture -%}
+        <div class="collection-image collection-image--placeholder">
+          {%- render 'element.placeholder', name: placeholder -%}
+        </div>
+      {%- else -%}
+        <div class="collection-image{% if using_collection_image %} collection-image--is-collection{% endif %} image-wrap">
+          {%- render 'element.image',
+            img: collection_image,
+            sizes: sizes,
+            sizeVariable: sizeVariable,
+            fallback: fallback,
+            widths: '720, 900, 1080'
+          -%}
+        </div>
+      {%- endif -%}
+    </div>
+
+    <span class="collection-item__title">{{ title_output }}</span>
+  </a>
+</div>

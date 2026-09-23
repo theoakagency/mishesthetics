@@ -1,0 +1,548 @@
+{% doc %}
+  Copyright © 2025 Archetype Themes LP. All rights reserved.
+
+  Slide-out drawer panels for cart, navigation, and secondary content using native <dialog>.
+
+  @param {string} id - The id of the drawer (required)
+  @param {string} label - The label/title of the drawer for accessibility (required)
+  @param {string} [slot_header] - Content to render within the drawer header (overrides label)
+  @param {string} [slot] - Content to render within the drawer body
+  @param {string} [placement] - ('start'|'end'|'top'|'bottom') - The placement of the drawer, default: 'end'
+  @param {boolean} [light_dismiss] - Allow closing by clicking backdrop, default: true
+  @param {boolean} [without_header] - Hide the header and close button, default: false
+  @param {string} [style] - Inline styles to apply
+
+  @example
+  Open drawer with button:
+  {% render 'element.button', type: 'button', text: 'Open Cart', attributes: 'data-drawer="open cart-drawer"' %}
+  {% render 'overlay.drawer', id: 'cart-drawer', label: 'Shopping Cart', placement: 'end', slot: cart_content %}
+  @example
+  Close from inside drawer:
+  {% render 'element.button', type: 'button', text: 'Continue Shopping', attributes: 'data-drawer="close"' %}
+{% enddoc %}
+
+{% liquid
+  # Element defaults
+  assign id = id | default: 'overlay-drawer'
+  assign slot_header = slot_header | default: ''
+  assign slot = slot | default: ''
+  assign label = label | default: ''
+  assign placement = placement | default: 'end'
+  assign light_dismiss = light_dismiss | default: true, allow_false: true
+  assign without_header = without_header | default: false
+  assign style = style | default: ''
+
+  # Aria attributes
+  if label != blank
+    assign aria_labelledby = id | append: '-title'
+  else
+    # Provide fallback accessible name if no label specified
+    assign aria_label = 'Drawer'
+  endif
+%}
+
+<overlay-drawer
+  id="{{ id }}"
+  placement="{{ placement }}"
+  light-dismiss="{{ light_dismiss }}"
+  {% if style != blank %}
+    style="{{ style | escape }}"
+  {% endif %}
+>
+  <dialog
+    class="overlay-drawer__dialog overlay-drawer__dialog--{{ placement }}"
+    {% if aria_labelledby != blank %}
+      aria-labelledby="{{ aria_labelledby }}"
+    {% else %}
+      aria-label="{{ aria_label }}"
+    {% endif %}
+  >
+    {% unless without_header %}
+      <header class="overlay-drawer__header">
+        {% if slot_header != blank %}
+          <div id="{{ aria_labelledby }}" class="overlay-drawer__title">
+            {{ slot_header }}
+          </div>
+        {% elsif label != blank %}
+          {% render 'element.text',
+            as: 'h2',
+            id: aria_labelledby,
+            classlist: 'overlay-drawer__title',
+            variant: 'heading',
+            size: 'lg',
+            text: label
+          %}
+        {% endif %}
+
+        <div class="overlay-drawer__close">
+          {% render 'element.button',
+            type: 'button',
+            icon: 'close',
+            plain: true,
+            attributes: 'data-drawer="close" aria-label="Close"'
+          %}
+        </div>
+      </header>
+    {% endunless %}
+
+    <div class="overlay-drawer__body">
+      {{ slot }}
+    </div>
+  </dialog>
+</overlay-drawer>
+
+{% render 'style.primitive-tokens' %}
+{% render 'style.normalize' %}
+
+{% stylesheet %}
+  :root {
+    --overlay-drawer-size: 480px;
+    --overlay-drawer-spacing: var(--size-6);
+    --overlay-drawer-show-duration: 200ms;
+    --overlay-drawer-hide-duration: 200ms;
+    --overlay-drawer-backdrop-color: rgba(0, 0, 0, 0.5);
+    --overlay-drawer-background: var(--color-secondary, #fff);
+    --overlay-drawer-box-shadow: var(--shadow-l, 0 10px 40px rgba(0, 0, 0, 0.2));
+
+    --overlay-drawer-padding-inline: var(--size-6);
+    --overlay-drawer-padding-inline--xs: initial;
+    --overlay-drawer-padding-inline--sm: initial;
+    --overlay-drawer-padding-inline--md: initial;
+    --overlay-drawer-padding-inline--lg: initial;
+    --overlay-drawer-padding-inline--xl: initial;
+
+    --overlay-drawer-padding-block: var(--size-6);
+    --overlay-drawer-padding-block--xs: initial;
+    --overlay-drawer-padding-block--sm: initial;
+    --overlay-drawer-padding-block--md: initial;
+    --overlay-drawer-padding-block--lg: initial;
+    --overlay-drawer-padding-block--xl: initial;
+  }
+
+  /* Scroll lock when drawer is open */
+  html:has(overlay-drawer dialog[open]) {
+    scrollbar-gutter: stable;
+  }
+  html:has(overlay-drawer dialog[open]),
+  body:has(overlay-drawer dialog[open]) {
+    overflow: hidden;
+  }
+
+  overlay-drawer {
+    --_padding-inline--xs: var(--overlay-drawer-padding-inline--xs, var(--overlay-drawer-padding-inline));
+    --_padding-inline--sm: var(--overlay-drawer-padding-inline--sm, var(--_padding-inline--xs));
+    --_padding-inline--md: var(--overlay-drawer-padding-inline--md, var(--_padding-inline--sm));
+    --_padding-inline--lg: var(--overlay-drawer-padding-inline--lg, var(--_padding-inline--md));
+    --_padding-inline--xl: var(--overlay-drawer-padding-inline--xl, var(--_padding-inline--lg));
+    --_padding-inline: var(--_padding-inline--xs);
+
+    --_padding-block--xs: var(--overlay-drawer-padding-block--xs, var(--overlay-drawer-padding-block));
+    --_padding-block--sm: var(--overlay-drawer-padding-block--sm, var(--_padding-block--xs));
+    --_padding-block--md: var(--overlay-drawer-padding-block--md, var(--_padding-block--sm));
+    --_padding-block--lg: var(--overlay-drawer-padding-block--lg, var(--_padding-block--md));
+    --_padding-block--xl: var(--overlay-drawer-padding-block--xl, var(--_padding-block--lg));
+    --_padding-block: var(--_padding-block--xs);
+
+    display: contents;
+  }
+
+  .overlay-drawer__dialog {
+    display: flex;
+    flex-direction: column;
+    gap: var(--overlay-drawer-spacing);
+    position: fixed;
+    max-width: 100%;
+    max-height: 100%;
+    overflow: auto;
+    background-color: var(--overlay-drawer-background);
+    border: none;
+    margin: 0;
+    padding: 0;
+    box-shadow: var(--overlay-drawer-box-shadow);
+    padding: var(--_padding-block) var(--_padding-inline);
+
+    &:not([open]) {
+      display: none;
+    }
+
+    &:focus {
+      outline: none;
+    }
+
+    &::backdrop {
+      background-color: transparent;
+      transition: background-color var(--overlay-drawer-show-duration) ease;
+    }
+
+    &[open]::backdrop {
+      background-color: var(--overlay-drawer-backdrop-color);
+    }
+
+    &.overlay-drawer--show::backdrop {
+      animation: show-backdrop var(--overlay-drawer-show-duration) ease;
+    }
+
+    &.overlay-drawer--hide::backdrop {
+      animation: show-backdrop var(--overlay-drawer-hide-duration) ease reverse;
+    }
+
+    &.overlay-drawer--pulse {
+      animation: pulse-drawer 250ms ease;
+    }
+  }
+
+  /* Placement: start */
+  .overlay-drawer__dialog--start {
+    top: 0;
+    inset-inline-start: 0;
+    bottom: auto;
+    inset-inline-end: auto;
+    width: var(--overlay-drawer-size);
+    height: 100%;
+
+    &.overlay-drawer--show {
+      animation: show-drawer-from-start var(--overlay-drawer-show-duration) ease;
+    }
+
+    &.overlay-drawer--hide {
+      animation: show-drawer-from-start var(--overlay-drawer-hide-duration) ease reverse;
+    }
+
+    &:dir(rtl).overlay-drawer--show {
+      animation-name: show-drawer-from-end;
+    }
+
+    &:dir(rtl).overlay-drawer--hide {
+      animation-name: show-drawer-from-end;
+    }
+  }
+
+  /* Placement: end */
+  .overlay-drawer__dialog--end {
+    top: 0;
+    inset-inline-end: 0;
+    bottom: auto;
+    inset-inline-start: auto;
+    width: var(--overlay-drawer-size);
+    height: 100%;
+
+    &.overlay-drawer--show {
+      animation: show-drawer-from-end var(--overlay-drawer-show-duration) ease;
+    }
+
+    &.overlay-drawer--hide {
+      animation: show-drawer-from-end var(--overlay-drawer-hide-duration) ease reverse;
+    }
+
+    &:dir(rtl).overlay-drawer--show {
+      animation-name: show-drawer-from-start;
+    }
+
+    &:dir(rtl).overlay-drawer--hide {
+      animation-name: show-drawer-from-start;
+    }
+  }
+
+  /* Placement: top */
+  .overlay-drawer__dialog--top {
+    top: 0;
+    inset-inline-end: auto;
+    bottom: auto;
+    inset-inline-start: 0;
+    width: 100%;
+    height: var(--overlay-drawer-size);
+
+    &.overlay-drawer--show {
+      animation: show-drawer-from-top var(--overlay-drawer-show-duration) ease;
+    }
+
+    &.overlay-drawer--hide {
+      animation: show-drawer-from-top var(--overlay-drawer-hide-duration) ease reverse;
+    }
+  }
+
+  /* Placement: bottom */
+  .overlay-drawer__dialog--bottom {
+    top: auto;
+    inset-inline-end: auto;
+    bottom: 0;
+    inset-inline-start: 0;
+    width: 100%;
+    height: var(--overlay-drawer-size);
+
+    &.overlay-drawer--show {
+      animation: show-drawer-from-bottom var(--overlay-drawer-show-duration) ease;
+    }
+
+    &.overlay-drawer--hide {
+      animation: show-drawer-from-bottom var(--overlay-drawer-hide-duration) ease reverse;
+    }
+  }
+
+  .overlay-drawer__header {
+    display: flex;
+    flex-wrap: nowrap;
+    align-items: center;
+    justify-content: space-between;
+
+    &:has(.overlay-drawer__close:only-child) {
+      justify-content: flex-end;
+    }
+  }
+
+  .overlay-drawer__title {
+    flex: 1 1 auto;
+    margin: 0;
+  }
+
+  .overlay-drawer__close {
+    flex-shrink: 0;
+    line-height: 0;
+  }
+
+  .overlay-drawer__body {
+    flex: 1 1 auto;
+    overflow: auto;
+    -webkit-overflow-scrolling: touch;
+
+    &:focus {
+      outline: none;
+    }
+
+    &:focus-visible {
+      outline: var(--focus-ring, 2px solid var(--color-focus, #4a9afc));
+      outline-offset: var(--focus-ring-offset, 2px);
+    }
+  }
+
+  /* Keyframe animations */
+  @keyframes pulse-drawer {
+    0% {
+      scale: 1;
+    }
+    50% {
+      scale: 1.01;
+    }
+    100% {
+      scale: 1;
+    }
+  }
+
+  @keyframes show-drawer-from-top {
+    from {
+      opacity: 0;
+      translate: 0 -100%;
+    }
+    to {
+      opacity: 1;
+      translate: 0 0;
+    }
+  }
+
+  @keyframes show-drawer-from-end {
+    from {
+      opacity: 0;
+      translate: 100%;
+    }
+    to {
+      opacity: 1;
+      translate: 0 0;
+    }
+  }
+
+  @keyframes show-drawer-from-bottom {
+    from {
+      opacity: 0;
+      translate: 0 100%;
+    }
+    to {
+      opacity: 1;
+      translate: 0 0;
+    }
+  }
+
+  @keyframes show-drawer-from-start {
+    from {
+      opacity: 0;
+      translate: -100% 0;
+    }
+    to {
+      opacity: 1;
+      translate: 0 0;
+    }
+  }
+
+  @keyframes show-backdrop {
+    from {
+      opacity: 0;
+    }
+    to {
+      opacity: 1;
+    }
+  }
+
+  @media (forced-colors: active) {
+    .overlay-drawer__dialog {
+      border: solid 1px white;
+    }
+  }
+{% endstylesheet %}
+
+{% javascript %}
+  function animateWithClass(element, className) {
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+      return Promise.resolve()
+    }
+
+    return new Promise((resolve) => {
+      function handleAnimationEnd(event) {
+        if (event.target === element) {
+          element.removeEventListener('animationend', handleAnimationEnd)
+          element.classList.remove(className)
+          resolve()
+        }
+      }
+      element.addEventListener('animationend', handleAnimationEnd)
+      element.classList.add(className)
+    })
+  }
+
+  class OverlayDrawer extends HTMLElement {
+    #dialog = null
+    #originalTrigger = null
+    #abortController = null
+
+    connectedCallback() {
+      this.#dialog = this.querySelector('dialog')
+      if (!this.#dialog) return
+
+      this.#abortController = new AbortController()
+      const { signal } = this.#abortController
+
+      this.#dialog.addEventListener('cancel', (e) => this.#handleCancel(e), { signal })
+      this.#dialog.addEventListener('click', (e) => this.#handleClick(e), { signal })
+      this.#dialog.addEventListener('pointerdown', (e) => this.#handlePointerDown(e), { signal })
+    }
+
+    disconnectedCallback() {
+      this.#abortController?.abort()
+    }
+
+    get lightDismiss() {
+      return this.getAttribute('light-dismiss') !== 'false'
+    }
+
+    async show() {
+      if (this.#dialog.open) return
+
+      const showEvent = new CustomEvent('drawer:show', {
+        bubbles: true,
+        cancelable: true
+      })
+      this.dispatchEvent(showEvent)
+      if (showEvent.defaultPrevented) return
+
+      this.#originalTrigger = document.activeElement
+      this.#dialog.showModal()
+
+      await animateWithClass(this.#dialog, 'overlay-drawer--show')
+
+      requestAnimationFrame(() => {
+        // Only set focus if nothing inside the dialog is already focused
+        if (!this.#dialog.contains(document.activeElement)) {
+          const elementToFocus = this.#dialog.querySelector('[autofocus]')
+          elementToFocus?.focus() ?? this.#dialog.focus()
+        }
+      })
+
+      this.dispatchEvent(new CustomEvent('drawer:after-show', { bubbles: true }))
+    }
+
+    async hide(source = this) {
+      if (!this.#dialog.open) return
+
+      const hideEvent = new CustomEvent('drawer:hide', {
+        bubbles: true,
+        cancelable: true,
+        detail: { source }
+      })
+      this.dispatchEvent(hideEvent)
+
+      if (hideEvent.defaultPrevented) {
+        await animateWithClass(this.#dialog, 'overlay-drawer--pulse')
+        return
+      }
+
+      await animateWithClass(this.#dialog, 'overlay-drawer--hide')
+      this.#dialog.close()
+
+      if (this.#originalTrigger?.focus) {
+        setTimeout(() => {
+          try {
+            this.#originalTrigger.focus({ preventScroll: true })
+          } catch {
+            this.#originalTrigger.focus()
+          }
+        }, 0)
+      }
+
+      this.dispatchEvent(new CustomEvent('drawer:after-hide', { bubbles: true }))
+    }
+
+    #handleCancel(event) {
+      event.preventDefault()
+      this.hide(this)
+    }
+
+    #handleClick(event) {
+      const closeButton = event.target.closest('[data-drawer="close"]')
+      if (closeButton) {
+        event.stopPropagation()
+        this.hide(closeButton)
+      }
+    }
+
+    async #handlePointerDown(event) {
+      if (event.target !== this.#dialog) return
+
+      const rect = this.#dialog.getBoundingClientRect()
+      const isClickInsideDialog =
+        event.clientX >= rect.left &&
+        event.clientX <= rect.right &&
+        event.clientY >= rect.top &&
+        event.clientY <= rect.bottom
+
+      if (!isClickInsideDialog) {
+        if (this.lightDismiss) {
+          this.hide(this)
+        } else {
+          await animateWithClass(this.#dialog, 'overlay-drawer--pulse')
+        }
+      }
+    }
+  }
+
+  customElements.define('overlay-drawer', OverlayDrawer)
+
+  // Global trigger handler
+  document.addEventListener('click', (event) => {
+    const trigger = event.target.closest('[data-drawer]')
+    if (!trigger) return
+
+    const attr = trigger.getAttribute('data-drawer')
+    if (!attr) return
+
+    const [command, id] = attr.trim().split(/\s+/)
+
+    if (command === 'open' && id) {
+      const drawer = document.getElementById(id)
+      if (drawer?.tagName === 'OVERLAY-DRAWER') {
+        event.preventDefault()
+        drawer.show()
+      }
+    }
+  })
+
+  // Safari fix for backdrop clicks
+  document.body.addEventListener('pointerdown', () => {})
+{% endjavascript %}

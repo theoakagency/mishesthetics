@@ -1,0 +1,188 @@
+{% doc %}
+  Copyright © 2025 Archetype Themes LP. All rights reserved.
+
+  Navigation trails showing the user's current location within the site.
+
+  @param {boolean} [show_breadcrumbs] - Whether to show the breadcrumbs
+  @param {boolean} [show_current_page] - Whether to show the current page title as the last breadcrumb item
+  @param {boolean} [show_breadcrumbs_collection_link] - Whether to show the collection link in the breadcrumbs
+  @param {string} [classlist] - Class list
+  @param {string} [style] - Style attribute
+
+  @example
+  {% render 'element.breadcrumbs', show_breadcrumbs_collection_link: false, show_current_page: true %}
+{% enddoc %}
+
+{%- liquid
+  assign show_breadcrumbs = show_breadcrumbs | default: settings.show_breadcrumbs, allow_false: true | default: true, allow_false: true
+  assign show_collection_link = show_breadcrumbs_collection_link | default: settings.show_breadcrumbs_collection_link, allow_false: true | default: true, allow_false: true
+  assign show_current_page = show_current_page | default: false
+  assign classlist = classlist | default: '' | append: ' element-breadcrumbs' | strip
+  assign style = style | default: ''
+-%}
+
+{%- if show_breadcrumbs -%}
+  {%- unless template.name == 'index' or template.name == 'cart' -%}
+    <nav aria-label="breadcrumbs">
+      <ol
+        class="
+          {{ classlist }}
+          {% unless show_current_page %} element-breadcrumbs--no-current-page{% endunless %}
+        "
+
+        {% if style != blank %}
+          {{- style -}}
+        {% endif %}
+      >
+        {%- # Home link (always shown) -%}
+        <li>
+          <a
+            href="{{ routes.root_url }}"
+            title="{%- render 'utility.translate', key: 'actions.back_to_homepage', fallback: 'Back to the frontpage' -%}"
+          >
+            {%- render 'utility.translate', key: 'labels.home', fallback: 'Home' -%}
+          </a>
+        </li>
+
+        {%- case template.name -%}
+          {%- when 'product' -%}
+            {%- if collection -%}
+              {%- if show_collection_link -%}
+                <li>
+                  <a href="{{ routes.collections_url }}">
+                    {%- render 'utility.translate', key: 'labels.collections', fallback: 'Collections' -%}
+                  </a>
+                </li>
+              {%- endif -%}
+
+              {%- if collection.handle -%}
+                <li>
+                  <a href="{{ routes.collections_url }}/{{ collection.handle }}">{{ collection.title }}</a>
+                </li>
+              {%- endif -%}
+            {%- endif -%}
+
+            {%- if show_current_page -%}
+              <li>{{ product.title }}</li>
+            {%- endif -%}
+
+          {%- when 'collection' -%}
+            {%- if collection.handle -%}
+              {%- if show_collection_link -%}
+                <li>
+                  <a href="{{ routes.collections_url }}">
+                    {%- render 'utility.translate', key: 'labels.collections', fallback: 'Collections' -%}
+                  </a>
+                </li>
+              {%- endif -%}
+
+              {%- if current_tags == blank -%}
+                {%- if show_current_page -%}
+                  <li>{{ collection.title }}</li>
+                {%- endif -%}
+              {%- else -%}
+                <li>
+                  <a href="{{ routes.collections_url }}/{{ collection.handle }}">{{ collection.title }}</a>
+                </li>
+
+                {%- for tag in current_tags -%}
+                  {%- if tag contains '_' -%}
+                    {%- assign tag_starts_with = tag | slice: 0 -%}
+                    {%- if tag_starts_with == '_' -%}
+                      {%- if tag_count -%}{%- assign tag_count = tag_count | minus: 1 | at_least: 0 -%}{%- endif -%}
+                      {%- continue -%}
+                    {%- endif -%}
+                  {%- endif -%}
+
+                  {%- assign tag_name = tag | strip -%}
+                  {%- assign tag_text = tag_name | capitalize -%}
+                  {%- if show_current_page or forloop.first == false or forloop.last == false -%}
+                    <li>{{ tag_text }}</li>
+                  {%- endif -%}
+                {%- endfor -%}
+              {%- endif -%}
+            {%- endif -%}
+
+          {%- when 'blog' -%}
+            {%- if current_tags -%}
+              <li>
+                <a href="{{ blog.url }}">{{ blog.title }}</a>
+              </li>
+              {%- if show_current_page -%}
+                <li>{{ current_tags | join: ' + ' }}</li>
+              {%- endif -%}
+            {%- else -%}
+              {%- if show_current_page -%}
+                <li>{{ blog.title }}</li>
+              {%- endif -%}
+            {%- endif -%}
+
+          {%- when 'article' -%}
+            <li>
+              <a href="{{ blog.url }}">{{ blog.title }}</a>
+            </li>
+            {%- if show_current_page -%}
+              <li>{{ article.title }}</li>
+            {%- endif -%}
+
+          {%- when 'page' -%}
+            <li>{{ page.title }}</li>
+
+          {%- when 'search' -%}
+            {%- # No breadcrumbs for search page -%}
+
+          {%- else -%}
+            <li>{{ page_title }}</li>
+        {%- endcase -%}
+      </ol>
+    </nav>
+  {%- endunless -%}
+{%- endif -%}
+
+{% render 'style.primitive-tokens' %}
+{% render 'style.normalize' %}
+
+{% stylesheet %}
+  .element-breadcrumbs {
+    /* Layout & Typography */
+    --_font-family: var(
+      --element-breadcrumbs-font-family,
+      var(--element-text-font-family--body),
+      var(--element-text-font-family-fallback--body)
+    );
+    --_font-size: var(--element-breadcrumbs-font-size, var(--element-text-font-size--body-sm));
+    --_letter-spacing: var(--element-breadcrumbs-letter-spacing, var(--element-text-letter-spacing--body-sm));
+    --_line-height: var(--element-breadcrumbs-line-height, var(--element-text-line-height--body-sm));
+    --_divider-spacing: var(--element-breadcrumbs-divider-spacing, var(--size-1-5));
+    --_divider-character: var(--element-breadcrumbs-divider-character, '/');
+
+    /* Colors */
+    --_color-primary: var(--color-primary);
+    --_divider-opacity: 30%;
+
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    list-style: none;
+    margin: 0;
+    color: var(--_color-primary);
+    font-family: var(--_font-family);
+    font-size: var(--_font-size);
+    letter-spacing: var(--_letter-spacing);
+    line-height: var(--_line-height);
+  }
+
+  .element-breadcrumbs li {
+    display: flex;
+    align-items: center;
+  }
+
+  /* Add dividers after each breadcrumb item except the last one,
+    and after the last item when current page is not shown */
+  .element-breadcrumbs li:not(:last-child)::after,
+  .element-breadcrumbs--no-current-page li:last-child::after {
+    content: var(--_divider-character);
+    color: color-mix(in srgb, var(--_color-primary) var(--_divider-opacity), transparent);
+    margin: 0 var(--_divider-spacing);
+  }
+{% endstylesheet %}

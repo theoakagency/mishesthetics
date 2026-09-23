@@ -1,0 +1,146 @@
+{% doc %}
+  Copyright © 2025 Archetype Themes LP. All rights reserved.
+
+  Dynamic product price display with sale prices and savings calculations.
+
+  @param {object} [block] - Block object
+  @param {object} [product] - Product object
+  @param {boolean} [use_variant] - Use first available variant instead of product price, default: false
+
+  @example
+  {% render 'block.product-price', product: product, use_variant: true %}
+{% enddoc %}
+
+{% stylesheet %}
+  .block-price__regular {
+    [data-on-sale] & {
+      display: none;
+    }
+  }
+
+  .block-price__save {
+    display: none;
+
+    [data-on-sale] & {
+      display: block;
+    }
+  }
+
+  .block-price__sale {
+    display: none;
+
+    [data-on-sale] & {
+      display: flex;
+      gap: 10px;
+    }
+  }
+
+  .block-price__unit-price {
+    display: none;
+
+    [data-unit-price] & {
+      display: block;
+    }
+  }
+{% endstylesheet %}
+
+{%- liquid
+  assign product = section.settings.product | default: product
+  assign use_variant = use_variant | default: true, allow_false: true
+  assign target = product
+
+  if use_variant
+    assign target = product.selected_or_first_available_variant
+  endif
+
+  assign compare_at_price = target.compare_at_price
+  assign price = target.price | default: 1999
+  assign available = target.available | default: false
+  assign product_save_amount = settings.product_save_amount | default: false
+  assign product_save_type = settings.product_save_type | default: 'dollar'
+  assign saved_amount = product.selected_or_first_available_variant.compare_at_price | minus: product.selected_or_first_available_variant.price | times: 100.0 | divided_by: product.selected_or_first_available_variant.compare_at_price | round | append: '%'
+
+  if product_save_type == 'dollar'
+    assign saved_amount = product.selected_or_first_available_variant.compare_at_price | minus: product.selected_or_first_available_variant.price | money_without_trailing_zeros
+  endif
+-%}
+
+{%- capture price_attributes -%}
+  {% unless available %}
+    data-sold-out=""
+  {% endunless %}
+  {% if compare_at_price > price %}
+    data-on-sale=""
+  {% endif %}
+  {% if product.selected_or_first_available_variant.unit_price_measurement %}
+    data-unit-price=""
+  {% endif %}
+{%- endcapture -%}
+
+<block-price
+  class="block-price"
+  data-section-id="{{ section.id }}"
+  data-product-id="{{ product.id }}"
+  {{ price_attributes }}
+  {{ block.shopify_attributes }}
+>
+  {%- render 'element.text', locale: 'labels.price', text: 'Price', classlist: 'label variant__label' -%}
+
+  {%- capture price -%}
+    <div class="block-price__regular">
+      {%- render 'element.text', locale: 'labels.regular_price', text: 'Regular price', visually_hidden: true -%}
+      {%- render 'element.price', price: price, variant: 'body-lg', style: '--element-text-font-size--body-lg: var(--size-5-5);' -%}
+    </div>
+
+    <div class="block-price__sale">
+      {%- unless product.price_varies == false and product.compare_at_price_varies %}
+        {%- render 'element.text', locale: 'labels.regular_price', text: 'Regular price', visually_hidden: true -%}
+        {%- render 'element.price', price: compare_at_price, variant: 'body-lg', strikethrough: true, style: '--element-text-font-size--body-lg: var(--size-5-5);' -%}
+      {%- endunless -%}
+
+      {%- render 'element.text', locale: 'labels.sale_price', text: 'Sale price', visually_hidden: true -%}
+      {%- render 'element.price', price: price, variant: 'body-lg', style: '--element-text-font-size--body-lg: var(--size-5-5);' -%}
+    </div>
+
+    {%- if product_save_amount -%}
+      <span class="block-price__save">
+        {% assign info_save_amount = 'info.save_amount' | t: saved_amount: saved_amount %}
+        {%- capture fallback_info_save_amount -%}
+          Save {{ saved_amount }}
+        {%- endcapture -%}
+        {%- capture save_amount_text -%}
+          {%- render 'utility.translate', t: info_save_amount, fallback: fallback_info_save_amount -%}
+        {%- endcapture -%}
+
+        {%- render 'element.text',
+          as: 'span',
+          text: save_amount_text,
+          style: 'color: var(--color-text-savings);'
+        -%}
+      </span>
+    {%- endif -%}
+
+    <div class="block-price__unit-price product__unit-price">
+      {%- render 'element.price', price: product.selected_or_first_available_variant.unit_price -%}
+      <span>/</span>
+      <span>
+        {%- if product.selected_or_first_available_variant.unit_price_measurement.reference_value != 1 -%}
+          {{- product.selected_or_first_available_variant.unit_price_measurement.reference_value -}}
+        {%- endif -%}
+        {{ product.selected_or_first_available_variant.unit_price_measurement.reference_unit }}
+      </span>
+    </div>
+  {%- endcapture -%}
+
+  {%- render 'layout.stack',
+    slot: price,
+    horizontal: true,
+    align: 'baseline',
+    attributes: price_attributes,
+    gap: 'xs'
+  -%}
+</block-price>
+
+<script type="module">
+  import 'block.product-price'
+</script>

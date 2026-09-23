@@ -1,0 +1,100 @@
+{% doc %}
+  Copyright © 2025 Archetype Themes LP. All rights reserved.
+
+  Blog sidebar with recent posts, tags, and navigation.
+
+  @param {object} [blog] - Blog object
+  @param {object} [article] - Current article
+
+  @example
+  {% render 'section.blog-sidebar', blog: blog %}
+{% enddoc %}
+
+{%- liquid
+  assign blog = section.settings.blog | default: blog
+  assign article = section.settings.article | default: article
+-%}
+
+{%- if section.blocks.size == 0 -%}
+  <style>
+    .blog-layout__sidebar {
+      display: none;
+    }
+  </style>
+{%- endif -%}
+
+{%- for block in section.blocks -%}
+  {%- case block.type -%}
+    {%- when 'article' -%}
+      <div class="theme-block" {{ block.shopify_attributes }}>
+        {%- if block.settings.title != blank -%}
+          <h4>{{ block.settings.title }}</h4>
+        {%- endif -%}
+
+        {%- render 'list.article-card',
+          article: block.settings.article,
+          show_tags: block.settings.blog_show_tags,
+          show_date: block.settings.blog_show_date,
+          show_comments: block.settings.blog_show_comments,
+          show_author: block.settings.blog_show_author,
+          show_excerpt: block.settings.blog_show_excerpt,
+          image_size: block.settings.blog_image_size,
+          style: 'compact'
+        -%}
+      </div>
+    {%- when 'tags' -%}
+      {%- if blog.all_tags.size > 0 -%}
+        <div class="theme-block" {{ block.shopify_attributes }}>
+          <h4>
+            {% render 'utility.translate', key: 'actions.explore_more', fallback: 'Explore more' %}
+          </h4>
+
+          {%- capture tag_group -%}
+            {%- for tag in blog.all_tags -%}
+              <li>
+                {%- assign tag_link = blog.url | append: '/tagged/' | append: tag.handle -%}
+                {%- render 'element.chip', label: tag, href: tag_link -%}
+              </li>
+            {%- endfor -%}
+          {%- endcapture -%}
+
+          {% render 'layout.stack',
+            as: 'ul',
+            classlist: 'tag-group no-bullets',
+            slot: tag_group,
+            horizontal: true,
+            gap: 'sm'
+          %}
+        </div>
+      {%- endif -%}
+    {%- when 'product' -%}
+      {%- unless block.settings.featured_product.empty? -%}
+        <div class="theme-block" {{ block.shopify_attributes }}>
+          <h4>
+            {% render 'utility.translate', key: 'labels.featured_product', fallback: 'Featured product' %}
+          </h4>
+
+          {%- render 'list.product-card',
+            product: block.settings.featured_product,
+            sizeVariable: '40vw',
+            no_actions: true,
+            disabled_high_variants: false
+          -%}
+        </div>
+      {%- endunless -%}
+    {%- when 'share' -%}
+      {%- if article -%}
+        <div class="theme-block" {{ block.shopify_attributes }}>
+          <h4>
+            {% render 'utility.translate', key: 'actions.share_this', fallback: 'Share this' %}
+          </h4>
+
+          {%- render 'social.sharing',
+            share_title: article.title,
+            share_permalink: article.url,
+            share_image: article.image
+          -%}
+        </div>
+      {%- endif -%}
+  {%- endcase -%}
+{%- endfor -%}

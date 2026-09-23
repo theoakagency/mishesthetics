@@ -1,0 +1,40 @@
+{% doc %}
+  Copyright © 2025 Archetype Themes LP. All rights reserved.
+
+  Featured video section with support for native and external videos.
+
+  @param {string} [title] - Section heading
+  @param {object} [video] - Native video file
+  @param {string} [video_url] - External video URL (YouTube/Vimeo)
+  @param {boolean} [divider] - Show divider above section
+
+  @example
+  {% render 'section.featured-video', video_url: 'https://youtu.be/example' %}
+{% enddoc %}
+
+{%- liquid
+  assign title = title | default: section.settings.title
+  assign video = video | default: section.settings.video
+  assign video_url = video_url | default: section.settings.video_url
+  assign divider = divider | default: section.settings.divider, allow_false: true | default: false, allow_false: true
+-%}
+
+{%- if divider -%}<div class="section--divider">{%- endif -%}
+
+<div class="page-width">
+  {%- if title != blank -%}
+    <div class="section-header">
+      <h2>{{ title | escape }}</h2>
+    </div>
+  {%- endif -%}
+
+  <div>
+    {%- if video != blank -%}
+      {% render 'element.video', video: video %}
+    {%- else -%}
+      {% render 'element.video', external_video: video_url %}
+    {%- endif -%}
+  </div>
+</div>
+
+{%- if divider -%}</div>{%- endif -%}

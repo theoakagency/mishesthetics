@@ -1,0 +1,52 @@
+{% doc %}
+  Copyright © 2025 Archetype Themes LP. All rights reserved.
+
+  AJAX cart markup for dynamic cart updates without page reload.
+
+  @example
+  {% render 'section.cart-ajax' %}
+{% enddoc %}
+<div
+  class="cart__items"
+  data-count="{{ cart.item_count }}"
+>
+  {% for item in cart.items %}
+    {%- render 'cart.line-item',
+      item: item,
+      section: section,
+      sizes: '100px',
+      routes: routes,
+      shop: shop,
+      superscript_decimals: settings.superscript_decimals
+    -%}
+  {% endfor %}
+</div>
+
+<div class="cart__discounts text-right{% if cart.cart_level_discount_applications == blank %} hide{% endif %}">
+  <div>
+    {% for cart_discount in cart.cart_level_discount_applications %}
+      {%- assign savings = cart_discount.total_allocated_amount | money -%}
+      <div class="cart__discount">
+        {% assign info_you_save_amount = 'info.you_save_amount' | t: saved_amount: savings %}
+        {%- capture fallback_info_you_save_amount -%}
+          You save {{ savings }}
+        {%- endcapture -%}
+        {% render 'utility.translate', t: info_you_save_amount, fallback: fallback_info_you_save_amount %}
+        ({{ cart_discount.title }})
+      </div>
+    {% endfor %}
+  </div>
+</div>
+
+{%- render 'element.price', classlist: 'cart__subtotal', price: cart.total_price -%}
+
+<span class="cart-link__bubble{% if cart.item_count > 0 %} cart-link__bubble--visible{% endif %}">
+  <span class="cart-link__bubble-num">{{ cart.item_count }}</span>
+</span>
+
+<div class="cart__header">
+  <h2 class="cart__title-text">
+    {% render 'utility.translate', key: 'labels.cart', fallback: 'Cart' %}
+    <span>({{ cart.item_count }})</span>
+  </h2>
+</div>

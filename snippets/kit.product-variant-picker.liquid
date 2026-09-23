@@ -1,0 +1,137 @@
+{% doc %}
+  Product variant picker built. Renders one fieldset per product option — swatch/button radios or a dropdown — from product.options_with_values.
+
+  @param {object} product - Product object
+  @param {string} [picker_type] - 'button' | 'dropdown'. Default: 'button'
+  @param {boolean} [show_labels] - Show option name labels. Default: true
+  @param {boolean} [enable_swatches] - Render values with a swatch as swatches (only for 'button' picker_type). Default: false
+  @param {boolean} [enable_select_unavailable] - Keep sold-out option values selectable (marked unavailable) instead of disabling them. Default: true
+  @param {boolean} [update_url] - Replace the browser URL with ?variant= on selection. Default: true
+  @param {string} [legend_extra] - Markup slotted into one option's legend, after the name — a size-chart trigger, a help link. Not escaped. Requires `legend_extra_option` and `show_labels`.
+  @param {string} [legend_extra_option] - Name of the option `legend_extra` attaches to, matched case-insensitively (e.g. 'Size').
+  @param {string} [legacy_swatch_triggers] - Comma-separated keywords naming the options that carry legacy swatches (e.g. 'color,colour,couleur'), matched case-insensitively against any part of the option name. Requires `legacy_swatch_source`.
+  @param {string} [legacy_swatch_source] - Where legacy swatches live for values that have no `value.swatch`: 'files' (Shopify Files) or 'assets' (theme assets), keyed on `{value-handle}.png`. Requires `legacy_swatch_triggers` and `enable_swatches`, and only applies to the 'button' picker_type.
+
+  @example
+  {% render 'kit.product-variant-picker', product: product, picker_type: 'button' %}
+{% enddoc %}
+
+{%- liquid
+  assign picker_type = picker_type | default: 'button'
+  assign show_labels = show_labels | default: true, allow_false: true
+  assign enable_select_unavailable = enable_select_unavailable | default: true, allow_false: true
+  assign update_url = update_url | default: true, allow_false: true
+
+  assign stack_gap = 'lg'
+  assign stack_direction = 'vertical'
+  if picker_type == 'dropdown'
+    assign stack_gap = 'md'
+    assign stack_direction = 'horizontal'
+  endif
+
+  assign legend_extra_option_match = legend_extra_option | downcase
+  assign legacy_swatch_trigger_list = legacy_swatch_triggers | downcase | split: ','
+-%}
+
+{%- unless product.has_only_default_variant -%}
+  {%- capture picker_options -%}
+    {%- for option in product.options_with_values -%}
+      {%- liquid
+        assign option_name_match = option.name | downcase
+
+        assign option_legend = nil
+        if show_labels
+          assign option_legend = option.name
+        endif
+
+        # Legacy swatch options are named by the caller, not detected from value.swatch
+        assign option_legacy_swatch_source = nil
+        if picker_type != 'dropdown' and enable_swatches and legacy_swatch_source != blank
+          for legacy_swatch_trigger in legacy_swatch_trigger_list
+            assign legacy_swatch_trigger_match = legacy_swatch_trigger | strip
+            if legacy_swatch_trigger_match != blank and option_name_match contains legacy_swatch_trigger_match
+              assign option_legacy_swatch_source = legacy_swatch_source
+              break
+            endif
+          endfor
+        endif
+
+        # Show the selected value only for swatches
+        assign option_selection = nil
+        if picker_type != 'dropdown' and enable_swatches
+          assign option_swatches = option.values | map: 'swatch' | compact
+          if option_swatches.size > 0 or option_legacy_swatch_source != blank
+            assign option_selection = option.selected_value
+          endif
+        endif
+
+        # legend_extra attaches to a single named option, not every fieldset
+        assign option_legend_extra = nil
+        if legend_extra != blank and legend_extra_option_match != blank
+          if option_name_match == legend_extra_option_match
+            assign option_legend_extra = legend_extra
+          endif
+        endif
+      -%}
+
+      {%- capture option_content -%}
+        {%- if picker_type == 'dropdown' -%}
+          {%- render 'kit.product-variant-picker.dropdown',
+            option: option,
+            enable_select_unavailable: enable_select_unavailable
+          -%}
+        {%- else -%}
+          {%- render 'kit.product-variant-picker.button',
+            option: option,
+            enable_swatches: enable_swatches,
+            enable_select_unavailable: enable_select_unavailable,
+            legacy_swatch_source: option_legacy_swatch_source
+          -%}
+        {%- endif -%}
+      {%- endcapture -%}
+
+      {%- render 'kit.fieldset',
+        legend: option_legend,
+        legend_extra: option_legend_extra,
+        selection_name: option_selection,
+        content: option_content
+      -%}
+    {%- endfor -%}
+  {%- endcapture -%}
+
+  {%- capture picker_stack -%}
+    {%- render 'kit.stack', gap: stack_gap, direction: stack_direction, content: picker_options, wrap: true -%}
+  {%- endcapture -%}
+
+  <kit-variant-picker
+    class="kit-product-variant-picker"
+    data-section-id="{{ section.id }}"
+    data-product-id="{{ product.id }}"
+    data-product-title="{{ product.title | escape }}"
+    data-product-handle="{{ product.handle }}"
+    data-product-url="{{ product.url }}"
+    {% if update_url %}
+      data-update-url
+    {% endif %}
+  >
+    {{ picker_stack }}
+    <script type="application/json" data-kit-selected-variant>
+      {{- product.selected_or_first_available_variant | json -}}
+    </script>
+  </kit-variant-picker>
+
+  <script type="module">
+    import 'kit.product-variant-picker'
+  </script>
+{%- endunless -%}
+
+{% stylesheet %}
+  .kit-product-variant-picker {
+    display: block;
+  }
+
+  .kit-picker--loading {
+    opacity: var(--kit-opacity-disabled, 0.5);
+    pointer-events: none;
+  }
+{% endstylesheet %}

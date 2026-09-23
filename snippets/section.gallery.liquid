@@ -1,0 +1,314 @@
+{% doc %}
+  Copyright © 2025 Archetype Themes LP. All rights reserved.
+
+  Renders an image gallery grid with lightbox functionality.
+
+  @param {string} [heading] - Section heading @param {string} [heading_size] - ('sm'|'md'|'lg'|'xl') Heading size
+  @param {string} [text_alignment] - ('left'|'center'|'right') Text alignment
+  @param {number} [images_per_row] - Images per row (2-5)
+  @param {boolean} [full_width] - Enable full-width layout @param {boolean} [space_above] - Add top spacing
+  @param {boolean} [space_below] - Add bottom spacing
+  @param {number} [gutter_size] - Spacing between images
+
+  @example
+  {% render 'section.gallery', images_per_row: 4, full_width: true %}
+{% enddoc %}
+
+{% stylesheet %}
+  .gallery {
+    padding-top: var(--gallery-space-above);
+    padding-bottom: var(--gallery-space-below);
+  }
+
+  .gallery__container {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: var(--gallery-grid-spacing);
+
+    .gallery--full-width-true & {
+      padding-left: var(--gallery-grid-spacing);
+      padding-right: var(--gallery-grid-spacing);
+
+      @media only screen and (max-width: 959px) {
+        padding-left: calc(var(--gallery-grid-spacing) / 2);
+        padding-right: calc(var(--gallery-grid-spacing) / 2);
+      }
+    }
+  }
+
+  .gallery__text--left {
+    text-align: left;
+
+    & .gallery__richtext {
+      margin-right: auto;
+    }
+  }
+
+  .gallery__text--center {
+    text-align: center;
+
+    & .gallery__richtext {
+      margin-left: auto;
+      margin-right: auto;
+    }
+  }
+
+  .gallery__text--right {
+    text-align: right;
+
+    & .gallery__richtext {
+      margin-left: auto;
+    }
+  }
+
+  .gallery__image {
+    display: flex;
+    align-self: flex-start;
+    flex: 1 1 calc(100% - var(--gallery-grid-spacing));
+    margin: 0;
+    padding: 0;
+
+    & img,
+    & .gallery__image-inner {
+      width: 100%;
+    }
+
+    & .gallery__image-inner:not(.svg-mask--rounded):not(.svg-mask--rounded-top):not(.svg-mask--rounded-wave) img,
+    & .element-placeholder {
+      border-radius: var(--roundness);
+    }
+
+    & .gallery__placeholder-image {
+      width: 100%;
+    }
+
+    &.gallery__image--aligned-center {
+      align-self: center;
+    }
+
+    &.gallery__image--aligned-bottom {
+      align-self: flex-end;
+    }
+
+    & .svg-mask {
+      height: 0;
+      padding-bottom: var(--svg-mask-ratio);
+    }
+
+    [data-view='xsmall'] & {
+      @media only screen and (min-width: 769px) {
+        flex: 1 1 calc(20% - var(--gallery-grid-spacing));
+      }
+    }
+
+    [data-view='small'] & {
+      @media only screen and (min-width: 769px) {
+        flex: 1 1 calc(25% - var(--gallery-grid-spacing));
+      }
+    }
+
+    [data-view='medium'] & {
+      @media only screen and (min-width: 769px) {
+        flex: 1 1 calc(33.3333% - var(--gallery-grid-spacing));
+      }
+    }
+
+    [data-view='large'] & {
+      @media only screen and (min-width: 769px) {
+        flex: 1 1 calc(50% - var(--gallery-grid-spacing));
+      }
+    }
+  }
+
+  image-lightbox {
+    width: 100%;
+    height: 100%;
+  }
+
+  .lightbox {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: color-mix(in srgb, var(--color-secondary) var(--shade-60), transparent);
+    display: none;
+    justify-content: center;
+    align-items: center;
+    z-index: 9999;
+  }
+
+  .lightbox-outer-container {
+    display: flex;
+    align-items: center;
+    width: 100%;
+    height: 100%;
+    max-width: 40%;
+    max-height: 90%;
+
+    @media only screen and (max-width: 959px) {
+      max-width: 90%;
+    }
+  }
+
+  .lightbox.active {
+    display: flex;
+  }
+
+  .lightbox-content {
+    width: 100%;
+    height: 100%;
+    position: relative;
+
+    @media only screen and (max-width: 959px) {
+      height: auto;
+    }
+  }
+
+  .lightbox-content img {
+    max-width: 100%;
+    max-height: 100%;
+    object-fit: cover;
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+
+    @media only screen and (max-width: 959px) {
+      position: static;
+    }
+  }
+
+  .lightbox-content:not(.svg-mask--rounded):not(.svg-mask--rounded-top):not(.svg-mask--rounded-wave) img {
+    border-radius: var(--roundness);
+  }
+
+  .lightbox-trigger {
+    cursor: zoom-in;
+  }
+
+  .lightbox-close-btn {
+    position: absolute;
+    top: -35px;
+    right: 0;
+    padding: 0;
+
+    @media only screen and (min-width: 769px) {
+      right: -25px;
+    }
+
+    & .element-icon {
+      height: 25px;
+      width: 25px;
+    }
+
+    & .element-icon path {
+      stroke: #ffffff80 !important;
+    }
+  }
+{% endstylesheet %}
+
+{%- liquid
+  assign heading = heading | default: section.settings.heading
+  assign heading_size = heading_size | default: section.settings.heading_size | default: 'md'
+  assign text_alignment = text_alignment | default: section.settings.text_alignment | default: 'center'
+  assign images_per_row = images_per_row | default: section.settings.images_per_row | default: 5
+  assign full_width = full_width | default: section.settings.full_width, allow_false: true | default: false, allow_false: true
+  assign space_above = space_above | default: section.settings.space_above, allow_false: true | default: true, allow_false: true
+  assign space_below = space_below | default: section.settings.space_below, allow_false: true | default: true, allow_false: true
+  assign gutter_size = gutter_size | default: section.settings.gutter_size | default: 20
+
+  assign lazyload_images = true
+
+  if section.index == 1
+    assign lazyload_images = false
+  endif
+
+  capture grid_view
+    render 'utility.grid-view-type', products_per_row: images_per_row
+  endcapture
+-%}
+
+<section
+  class="gallery gallery--full-width-{{ full_width }}"
+  style="
+    --gallery-grid-spacing: {{ gutter_size }}px;
+    {% if space_above %}
+      --gallery-space-above: var(--index-section-padding);
+    {% endif %}
+    {% if space_below %}
+      --gallery-space-below: var(--index-section-padding);
+    {% endif %}
+  "
+>
+  {% unless heading == blank %}
+    <div class="section-header page-width gallery__text--{{ text_alignment }}">
+      {% if heading != blank %}
+        <h2 class="section-header__title heading-{{ heading_size }}">{{ heading | escape }}</h2>
+      {% endif %}
+    </div>
+  {% endunless %}
+  {% unless full_width %}
+    <div class="page-width">
+  {% endunless %}
+  <div class="gallery__container" {{ grid_view }}>
+    {% for block in section.blocks %}
+      {% if block.type == 'image' %}
+        <figure
+          class="gallery__image gallery__image--aligned-{{ block.settings.image_align }}"
+          {{ block.shopify_attributes }}
+        >
+          {% if block.settings.image != blank %}
+            <image-lightbox>
+              <div
+                class="
+                  gallery__image-inner
+                  {% if block.settings.image_crop != 'none' %}svg-mask svg-mask--{{ block.settings.image_crop }}{% endif %}
+                "
+                {% if block.settings.image_crop != 'none' %}
+                  style="--svg-mask-ratio: {{ 100 | divided_by: block.settings.image.aspect_ratio }}%;"
+                {% endif %}
+              >
+                {%- liquid
+                  # Check lazyload setting only if images per row is less than 3
+                  ## and if it's the first 2 images
+                  if images_per_row < 3 and forloop.index < 3
+                    assign loading = lazyload_images
+                  else
+                    assign loading = true
+                  endif
+                -%}
+                {%- render 'element.image',
+                  img: block.settings.image,
+                  sizeVariable: grid_view,
+                  loading: loading,
+                  classlist: 'lightbox-trigger'
+                -%}
+              </div>
+              {%- liquid
+                if block.settings.image_crop != 'none'
+                  assign classes = 'svg-mask svg-mask--' | append: block.settings.image_crop
+                else
+                  assign classes = ''
+                endif
+              -%}
+              {%- render 'lightbox', context: 'gallery', classlist: classes, img: block.settings.image -%}
+            </image-lightbox>
+          {% else %}
+            <div class="gallery__placeholder-image {% if block.settings.image_crop != 'none' %}svg-mask svg-mask--{{ block.settings.image_crop }}{% endif %}">
+              {%- render 'element.placeholder', name: 'image' -%}
+            </div>
+          {% endif %}
+        </figure>
+      {% endif %}
+      {% if block.type == 'app' %}
+        {% render block %}
+      {% endif %}
+    {% endfor %}
+  </div>
+  {% unless full_width %}
+    </div>
+  {% endunless %}
+</section>

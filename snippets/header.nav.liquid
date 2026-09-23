@@ -1,0 +1,33 @@
+{% doc %}
+  Copyright © 2025 Archetype Themes LP. All rights reserved.
+
+  Main header navigation wrapper with overlay support and dynamic content slots.
+
+  @param {string} slot - Header content to render
+  @param {string} [wrapper_class] - Additional CSS classes for the wrapper
+  @param {boolean} [overlay_header] - Enable transparent overlay header style, default: false
+
+  @example
+  {% render 'header.nav', slot: header_content, overlay_header: true %}
+{% enddoc %}
+
+{% stylesheet %}
+  header-nav {
+    display: block;
+  }
+{% endstylesheet %}
+
+{%- liquid
+  assign overlay_header = overlay_header | default: false, allow_false: true
+-%}
+
+<header-nav
+  id="HeaderWrapper"
+  class="header-wrapper{% if overlay_header %} header-wrapper--overlay {% endif %}{% if wrapper_class %} {{ wrapper_class }}{%- endif %}"
+  defer-hydration
+>
+  {{- slot -}}
+</header-nav>
+<script type="module">
+  import 'header.nav'
+</script>

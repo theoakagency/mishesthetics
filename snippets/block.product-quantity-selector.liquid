@@ -1,0 +1,36 @@
+{% doc %}
+  Copyright © 2025 Archetype Themes LP. All rights reserved.
+
+  Quantity input with increment and decrement controls for product forms.
+
+  @param {object} [block] - Block object
+  @param {object} [product] - Product object
+
+  @example
+  {% render 'block.product-quantity-selector', product: product %}
+{% enddoc %}
+
+{% stylesheet %}
+  .product__quantity {
+    & label {
+      display: block;
+      margin-bottom: 10px;
+    }
+  }
+{% endstylesheet %}
+
+{%- liquid
+  assign product = section.settings.product | default: product
+  assign form_id = 'product-form-' | append: section.id
+-%}
+
+<block-quantity-selector {{ block.shopify_attributes }}>
+  <div class="product__quantity">
+    {%- assign quantity_selector_id = 'Quantity-' | append: section.id | append: '-' | append: product.id -%}
+
+    <label for="{{ quantity_selector_id }}">
+      {% render 'utility.translate', key: 'labels.quantity', fallback: 'Quantity' %}
+    </label>
+    {%- render 'element.quantity-selector', id: quantity_selector_id, form_id: form_id -%}
+  </div>
+</block-quantity-selector>

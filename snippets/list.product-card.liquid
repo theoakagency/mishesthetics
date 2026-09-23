@@ -1,0 +1,907 @@
+{% doc %}
+  Copyright © 2025 Archetype Themes LP. All rights reserved.
+
+  Product card for displaying items in collection grids and search results.
+
+  @param {product} product - Product object to display
+  @param {collection} [collection] - Parent collection object
+  @param {string} [classes] - Additional CSS classes
+  @param {boolean} [no_actions] - Hide quick add and quick shop buttons
+  @param {string} [type] - Card layout type ('horizontal', etc.)
+  @param {string} [sizes] - Image sizes attribute
+  @param {string} [sizeVariable] - Image size variable for calculations
+  @param {string} [fallback] - Fallback size when condition not met
+  @param {string} [image_style] - Image shape ('square', 'circle')
+  @param {boolean} [quick_add_enable] - Enable quick add functionality
+  @param {boolean} [quick_shop_enable] - Enable quick shop functionality
+  @param {string} [product_grid_image_size] - Image size preset
+  @param {boolean} [product_grid_image_fill] - Fill grid item with image
+  @param {boolean} [product_hover_image] - Show second image on hover
+  @param {boolean} [enable_swatches] - Display color swatches
+  @param {boolean} [vendor_enable] - Display vendor name
+  @param {boolean} [product_save_amount] - Show savings amount
+  @param {string} [product_save_type] - Savings display ('dollar', 'percent')
+  @param {boolean} [set_image_breathing_room] - Add image padding
+  @param {boolean} [enable_product_tags] - Display product tags
+  @param {boolean} [enable_add_to_cart] - Show add to cart component
+  @param {boolean} [disabled_high_variants] - When true (default), the <= 250
+    variant check applies (quick shop and swatch hover are guarded for
+    products with more than 250 variants). Set to false to enable high-variant
+    support. Prevents accidental breakage in themes where quick shop does not
+    yet support high variants.
+
+  @example
+  {% render 'list.product-card', product: product, quick_add_enable: true, enable_swatches: true %}
+{% enddoc %}
+
+{% stylesheet %}
+  .template-product {
+    .grid-product--prefix {
+      margin-top: 16px;
+      margin-bottom: 16px;
+    }
+  }
+
+  .product-grid-item {
+    width: 100%;
+    /*required to prevent double grid border styles*/
+    background-color: var(--root-color-secondary);
+    container: product-grid-item / inline-size;
+  }
+
+  .color-swatch__more {
+    line-height: 25px;
+    margin-left: 5px;
+    font-weight: var(--element-text-font-weight--heading);
+  }
+
+  .product-tile-layout--inline {
+    .grid-item__link {
+      display: flex;
+      gap: 32px;
+      padding: 16px 16px 0 16px;
+
+      @media only screen and (min-width: 769px) {
+        padding: 20px 20px 0 20px;
+      }
+    }
+
+    .grid-product__image-wrap {
+      width: 100%;
+      margin: calc(var(--product-tile-margin) / 2) calc(var(--product-tile-margin) / 2) 0;
+    }
+
+    .grid-item__meta {
+      width: 100%;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      flex: 0 0 35%;
+      margin: 0;
+
+      @media only screen and (min-width: 769px) {
+        [data-view='small'] & {
+          justify-content: flex-start;
+          margin-top: 20px;
+        }
+      }
+    }
+
+    .grid-item__meta-main {
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+
+      .grid-product__colors {
+        margin-top: 5px;
+      }
+    }
+  }
+
+  .grid-item__link {
+    position: relative;
+  }
+
+  .grid-item__overlay-link {
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    z-index: 2;
+  }
+
+  .grid-item__link:has(:focus-visible)::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    box-shadow: inset 0 0 0 3px var(--color-focus, #1a73e8);
+    pointer-events: none;
+    z-index: 4;
+  }
+
+  .grid-item__swatches {
+    position: relative;
+    z-index: 2;
+  }
+
+  /*Product grid variations*/
+  [data-grid-style*='gridlines'] {
+    & .product-grid {
+      margin-left: 0;
+      margin-right: 0;
+    }
+
+    & .grid-product {
+      position: relative;
+      padding: 0;
+      margin: 0;
+
+      &:after {
+        pointer-events: none;
+        box-shadow: 0 0 0 var(--grid-thickness)
+          color-mix(in srgb, var(--color-primary) var(--shade-12), var(--color-secondary));
+      }
+    }
+  }
+
+  /*Small gridline variations*/
+  @media only screen and (max-width: 768px) {
+    [data-grid-style*='gridlines'] {
+      & .product-grid {
+        margin-left: calc(var(--page-width-padding) * -1);
+        margin-right: calc(var(--page-width-padding) * -1);
+        padding: var(--grid-thickness) calc(var(--page-width-padding) + var(--grid-thickness));
+      }
+
+      /*Make flush on mobile*/
+      & .collection-grid {
+        padding: 0;
+      }
+
+      /*Prevent overflow on product lists*/
+      [data-section-id*='featured-collection'],
+      .index-section--sub-product {
+        overflow-x: hidden;
+      }
+    }
+  }
+
+  [data-grid-style*='grey'],
+  [data-grid-style*='white'],
+  [data-grid-style='round'],
+  [data-grid-style='square'] {
+    & .grid-product {
+      position: relative;
+
+      &:after {
+        content: '';
+        display: block;
+        position: absolute;
+        top: 0;
+        bottom: 0;
+        left: calc(var(--product-grid-padding) / 2);
+        right: calc(var(--product-grid-padding) / 2);
+        pointer-events: none;
+      }
+
+      &.grid-product-image-breathing-room--false {
+        padding-left: calc(var(--product-grid-margin) / 2);
+        padding-right: calc(var(--product-grid-margin) / 2);
+      }
+    }
+  }
+
+  [data-grid-style*='grey'] {
+    & .grid-product:after {
+      background-color: var(--root-color-primary);
+      opacity: 0.027;
+    }
+  }
+
+  [data-grid-style*='white'] {
+    & .grid-item__content {
+      background-color: #fff;
+    }
+
+    & .grid-product:after {
+      background-color: #fff;
+      z-index: -1;
+    }
+  }
+
+  [data-grid-style='grey-round'] .grid-product:after {
+    border-radius: var(--product-radius);
+  }
+
+  [data-grid-style='white-round'] {
+    & .product-grid-item {
+      border-radius: var(--product-radius);
+    }
+
+    & .grid-item__content {
+      border-radius: var(--product-radius);
+    }
+
+    & .grid-product:after {
+      border-radius: var(--product-radius);
+    }
+  }
+
+  /*Part 1 of product card is just image*/
+  .grid-product__image-wrap {
+    position: relative;
+    margin: var(--product-tile-margin) var(--product-tile-margin) 0;
+
+    [data-view='list'] & {
+      margin-bottom: var(--product-tile-margin);
+    }
+  }
+
+  /*Remove margin when simple grid and not in list mode*/
+  [dir='ltr'] [data-grid-style='simple'] .new-grid:not([data-view='list']) {
+    & .grid-item__meta {
+      margin-left: 0;
+    }
+  }
+  [dir='rtl'] [data-grid-style='simple'] .new-grid:not([data-view='list']) {
+    & .grid-item__meta {
+      margin-right: 0;
+    }
+  }
+
+  /* Product list view (full width) */
+  [data-view='list'] {
+    & .grid-item__link {
+      display: flex;
+      flex-wrap: nowrap;
+      align-items: center;
+    }
+
+    & .grid-product__image-wrap {
+      flex: 1 1 45%;
+      max-width: 200px;
+      margin: calc(var(--product-tile-margin) / 4);
+      margin-right: 0;
+    }
+
+    & .grid-item__meta {
+      flex: 1 1 55%;
+      padding-right: 20px;
+    }
+
+    @media only screen and (min-width: 769px) {
+      & .grid-item__meta {
+        display: flex;
+        justify-content: space-between;
+        padding-right: 0;
+      }
+
+      & .grid-product__title {
+        font-size: calc(var(--element-text-font-size--body-md) + 3px);
+      }
+    }
+  }
+
+  /* Prevent long words from breaking out of available space */
+  .grid-product__title {
+    word-break: break-word;
+    hyphens: auto;
+    margin-bottom: 5px;
+  }
+
+  .grid-product__image {
+    display: block;
+    margin: 0 auto;
+    width: 100%;
+    height: auto;
+  }
+
+  .grid-product__price {
+    --color-primary: currentColor;
+  }
+
+  .grid-product__tags {
+    position: absolute;
+    width: 100%;
+    bottom: 0;
+    z-index: 1;
+  }
+
+  .grid-product__add-to-cart {
+    margin: 0 24px 24px;
+    flex: 0 0 auto;
+  }
+
+  /*Quick add form*/
+  .quick-add-modal {
+    & .modal__centered-content {
+      min-width: 70vw;
+      min-height: 350px;
+      max-width: 100%;
+
+      @media only screen and (min-width: 769px) {
+        min-width: 500px;
+      }
+    }
+
+    & .page-width {
+      padding: 0;
+      max-width: none;
+    }
+
+    /*Hide product layout items*/
+    & .product-grid__container > .grid__item {
+      display: none;
+    }
+
+    /*Except the div with the form*/
+    & .product-grid__container .product-grid__content {
+      display: block;
+      width: 500px;
+      max-width: 100%;
+    }
+
+    & .product-single__meta {
+      padding: 0;
+    }
+
+    & .collapsibles-wrapper,
+    & .social-sharing {
+      display: none;
+    }
+  }
+
+  .grid-product__secondary-image {
+    position: absolute;
+    top: -1px;
+    left: -1px;
+    right: -1px;
+    bottom: -1px;
+    opacity: 0;
+    background-color: var(--root-color-secondary);
+    transition: opacity 0s cubic-bezier(0.26, 0.54, 0.32, 1);
+    pointer-events: none;
+
+    [data-grid-style*='gridlines'] & {
+      top: 0;
+      left: 0;
+      right: 0;
+    }
+
+    & img {
+      height: 100%;
+      width: 100%;
+      object-fit: cover;
+    }
+
+    .grid-product:hover & {
+      transition-duration: 0.2s;
+      opacity: 1;
+    }
+  }
+
+  .grid-product__color-image {
+    position: absolute;
+    top: -1px;
+    left: -1px;
+    right: -1px;
+    bottom: -1px;
+    background-repeat: no-repeat;
+    background-size: cover;
+    background-position: center;
+    opacity: 0;
+    background-color: var(--root-color-secondary);
+
+    &.is-active {
+      opacity: 1;
+    }
+  }
+
+  /*Quick view and quick add elements*/
+  .grid-product__actions {
+    position: absolute;
+    top: calc(var(--product-grid-margin) * -1);
+    right: calc(var(--product-grid-margin) * -1);
+    z-index: 3;
+
+    & > button,
+    .quick-add-btn,
+    .quick-product__btn {
+      display: block;
+      margin-bottom: 5px;
+    }
+
+    @media only screen and (max-width: 768px) {
+      [data-grid-style*='gridlines'] & {
+        top: 0;
+        right: 0;
+      }
+    }
+  }
+
+  /*Visual button lives inside actual button element so
+	we can create larger tap areas with smaller visuals*/
+  @media only screen and (max-width: 768px) {
+    .quick-add-btn {
+      [data-grid-style*='gridlines'] & {
+        & .btn {
+          padding: 6px;
+          margin: 0 0 12px 12px;
+          /* override btn--circle */
+          border-radius: 0 0 0 10px;
+        }
+      }
+
+      /*Make sure button stays round*/
+      & .btn--circle {
+        line-height: 0;
+      }
+
+      & .element-icon {
+        width: 12px;
+        height: 12px;
+      }
+    }
+  }
+
+  /*Quick actions appear on hover on larger screens*/
+  @media only screen and (min-width: 769px) {
+    .grid-product__actions {
+      opacity: 0;
+      transform: translateY(5px);
+      transition: opacity 0.25s ease, transform 0.25s ease-out;
+
+      .grid-product:hover & {
+        opacity: 1;
+        transform: translateY(0);
+      }
+
+      & > button,
+      .quick-add-btn,
+      .quick-product__btn {
+        transition: transform 0.1s ease-out;
+
+        &:hover {
+          transform: scale(1.15);
+        }
+      }
+
+      .grid-product:focus-within & {
+        opacity: 1;
+        transform: translateY(0);
+        transition: opacity 0.25s ease, transform 0.25s ease-out;
+      }
+    }
+  }
+
+  @container product-grid-item (max-width: 235px) {
+    .at-add-to-cart__content {
+      display: flex;
+    }
+  }
+{% endstylesheet %}
+
+{%- liquid
+  assign sizes = sizes | default: '100%'
+  assign quick_add_enable = quick_add_enable | default: settings.quick_add_enable, allow_false: true | default: true, allow_false: true
+  assign quick_shop_enable = quick_shop_enable | default: settings.quick_shop_enable, allow_false: true | default: true, allow_false: true
+  assign product_grid_image_size = product_grid_image_size | default: settings.product_grid_image_size | default: 'square'
+  assign product_grid_image_fill = product_grid_image_fill | default: settings.product_grid_image_fill, allow_false: true | default: true, allow_false: true
+  assign product_grid_content_align = product_grid_content_align | default: 'start'
+  assign product_hover_image = product_hover_image | default: settings.product_hover_image, allow_false: true | default: false, allow_false: true
+  assign enable_swatches = enable_swatches | default: settings.enable_swatches, allow_false: true | default: true, allow_false: true
+  assign vendor_enable = vendor_enable | default: settings.vendor_enable, allow_false: true | default: true, allow_false: true
+  assign product_save_amount = product_save_amount | default: settings.product_save_amount, allow_false: true | default: true, allow_false: true
+  assign product_save_type = product_save_type | default: settings.product_save_type | default: 'dollar'
+  assign enable_product_tags = enable_product_tags | default: settings.enable_product_tags, allow_false: true | default: false, allow_false: true
+  assign prefix_enable = prefix_enable | default: settings.prefix_enable, allow_false: true | default: false, allow_false: true
+  assign no_actions = no_actions | default: false, allow_false: true
+  assign enable_add_to_cart = enable_add_to_cart | default: settings.enable_add_to_cart, allow_false: true
+  assign image_style = image_style | default: 'square'
+  assign product_tile_layout = product_tile_layout | default: false, allow_false: true
+  assign product_grid_style = product_grid_style | default: settings.product_grid_style | default: 'grey-round'
+  assign set_image_breathing_room = set_image_breathing_room | default: settings.set_image_breathing_room, allow_false: true | default: true, allow_false: true
+  assign type = type | default: blank
+  assign disabled_high_variants = disabled_high_variants | default: true, allow_false: true
+
+  assign quick_shop_variant_guard_passed = true
+  if disabled_high_variants and product.variants_count > 250
+    assign quick_shop_variant_guard_passed = false
+  endif
+
+  assign on_sale = false
+  if product.compare_at_price > product.price
+    assign on_sale = true
+  endif
+
+  if set_image_breathing_room
+    if settings.product_grid_image_margin == 0
+      assign image_breathing_room = false
+    else
+      assign image_breathing_room = true
+    endif
+  endif
+
+  if enable_add_to_cart
+    assign no_actions = true
+  endif
+
+  assign product_tags = product.tags | join: ','
+  assign has_custom_label = false
+  assign custom_labels = ''
+
+  if product.metafields.theme.label and product.metafields.theme.label != blank
+    assign has_custom_label = true
+    assign custom_labels = product.metafields.theme.label.value
+  elsif product_tags contains '_label_'
+    for tag in product.tags
+      if tag contains '_label_'
+        assign tag_starts_with = tag | slice: 0
+        if tag_starts_with == '_'
+          assign has_custom_label = true
+          assign custom_label = tag | replace: '_label_', ''
+          assign custom_labels = custom_labels | append: custom_label | append: ','
+        endif
+      endif
+    endfor
+  endif
+
+  capture sold_out_label
+    render 'utility.translate', key: 'info.sold_out', fallback: 'Sold Out'
+  endcapture
+
+  capture sale_label
+    render 'utility.translate', key: 'labels.sale', fallback: 'Sale'
+  endcapture
+-%}
+
+<div
+  class="
+    grid-item grid-product {{ classes }} grid-product-image-breathing-room--{{ image_breathing_room }}
+    {% if product_tile_layout %}product-tile-layout--{{ product_tile_layout }}{% endif %}
+    {% if product_grid_style contains 'gridlines' %}
+      grid-product--gridlines overlay
+    {% endif %}
+  "
+>
+  <div
+    class="product-grid-item"
+    data-product-handle="{{ product.handle }}"
+    data-product-id="{{ product.id }}"
+    data-product-grid-item
+  >
+    <div class="grid-item__content color-scheme-none">
+      {%- unless no_actions -%}
+        {%- if quick_add_enable or quick_shop_enable -%}
+          <div class="grid-product__actions">
+            {%- if quick_shop_enable and type != 'horizontal' and quick_shop_variant_guard_passed -%}
+              {%- capture quick_shop_button -%}
+                <button type="button" class="btn btn--circle btn--icon quick-product__btn js-modal-open-quick-modal-{{ product.id }} small--hide" title="
+                  {% render 'utility.translate', key: 'labels.quick_shop', fallback: 'Quick shop' -%}
+                  " data-handle="{{ product.handle }}">
+                  {% render 'element.icon', name: 'search' %}
+                  <span class="icon__fallback-text visually-hidden">
+                    {% render 'utility.translate', key: 'labels.quick_shop', fallback: 'Quick shop' %}
+                  </span>
+                </button>
+              {%- endcapture -%}
+
+              {%- capture content -%}
+                {%- render 'overlay.tool-tip.trigger', context: 'QuickShop', button: quick_shop_button, wrapper_class: 'quick-shop-modal' -%}
+              {%- endcapture -%}
+
+              {%- render 'overlay.quick-shop', content: content -%}
+            {%- endif -%}
+
+            {%- if quick_add_enable and product.available -%}
+              {% comment %}
+                Quick add feature:
+                  - when a single variant option, product is immediately added
+                  - when multiple variants, popup with product form appears
+              {% endcomment %}
+              {%- if product.variants_count > 1 -%}
+                {%- capture quick_add_button %}
+                  <button type="button" class="text-link quick-add-btn js-quick-add-form js-modal-open-quick-add" title="
+                    {% render 'utility.translate', key: 'actions.add_to_cart', fallback: 'Add to cart' -%}
+                    ">
+                    <span class="btn btn--circle btn--icon">
+                      {% render 'element.icon', name: 'plus' %}
+                      <span class="icon__fallback-text visually-hidden">
+                        {% render 'utility.translate', key: 'actions.add_to_cart', fallback: 'Add to cart' %}
+                      </span>
+                    </span>
+                  </button>
+                {%- endcapture -%}
+
+                {%- capture content -%}
+                  {% render 'overlay.tool-tip.trigger',
+                    button: quick_add_button,
+                    context: 'QuickAdd',
+                    wrapper_class: 'quick-add-modal',
+                  %}
+                {%- endcapture -%}
+
+                {% render 'overlay.quick-add', content: content %}
+              {%- else -%}
+                {%- capture content -%}
+                  <button
+                    type="button" class="text-link quick-add-btn"
+                    title="
+                      {% render 'utility.translate', key: 'actions.add_to_cart', fallback: 'Add to cart' -%}
+                    "
+                    data-id="{{ product.selected_or_first_available_variant.id }}"
+                    data-single-variant-quick-add
+                  >
+                    <span class="btn btn--circle btn--icon">
+                      {% render 'element.icon', name: 'plus' %}
+                      <span class="icon__fallback-text visually-hidden">
+                        {% render 'utility.translate', key: 'actions.add_to_cart', fallback: 'Add to cart' %}
+                      </span>
+                    </span>
+                  </button>
+                {%- endcapture -%}
+                {% render 'overlay.quick-add', content: content %}
+              {%- endif -%}
+            {%- endif -%}
+          </div>
+        {%- endif -%}
+      {%- endunless -%}
+
+      {%- liquid
+        assign imageRatio = product_grid_image_size
+        assign fixed_aspect_ratio = false
+        unless imageRatio == 'natural'
+          assign fixed_aspect_ratio = true
+        endunless
+
+        if image_style == 'circle'
+          assign fixed_aspect_ratio = true
+          assign imageRatio = 'square'
+        endif
+
+        assign preview_image = product.featured_media.preview_image
+      -%}
+
+      {% capture card_content %}
+        <div class="grid-item__link">
+          <a href="{{ product.url | within: collection }}" class="grid-item__overlay-link" aria-label="{{ product.title | escape }}"{% if enable_swatches %} tabindex="-1"{% endif %}></a>
+          <div class="grid-product__image-wrap">
+            {%- liquid
+              capture product_tags
+                if has_custom_label
+                  assign labels = custom_labels | split: ','
+
+                  for label in labels
+                    render 'element.badge', label: label, type: 'custom', inverted: true
+                  endfor
+                endif
+
+                unless product.available
+                  render 'element.badge', label: sold_out_label, inverted: true
+                endunless
+
+                if on_sale and product.available
+                  render 'element.badge', label: sale_label, type: 'sale', inverted: true
+                endif
+              endcapture
+            -%}
+
+            <div class="grid-product__tags">
+              {%- render 'layout.stack', slot: product_tags, gap: 'xs', align: 'center' -%}
+            </div>
+
+            {%- if fixed_aspect_ratio -%}
+              <div
+                class="grid__image-ratio grid__image-ratio--{% if image_style == 'circle' %}square{% else %}{{ product_grid_image_size }}{% endif %}"
+              >
+                {%- capture image_classes -%}
+                  {% unless product_grid_image_fill %} grid__image-contain{% endunless %} image-style--{{ image_style }}
+                {%- endcapture -%}
+                {%- if preview_image != blank -%}
+                  {%- render 'element.image',
+                    img: preview_image,
+                    classlist: image_classes,
+                    sizes: sizes,
+                    sizeVariable: sizeVariable,
+                    fallback: fallback,
+                    widths: '160, 200, 280, 360, 540, 720, 900, 1200, 1600'
+                  -%}
+                {%- else -%}
+                  <div class="product-image--placeholder">
+                    {%- capture placeholder -%}product-{% cycle 1, 2, 3, 4, 5, 6 %}{%- endcapture -%}
+                    {%- render 'element.placeholder', name: placeholder -%}
+                  </div>
+                {%- endif -%}
+              </div>
+            {%- else -%}
+              {%- liquid
+                assign ratio = 1
+                if preview_image != blank
+                  assign ratio = preview_image.aspect_ratio
+                endif
+              -%}
+              <div
+                {% if preview_image != blank %}
+                  style="height: 0; padding-bottom: {{ 100 | divided_by: ratio }}%;"
+                {% endif %}
+              >
+                {%- if preview_image != blank -%}
+                  {%- render 'element.image',
+                    img: preview_image,
+                    classlist: 'grid-product__image',
+                    sizes: sizes,
+                    sizeVariable: sizeVariable,
+                    fallback: fallback,
+                    widths: '360, 540, 720, 900, 1200, 1600'
+                  -%}
+                {%- else -%}
+                  <div class="product-image--placeholder">
+                    {%- capture placeholder -%}product-{% cycle 1, 2, 3, 4, 5, 6 %}{%- endcapture -%}
+                    {%- render 'element.placeholder', name: placeholder -%}
+                  </div>
+                {%- endif -%}
+              </div>
+            {%- endif -%}
+
+            {%- if product_hover_image and product.media.size > 1 -%}
+              {%- for media in product.media offset: 1 limit: 1 -%}
+                {%- assign second_image = media.preview_image -%}
+              {%- endfor -%}
+              <div class="grid-product__secondary-image small--hide">
+                {%- capture secondary_image_classes -%}
+                  image-style--{{ image_style }}
+                {%- endcapture -%}
+                {%- render 'element.image',
+                  img: second_image,
+                  classlist: secondary_image_classes,
+                  sizes: sizes,
+                  sizeVariable: sizeVariable,
+                  fallback: fallback,
+                  widths: '360, 540, 720, 900, 1200, 1600'
+                -%}
+              </div>
+            {%- endif -%}
+
+            {%- if enable_swatches -%}
+              {%- capture swatch_trigger -%}
+                {% render 'utility.translate', key: 'trigger.color_swatch', fallback: 'color' %}
+              {%- endcapture -%}
+              {%- assign swatch_trigger = swatch_trigger | downcase -%}
+
+              {%- for option in product.options_with_values -%}
+                {%- liquid
+                  assign option_name = option.name | downcase
+                  assign is_color = false
+                  if swatch_trigger contains option_name
+                    assign is_color = true
+                  elsif swatch_trigger == 'color' and option_name contains 'colour'
+                    assign is_color = true
+                  endif
+                -%}
+                {%- if is_color -%}
+                  {%- for value in option.values -%}
+                    {%- assign variant = value.variant -%}
+                    {%- if variant and variant.image -%}
+                      <div
+                        class="grid-product__color-image grid-product__color-image--{{ variant.id }}"
+                      ></div>
+                    {%- endif -%}
+                  {%- endfor -%}
+                {%- endif -%}
+              {%- endfor -%}
+            {%- endif -%}
+          </div>
+
+          <div class="grid-item__meta">
+            {%- capture product_price -%}
+              {%- if product.price_varies -%}
+                {%- assign price_min = product.price_min | money -%}
+                {%- assign labels_from_price = 'labels.from_price' | t: price: price_min %}
+
+                <span aria-label="{{ labels_from_price }}">
+                  {%- render 'element.text', text: 'from ', variant: 'body-sm', style: '--element-text-font-weight--body: var(--font-weight-700);' -%}
+                  {%- render 'element.price', price: product.price_min, variant: 'heading-xs' -%}
+                </span>
+              {%- else -%}
+                {%- if on_sale -%}
+                  {%- render 'element.text', locale: 'labels.sale_price', text: 'Sale price', visually_hidden: true -%}
+                {%- endif -%}
+
+                {%- render 'element.price', price: product.price, variant: 'heading-xs' -%}
+              {%- endif -%}
+              {%- if on_sale -%}
+                {%- render 'element.text', locale: 'labels.regular_price', text: 'Regular price', visually_hidden: true -%}
+                {%- render 'element.price', price: product.compare_at_price, variant: 'heading-xs', strikethrough: true -%}
+
+                {%- if product_save_amount -%}
+                  {%- if product_save_type == 'dollar' -%}
+                    {%- capture saved_amount -%}{{ product.compare_at_price | minus: product.price | money_without_trailing_zeros }}{%- endcapture -%}
+                  {%- else -%}
+                    {%- capture saved_amount -%}{{ product.compare_at_price | minus: product.price | times: 100.0 | divided_by: product.compare_at_price | round }}%{%- endcapture -%}
+                  {%- endif -%}
+
+                  {% assign info_save_amount = 'info.save_amount' | t: saved_amount: saved_amount %}
+                  {%- capture fallback_info_save_amount -%}
+                    Save {{ saved_amount }}
+                  {%- endcapture -%}
+                  {%- capture save_amount_text -%}
+                    {%- render 'utility.translate', t: info_save_amount, fallback: fallback_info_save_amount -%}
+                  {%- endcapture -%}
+
+                  {%- render 'element.text',
+                    as: 'span',
+                    variant: 'body-sm',
+                    text: save_amount_text,
+                    style: 'color: var(--color-text-savings);'
+                  -%}
+                {%- endif -%}
+              {%- endif -%}
+
+              {%- assign product_variant = product.selected_or_first_available_variant -%}
+              {%- if product_variant.unit_price_measurement -%}
+                <div class="product__unit-price">
+                  {%- capture unit_price_base_unit -%}
+                      {%- if product_variant.unit_price_measurement -%}
+                        {%- if product_variant.unit_price_measurement.reference_value != 1 -%}
+                          {{ product_variant.unit_price_measurement.reference_value }}
+                        {%- endif -%}
+                        {{ product_variant.unit_price_measurement.reference_unit }}
+                      {%- endif -%}
+                    {%- endcapture -%}
+
+                  {{ product_variant.unit_price | money }}/{{ unit_price_base_unit }}
+                </div>
+              {%- endif -%}
+            {%- endcapture -%}
+
+            {% capture meta_content %}
+              {%- if enable_swatches and type == blank -%}
+                <div class="grid-item__swatches">
+                  {%- render 'list.product-card.swatches', product: product, disabled_high_variants: disabled_high_variants -%}
+                </div>
+              {%- endif -%}
+
+              {%- if prefix_enable and product.metafields.archetype.prefix.value != blank -%}
+                {% render 'element.text', text: product.metafields.archetype.prefix.value, variant: 'body-sm', style: 'opacity: 0.65;' %}
+              {%- endif -%}
+
+              {% capture title_style %}
+                word-break: break-word; hyphens: auto; text-align: {{ product_grid_content_align }};
+              {% endcapture %}
+              {% render 'element.text', text: product.title, variant: 'body-md', style: title_style %}
+
+              {%- if vendor_enable -%}
+                {% capture vendor_style %}
+                  opacity: 0.65; text-align: {{ product_grid_content_align }};
+                {% endcapture %}
+                {% render 'element.text', text: product.vendor, variant: 'body-sm', style: vendor_style %}
+              {%- endif -%}
+
+              {% capture price_style %}
+                text-align: {{ product_grid_content_align }};
+              {% endcapture %}
+              {%- render 'layout.stack', slot: product_price, horizontal: true, justify: product_grid_content_align, align: 'baseline', gap: 'xs', style: price_style -%}
+            {% endcapture %}
+
+            {% render 'layout.stack', slot: meta_content, gap: 'xs', align: product_grid_content_align %}
+
+            {%- if enable_swatches and type == 'horizontal' -%}
+              {%- render 'list.product-card.swatches', product: product, disabled_high_variants: disabled_high_variants -%}
+            {%- endif -%}
+          </div>
+
+        </div>
+
+        {%- if enable_product_tags -%}
+          {% render 'product.tags', product: product, align: product_grid_content_align %}
+        {%- endif -%}
+
+        {%- if enable_add_to_cart -%}
+          {% render 'product.add-to-cart', product: product, class_name: 'grid-product__add-to-cart' %}
+        {%- endif -%}
+      {% endcapture %}
+
+      {% render 'layout.stack', slot: card_content, gap: 'sm', justify: 'space-between', style: 'height: 100%;' %}
+    </div>
+  </div>
+</div>

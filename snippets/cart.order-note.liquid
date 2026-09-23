@@ -1,0 +1,63 @@
+{% doc %}
+  Copyright © 2025 Archetype Themes LP. All rights reserved.
+
+  Collapsible text input for adding special instructions or notes to orders.
+
+  @example
+  {% render 'cart.order-note' %}
+{% enddoc %}
+
+{% stylesheet %}
+  .cart__note {
+    --element-input-width: 100%;
+  }
+
+  .note-icon {
+    & svg {
+      position: relative;
+      top: -1px;
+      width: 16px;
+      height: 16px;
+      margin-left: 5px;
+    }
+  }
+
+  .add-note {
+    display: block;
+    margin-bottom: 10px;
+  }
+
+  .add-note.is-active .note-icon--open {
+    display: none;
+  }
+
+  .note-icon--close {
+    display: none;
+
+    .add-note.is-active & {
+      display: inline;
+    }
+  }
+{% endstylesheet %}
+
+<cart-note>
+  <label for="CartNote" class="add-note">
+    {% render 'utility.translate', key: 'actions.add_order_note', fallback: 'Add order note' %}
+    <span class="note-icon note-icon--open" aria-hidden="true">
+      {% render 'element.icon', name: 'pencil' %}
+    </span>
+
+    <span class="note-icon note-icon--close">
+      {% render 'element.icon', name: 'close' %}
+      <span class="icon__fallback-text visually-hidden">
+        {% render 'utility.translate', key: 'actions.close', fallback: 'Close' -%}
+      </span>
+    </span>
+  </label>
+
+  {%- render 'element.input', multiline: 2, name: 'note', classlist: 'cart__note hide', value: cart.note -%}
+</cart-note>
+
+<script type="module">
+  import 'cart.order-note'
+</script>

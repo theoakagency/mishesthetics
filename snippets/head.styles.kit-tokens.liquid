@@ -1,0 +1,70 @@
+{%- style -%}
+  :root {
+    /* Colors */
+    --kit-color-primary: var(--color-primary);
+    --kit-color-secondary: var(--color-secondary);
+    --kit-color-focus: var(--color-focus);
+    --kit-color-error: var(--color-error);
+    --kit-color-success: var(--success-green);
+    --kit-color-sale: var(--color-sale-price);
+    --kit-color-sale-contrast: var(--color-sale-tag-text);
+
+    /* Buttons (kit variant hooks) */
+    --kit-color-primary-button: var(--color-button-primary);
+    --kit-color-on-primary-button: var(--color-button-primary-text);
+
+    /* Typography — families */
+    --kit-font-family-body: var(--element-text-font-family--body), var(--element-text-font-family-fallback--body);
+    --kit-font-family-heading: var(--element-text-font-family--heading), var(--element-text-font-family-fallback--heading);
+
+    /* Typography — body */
+    --kit-font-weight-normal: var(--element-text-font-weight--body);
+    --kit-body-line-height: var(--element-text-line-height--body);
+    --kit-body-letter-spacing: var(--element-text-letter-spacing--body);
+    --kit-font-size-xs: var(--element-text-font-size--body-xs);
+    --kit-font-size-sm: var(--element-text-font-size--body-sm);
+    --kit-font-size-base: var(--element-text-font-size--body-md);
+    --kit-font-size-lg: var(--element-text-font-size--body-lg);
+
+    /* Typography — headings */
+    --kit-heading-font-weight: var(--element-text-font-weight--heading);
+    --kit-heading-letter-spacing: var(--element-text-letter-spacing--heading);
+    --kit-heading-line-height: var(--element-text-line-height--heading-md);
+    --kit-heading-font-size-sm: var(--element-text-font-size--heading-sm);
+    --kit-heading-font-size-md: var(--element-text-font-size--heading-md);
+    --kit-heading-font-size-lg: var(--element-text-font-size--heading-lg);
+    --kit-heading-font-size-xl: var(--element-text-font-size--heading-xl);
+
+    /* Spacing (both scales are 0.25rem-based) */
+    --kit-space-2xs: var(--size-1);
+    --kit-space-xs: var(--size-2);
+    --kit-space-sm: var(--size-3);
+    --kit-space-md: var(--size-4);
+    --kit-space-lg: var(--size-6);
+    --kit-space-xl: var(--size-8);
+    --kit-space-2xl: var(--size-12);
+
+    /* Border radius */
+    --kit-radius-sm: var(--radius-xs);
+    --kit-radius-md: var(--element-button-radius);
+    --kit-radius-lg: var(--radius-md);
+
+    /* Layout */
+    --kit-page-width: var(--page-width);
+    --kit-section-gutter: var(--page-width-padding);
+    --kit-section-spacing: var(--index-section-padding);
+  }
+
+  :root .kit-swatch {
+    border-radius: {% if settings.swatch_style == 'square' %}0{% else %}var(--radius-full){% endif %};
+  }
+
+  kit-variant-picker .kit-radio .kit-button:not(:disabled) {
+    --kit-border-width-sm: var(--kit-border-width-md);
+    --kit-button-color-border: color-mix(in srgb, var(--kit-color-primary) var(--kit-color-mix-tint-overlay-light), transparent);
+  }
+  kit-variant-picker .kit-radio__input:checked + .kit-button:not(:disabled) {
+    --kit-button-color-background: color-mix(in srgb, var(--kit-color-primary) var(--kit-color-mix-tint-overlay-light), transparent);
+    --kit-button-color-text: var(--kit-color-primary);
+  }
+{%- endstyle -%}

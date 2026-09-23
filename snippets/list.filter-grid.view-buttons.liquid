@@ -1,0 +1,62 @@
+{%- doc -%}
+  Copyright © 2025 Archetype Themes LP. All rights reserved.
+
+  Render the view buttons for the collection grid.
+
+  @param {string} [grid_style] - Grid layout ('large', 'medium', 'list')
+
+  @example
+  {% render 'list.filter-grid.view-buttons', grid_style: 'medium' %}
+{%- enddoc -%}
+
+{%- liquid
+  assign grid_style = grid_style | default: section.settings.grid_style | default: 'medium'
+-%}
+
+<grid-view-buttons>
+  <ul class="no-bullets inline-list inline-list--no-wrap text-right">
+    <li>
+      <button
+        type="button"
+        class="grid-view-btn{% if grid_style == 'large' %} is-active{% endif %}"
+        data-view="large"
+        title="{% render 'utility.translate', key: 'labels.large', fallback: 'Large' -%}"
+      >
+        {% render 'element.icon', name: 'view-large' %}
+        <span class="icon__fallback-text visually-hidden">
+          {% render 'utility.translate', key: 'labels.large', fallback: 'Large' -%}
+        </span>
+      </button>
+    </li>
+    <li>
+      <button
+        type="button"
+        class="grid-view-btn{% if grid_style == 'medium' %} is-active{% endif %}"
+        data-view="medium"
+        title="{% render 'utility.translate', key: 'labels.small', fallback: 'Small' -%}"
+      >
+        {% render 'element.icon', name: 'view-small' %}
+        <span class="icon__fallback-text visually-hidden">
+          {% render 'utility.translate', key: 'labels.small', fallback: 'Small' -%}
+        </span>
+      </button>
+    </li>
+    <li>
+      <button
+        type="button"
+        class="grid-view-btn{% if grid_style == 'list' %} is-active{% endif %}"
+        data-view="list"
+        title="{% render 'utility.translate', key: 'labels.list', fallback: 'List' -%}"
+      >
+        {% render 'element.icon', name: 'view-list' %}
+        <span class="icon__fallback-text visually-hidden">
+          {% render 'utility.translate', key: 'labels.list', fallback: 'List' -%}
+        </span>
+      </button>
+    </li>
+  </ul>
+</grid-view-buttons>
+
+<script type="module">
+  import 'list.filter-grid.view-buttons'
+</script>

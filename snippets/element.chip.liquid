@@ -1,0 +1,205 @@
+{% doc %}
+  Copyright © 2025 Archetype Themes LP. All rights reserved.
+
+  Compact, interactive elements for displaying and selecting filters, tags, or categories.
+
+  @param {string} [as] - Element type (a, span, etc.)
+  @param {string} [href] - Link (only works if is_link is true)
+  @param {string} [attributes] - Additional attributes for the element
+  @param {string} [classlist] - Class list
+  @param {string} [style] - Style attribute
+  @param {string} [icon] - Icon name
+  @param {boolean} [active] - Whether the chip is active
+  @param {string} [label] - Label text
+  @param {string} [caption] - Caption text
+  @param {boolean} [dismissible] - Whether the chip is dismissible
+  @param {boolean} [display_swatch] - Whether the chip should display a swatch
+
+  @example
+  {% render 'element.chip', label: 'New', active: true %}
+{% enddoc %}
+
+{% liquid
+  assign href = href | default: ''
+  assign classlist = classlist | default: '' | append: ' element-chip' | strip
+  assign style = style | default: ''
+  assign as = as | default: 'a'
+  assign icon = icon | default: ''
+  assign active = active | default: false
+  assign label = label | default: ''
+  assign caption = caption | default: ''
+  assign dismissible = dismissible | default: false
+  assign display_swatch = display_swatch | default: true, allow_false: true
+  assign attributes = attributes | default: ''
+
+  if active
+    assign classlist = classlist | append: ' element-chip--active'
+  endif
+%}
+
+<{{ as }}
+  class="{{ classlist }}"
+
+  {% if as == 'a' and href != blank %}
+    href="{{ href }}"
+  {% endif %}
+
+  {% if attributes != blank %}
+    {{ attributes }}
+  {% endif %}
+
+  {% if style != blank %}
+    style="{{ style | escape }}"
+  {% endif %}
+>
+  {% if icon != blank %}
+    {% render 'element.icon', name: icon %}
+  {% endif %}
+
+  {%- if display_swatch and swatch != blank and swatch != 'rgba(0,0,0,0)' -%}
+    {% assign swatch_style = '--element-swatch-color-background: ' | append: swatch %}
+    {% render 'element.swatch', style: swatch_style %}
+  {%- endif -%}
+
+  <span>{{ label | escape }}</span>
+
+  {% if caption != blank %}
+    <span class="element-chip__caption">{{ caption | escape }}</span>
+  {% endif %}
+
+  {% if dismissible %}
+    <div class="element-chip__close-icon">
+      {% render 'element.icon', name: 'close' %}
+    </div>
+  {% endif %}
+</{{ as }}>
+
+{% render 'style.primitive-tokens' %}
+{% render 'style.normalize' %}
+
+{% stylesheet %}
+  :root {
+    --element-chip-radius: var(--radius-xs);
+    --element-chip-px: var(--size-3);
+    --element-chip-py: var(--size-1);
+    --element-chip-gap: var(--size-1);
+    --element-chip-border-width: var(--size-0-25);
+
+    --element-chip-font-size: var(--element-text-font-size--body-sm);
+    --element-chip-letter-spacing: var(--element-text-letter-spacing--body);
+    --element-chip-line-height: var(--element-text-line-height--body);
+
+    --element-chip-color-primary: var(--color-primary);
+    --element-chip-color-secondary: var(--color-secondary);
+    --element-chip-color-text: var(--element-chip-color-primary);
+    --element-chip-color-background: var(--element-chip-color-secondary);
+    --element-chip-color-border: var(--element-chip-color-primary);
+    --element-chip-color-focus-outline: transparent;
+
+    --element-chip-shade-inset-box-shadow: 12%;
+
+    --element-chip-inset-box-shadow: initial;
+
+    --element-chip-icon-size: var(--size-4);
+    --element-chip-swatch-size: var(--size-4);
+    --element-chip-close-icon-size: var(--size-2-5);
+  }
+
+  .element-chip {
+    /* Layout & Typography */
+    --_radius: var(--element-chip-radius);
+    --_px: var(--element-chip-px);
+    --_py: var(--element-chip-py);
+    --_gap: var(--element-chip-gap);
+    --_border-width: var(--element-chip-border-width);
+    --_font-family: var(
+      --element-chip-font-family,
+      var(--element-text-font-family--body),
+      var(--element-text-font-family-fallback--body)
+    );
+    --_font-size: var(--element-chip-font-size);
+    --_letter-spacing: var(--element-chip-letter-spacing);
+    --_line-height: var(--element-chip-line-height);
+
+    /* Colors */
+    --_color-primary: var(--element-chip-color-primary);
+    --_color-secondary: var(--element-chip-color-secondary);
+    --_color-text: var(--element-chip-color-text);
+    --_color-background: var(--element-chip-color-background);
+    --_color-border: var(--element-chip-color-border);
+    --_color-focus-outline: var(--element-chip-color-focus-outline);
+    --_color-caption: color-mix(in srgb, var(--_color-text) var(--_shade-caption), transparent);
+    --_shade-active: 100%;
+    --_shade-hover: 4%;
+    --_shade-caption: 30%;
+    --_shade-inset-box-shadow: var(--element-chip-shade-inset-box-shadow);
+    --_inset-box-shadow: var(
+      --element-chip-inset-box-shadow,
+      inset 0 0 0 var(--_border-width)
+        color-mix(in srgb, var(--_color-border) var(--_shade-inset-box-shadow), transparent)
+    );
+
+    --element-icon-size: var(--element-chip-icon-size);
+    --swatch-size: var(--element-chip-swatch-size);
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: var(--_gap);
+    border-radius: var(--_radius);
+    padding-inline: var(--_px);
+    padding-block: var(--_py);
+    text-align: center;
+    font-family: var(--_font-family);
+    font-size: var(--_font-size);
+    letter-spacing: var(--_letter-spacing);
+    line-height: var(--_line-height);
+    background-color: var(--_color-background);
+    color: var(--_color-text);
+    box-shadow: var(--_inset-box-shadow);
+    outline: 3px solid var(--_color-focus-outline);
+    outline-offset: 0;
+    cursor: pointer;
+    text-decoration: none;
+
+    &:hover {
+      --_color-background: color-mix(in srgb, var(--_color-primary) var(--_shade-hover), var(--_color-secondary));
+    }
+
+    &:focus-visible {
+      --_color-focus-outline: var(--color-focus);
+      --_inset-box-shadow: transparent;
+    }
+
+    &:focus:not(:focus-visible),
+    &:active {
+      --_color-focus-outline: transparent;
+      --_inset-box-shadow: inset 0 0 0 var(--_border-width)
+        color-mix(in srgb, var(--_color-border) var(--_shade-inset-box-shadow), transparent);
+    }
+
+    & > * {
+      pointer-events: none;
+    }
+  }
+
+  .element-chip--active {
+    --_color-text: var(--_color-secondary);
+    --_color-background: color-mix(in srgb, var(--_color-primary) var(--_shade-active), transparent);
+    --_shade-caption: 70%;
+
+    &:hover {
+      --_shade-active: 4%;
+      --_color-background: color-mix(in srgb, var(--_color-secondary) var(--_shade-active), var(--_color-primary));
+    }
+  }
+
+  .element-chip__caption {
+    color: var(--_color-caption);
+  }
+
+  .element-chip__close-icon {
+    --element-icon-size: var(--element-chip-close-icon-size);
+    display: flex;
+  }
+{% endstylesheet %}

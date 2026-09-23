@@ -1,0 +1,320 @@
+{% doc %}
+  Copyright © 2025 Archetype Themes LP. All rights reserved.
+
+  Search form with real-time predictive results for products, collections, and pages.
+
+  @param {string} [context] - Rendering context ('header', 'drawer', etc.)
+  @param {boolean} [predictive_search_enabled] - Enable predictive search functionality
+  @param {boolean} [no_submit_button] - Hide the submit button
+  @param {boolean} [no_overlay] - Disable the overlay element
+  @param {string} [hydration] - Hydration strategy for progressive enhancement
+
+  @example
+  {% render 'form.predictive-search', context: 'header', predictive_search_enabled: true %}
+{% enddoc %}
+
+{% stylesheet %}
+  predictive-search {
+    --element-button-color-primary: currentColor;
+    --element-button-box-shadow: transparent;
+    --element-button-icon-size: var(--size-6);
+    --element-input-height: 100%;
+    --element-input-width: 100%;
+    --element-icon-color: var(--color-primary);
+    --element-icon-opacity: 0.5;
+
+    display: flex;
+    align-items: center;
+    position: relative;
+    width: 100%;
+    max-width: 960px;
+    margin: 0 auto;
+
+    &.is-active {
+      flex: 99;
+    }
+
+    &.is-active .predictive__screen {
+      display: block;
+      z-index: 3;
+    }
+
+    &.is-active .element-button--close-search {
+      display: flex;
+    }
+  }
+
+  .site-header__search-island {
+    display: block;
+    width: 100%;
+  }
+
+  .site-header__search-results {
+    position: absolute;
+    top: 100%;
+    transform: translateY(var(--header-padding-bottom));
+    left: 0;
+    right: 0;
+    background-color: var(--root-color-secondary);
+    color: var(--root-color-primary);
+    max-height: 70vh;
+    max-height: calc(90vh - 100%);
+    overflow: auto;
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.09);
+    transition: transform 0.3s cubic-bezier(0.18, 0.77, 0.58, 1);
+
+    .header-wrapper--compressed & {
+      transform: translateY(0);
+    }
+  }
+
+  .site-header__search-results-wrapper {
+    padding: 15px 0;
+  }
+
+  @media only screen and (min-width: 769px) {
+    .site-header__search-results {
+      max-height: calc(100vh - 100% - 33px); /*search bar + toolbar*/
+    }
+
+    .site-header__search-results-wrapper {
+      padding: 30px 0;
+    }
+  }
+
+  .predictive__label {
+    margin-top: 20px;
+    border-bottom: 1px solid;
+    border-bottom-color: color-mix(in srgb, var(--color-primary) var(--shade-12), var(--color-secondary));
+    padding-bottom: 5px;
+    margin-bottom: 20px;
+  }
+
+  :root {
+    /*Layout for article/images*/
+    --predictive-gap: 10px;
+  }
+
+  .predictive-result__layout {
+    display: flex;
+    flex-wrap: wrap;
+    padding: var(--predictive-gap);
+    margin-left: calc(var(--predictive-gap) * -1);
+    margin-right: calc(var(--predictive-gap) * -1);
+
+    & > div {
+      margin: 0 var(--predictive-gap) var(--gutter);
+
+      &:last-child {
+        margin-bottom: 0;
+      }
+    }
+
+    & [data-type-products] {
+      flex: 1 1 60%;
+      margin-bottom: 0;
+
+      & img {
+        object-fit: contain;
+      }
+
+      & .predictive-image-fill-space--true img {
+        object-fit: cover;
+      }
+    }
+
+    & [data-type-collections],
+    & [data-type-pages] {
+      flex: 1 1 200px;
+    }
+
+    & [data-type-articles] {
+      flex: 1 1 60%;
+
+      & .grid-item__meta {
+        margin-left: 10px;
+      }
+    }
+  }
+
+  .predictive__image-wrap {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+
+    & img {
+      object-position: 50% 0;
+    }
+  }
+
+  .predictive-results__footer {
+    padding: 0 0 30px;
+  }
+
+  .predictive-overflow-hidden {
+    overflow: hidden;
+
+    @media only screen and (max-width: 768px) {
+      overflow: auto;
+    }
+  }
+
+  .predictive__screen {
+    position: fixed;
+    width: 100vw;
+    height: 100vh;
+    top: 0;
+    left: 0;
+    background: color-mix(in srgb, var(--color-secondary) var(--shade-60), transparent);
+    display: none;
+  }
+
+  predictive-search form {
+    display: flex;
+    flex-wrap: wrap;
+    z-index: 4;
+    position: relative;
+    width: 100%;
+  }
+
+  .search__input-wrap {
+    position: relative;
+    flex: 5;
+    transition: flex 0.3s ease-in-out;
+  }
+
+  .element-button--search {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    right: 0;
+
+    [dir='rtl'] & {
+      right: auto;
+      left: 0;
+    }
+  }
+
+  .element-button--close-search.element-button {
+    display: none;
+    flex: 30px 0 0;
+  }
+
+  .search__results {
+    background: var(--root-color-secondary);
+    color: var(--root-color-primary);
+    position: absolute;
+    width: 100%;
+    min-width: 400px;
+    top: 100%;
+    padding: 0;
+    display: none;
+    margin-top: 10px;
+    container-type: inline-size;
+    max-height: 80vh;
+    overflow-y: auto;
+    word-break: break-all;
+
+    @media only screen and (max-width: 768px) {
+      width: calc(100% + var(--page-width-padding, 17px) * 2);
+      min-width: min(400px, 100vw);
+      margin-left: calc(var(--page-width-padding, 17px) * -1);
+      margin-right: calc(var(--page-width-padding, 17px) * -1);
+      max-height: 75vh;
+
+      .template-search .page-content & {
+        max-height: 50vh;
+      }
+    }
+  }
+{% endstylesheet %}
+
+{%- liquid
+  assign context = context | default: blank
+  assign predictive_search_enabled = predictive_search_enabled | default: settings.predictive_search_enabled, allow_false: true | default: true, allow_false: true
+  assign hydration = hydration | default: 'on:idle'
+  assign no_submit = no_submit | default: false, allow_false: true
+
+  assign input_value = search.terms | escape
+
+  capture input_placeholder
+    render 'utility.translate', key: 'labels.search', fallback: 'Search'
+  endcapture
+
+  capture input_attributes
+    echo 'role="combobox"'
+    echo 'aria-expanded="false"'
+    echo 'aria-owns="predictive-search-results"'
+    echo 'aria-controls="predictive-search-results"'
+    echo 'aria-haspopup="listbox"'
+    echo 'aria-autocomplete="list"'
+    echo 'autocorrect="off"'
+    echo 'autocomplete="off"'
+    echo 'autocapitalize="off"'
+    echo 'spellcheck="false"'
+    echo 'tabindex="0"'
+  endcapture
+
+  assign button_close_icon = 'close'
+-%}
+
+{%- capture button_close_attributes -%}
+  aria-label="{% render 'utility.translate', key: 'actions.close', fallback: 'Close' %}"
+{%- endcapture -%}
+
+{%- capture button_submit_attributes -%}
+  aria-label="{% render 'utility.translate', key: 'actions.search', fallback: 'Search' %}"
+{%- endcapture -%}
+
+<is-land class="site-header__search-island" {{ hydration }}>
+  <predictive-search
+    data-context="{{ context }}"
+    data-enabled="{{ predictive_search_enabled }}"
+    defer-hydration
+  >
+    {%- unless no_overlay -%}
+      <div class="predictive__screen" data-screen></div>
+    {%- endunless -%}
+    <form action="{{ routes.search_url }}" method="get" role="search">
+      <div class="search__input-wrap">
+        {%- render 'element.input',
+          classlist: 'search__input',
+          id: 'Search',
+          type: 'search',
+          name: 'q',
+          value: input_value,
+          placeholder: input_placeholder,
+          label: input_placeholder,
+          attributes: input_attributes,
+          transparent: true
+        -%}
+        <input name="options[prefix]" type="hidden" value="last">
+        {%- unless no_submit_button -%}
+          {%- render 'element.button',
+            classlist: 'element-button--search',
+            icon: 'search',
+            attributes: button_submit_attributes,
+            transparent: true,
+            inverted: true
+          -%}
+        {%- endunless -%}
+      </div>
+
+      {%- render 'element.button',
+        classlist: 'element-button--close-search',
+        icon: button_close_icon,
+        attributes: button_close_attributes,
+        transparent: true
+      -%}
+      <div id="predictive-search" class="search__results" tabindex="-1"></div>
+    </form>
+  </predictive-search>
+
+  <template data-island>
+    <script type="module">
+      import 'form.predictive-search'
+    </script>
+  </template>
+</is-land>

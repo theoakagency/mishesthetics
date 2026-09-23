@@ -1,0 +1,210 @@
+{% doc %}
+  Copyright © 2025 Archetype Themes LP. All rights reserved.
+
+  Add to cart button with optional dynamic checkout buttons for accelerated purchasing.
+
+  @param {object} [block] - Block object
+  @param {object} [product] - Product object
+
+  @example
+  {% render 'block.product-buy-buttons', product: product %}
+{% enddoc %}
+
+{% stylesheet %}
+  block-buy-buttons {
+    form {
+      display: flex;
+      flex-direction: column;
+      gap: var(--size-2-5);
+    }
+  }
+
+  /*Hide Shopify Payment Buttons if no variant*/
+  .add-to-cart[disabled] + .shopify-payment-button {
+    display: none;
+  }
+
+  button.shopify-payment-button__button--unbranded {
+    width: 100%;
+  }
+
+  shopify-accelerated-checkout {
+    --shopify-accelerated-checkout-button-border-radius: var(--element-button-radius);
+    --shopify-accelerated-checkout-button-block-size: var(--size-12);
+  }
+
+  .product__policies {
+    font-size: 0.85em;
+  }
+
+  store-availability:not(:has(.store-availability)) {
+    display: none;
+  }
+
+  .shopify-payment-terms {
+    &:empty {
+      display: none;
+    }
+
+    .quick-shop-modal & {
+      display: none;
+    }
+  }
+{% endstylesheet %}
+
+{%- liquid
+  assign product = section.settings.product | default: product
+  assign form_id = 'product-form-' | append: section.id
+  assign submit_button_id = 'ProductSubmitButton-' | append: section.id
+
+  assign cart_type = settings.cart_type | default: 'dropdown'
+
+  assign show_dynamic_checkout = false
+
+  if block.settings.show_dynamic_checkout
+    assign show_dynamic_checkout = true
+  endif
+
+  assign check_against_inventory = true
+  assign quantity_rule_soldout = false
+
+  if product.selected_or_first_available_variant.inventory_management != 'shopify' or product.selected_or_first_available_variant.inventory_policy == 'continue'
+    assign check_against_inventory = false
+  endif
+
+  if product.selected_or_first_available_variant.quantity_rule.min > product.selected_or_first_available_variant.inventory_quantity and check_against_inventory
+    assign quantity_rule_soldout = true
+  endif
+
+  assign gift_card_recipient_feature_active = false
+  if block.settings.show_gift_card_recipient and product.gift_card?
+    assign gift_card_recipient_feature_active = true
+  endif
+
+  assign variant_unavailable = false
+  if product.selected_or_first_available_variant == nil
+    assign variant_unavailable = true
+    assign input_disabled = true
+  elsif product.selected_or_first_available_variant.available == false or quantity_rule_soldout
+    assign input_disabled = true
+  endif
+-%}
+
+{%- capture button_text -%}
+  {% if template contains 'preorder' %}
+    {% render 'utility.translate', key: 'actions.preorder', fallback: 'Pre-order' %}
+  {% elsif variant_unavailable %}
+    {% render 'utility.translate', key: 'info.unavailable', fallback: 'Unavailable' %}
+  {% elsif input_disabled %}
+    {% render 'utility.translate', key: 'info.sold_out', fallback: 'Sold out' %}
+  {% else %}
+    {% render 'utility.translate', key: 'actions.add_to_cart', fallback: 'Add to cart' %}
+  {% endif %}
+{%- endcapture -%}
+
+{% if product %}
+  <block-buy-buttons
+    class="block-buy-buttons"
+    data-section-id="{{ section.id }}"
+    data-product-id="{{ product.id }}"
+    data-cart-type="{{ cart_type }}"
+    data-template="{{ template.suffix }}"
+    {% if show_dynamic_checkout %}
+      data-show-dynamic-checkout=""
+    {% endif %}
+    {{ block.shopify_attributes }}
+  >
+    {%- form 'product', product, id: form_id, novalidate: 'novalidate', data-type: 'add-to-cart-form' -%}
+      {%- if cart.taxes_included or shop.shipping_policy.body != blank -%}
+        <div class="product__policies rte">
+          {%- if cart.taxes_included -%}
+            {% render 'utility.translate', key: 'info.tax_included', fallback: 'Tax included.' %}
+          {%- endif -%}
+
+          {%- if shop.shipping_policy.body != blank -%}
+            {% assign info_shipping_policy_html = 'info.shipping_policy_html' | t: link: shop.shipping_policy.url %}
+            {%- capture fallback_info_shipping_policy_html -%}
+              <a href='{{ shop.shipping_policy.url }}'>Shipping</a> calculated at checkout.
+            {%- endcapture -%}
+            {% render 'utility.translate', t: info_shipping_policy_html, fallback: fallback_info_shipping_policy_html %}
+          {%- endif -%}
+        </div>
+      {%- endif -%}
+
+      {%- if gift_card_recipient_feature_active -%}
+        {%- render 'block.product-buy-buttons.gift-form' -%}
+      {%- endif -%}
+
+      <input
+        type="hidden"
+        name="id"
+        value="{{ product.selected_or_first_available_variant.id }}"
+        {% if input_disabled %}
+          disabled
+        {% endif %}
+      >
+
+      {% render 'element.button',
+        text: button_text,
+        id: submit_button_id,
+        type: 'submit',
+        name: 'add',
+        classlist: 'add-to-cart',
+        disabled: input_disabled,
+        full: true,
+        inverted: show_dynamic_checkout
+      %}
+
+      {% capture dynamic_checkout_content %}
+        {{- form | payment_button -}}
+      {% endcapture %}
+
+      {%- if show_dynamic_checkout
+        and template != 'product.preorder'
+        and gift_card_recipient_feature_active == false
+      -%}
+        {% render 'element.button', slot: dynamic_checkout_content, shopify_payment: true %}
+      {%- endif -%}
+
+      <div class="shopify-payment-terms product__policies">{{ form | payment_terms }}</div>
+    {%- endform -%}
+
+    <script type="application/json">
+      {
+        "addToCart": "{{ 'actions.add_to_cart' | t }}",
+        "soldOut": "{{ 'info.sold_out' | t }}",
+        "unavailable": "{{ 'info.unavailable' | t }}",
+        "preOrder": "{{ 'actions.preorder' | t }}"
+      }
+    </script>
+  </block-buy-buttons>
+
+  <script type="module">
+    import 'block.product-buy-buttons'
+  </script>
+
+  {%- if block.settings.surface_pickup_enable -%}
+    {%- assign pick_up_availabilities = product.selected_or_first_available_variant.store_availabilities
+      | where: 'pick_up_enabled', true
+    -%}
+
+    {%- comment -%}
+      Always render in case of variant change.
+    {%- endcomment -%}
+    <store-availability
+      data-store-availability-holder
+      data-product-name="{{ product.title | escape }}"
+      data-base-url="{{ shop.url }}{{ routes.root_url }}"
+      data-variant-id="{{- product.selected_or_first_available_variant.id -}}"
+      data-product-id="{{- product.id -}}"
+      data-section-id="{{ section.id }}"
+      {% if product.selected_or_first_available_variant.available and pick_up_availabilities.size > 0 %}
+        data-available
+      {% endif %}
+    ></store-availability>
+
+    <script type="module">
+      import 'block.product-buy-buttons.store-availability'
+    </script>
+  {%- endif -%}
+{%- endif -%}

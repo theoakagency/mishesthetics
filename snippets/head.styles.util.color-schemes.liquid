@@ -1,0 +1,21 @@
+{% stylesheet %}
+	[class*='color-scheme-'] {
+	  background-color: var(--color-secondary);
+	  color: var(--color-primary);
+	}
+	
+	[class*='color-scheme-']:not(.color-scheme-none) {
+	  position: relative;
+	
+	  & a:not(.element-button, .element-chip) {
+	    color: currentColor;
+	    border-color: currentColor;
+	  }
+	
+	  &.index-section {
+	    margin: 0;
+	    padding-top: var(--index-section-padding);
+	    padding-bottom: var(--index-section-padding);
+	  }
+	}
+{% endstylesheet %}

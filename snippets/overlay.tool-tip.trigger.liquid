@@ -1,0 +1,83 @@
+{%- doc -%}
+  Copyright © 2025 Archetype Themes LP. All rights reserved.
+
+  Renders a tool tip trigger component for the overlay tool tip.
+
+  @param {string} title - The title of the tool tip
+  @param {string} content - The content of the tool tip
+  @param {string} context - The context of the tool tip
+  @param {string} button - The button to render
+  @param {string} wrapper_class - The class to apply to the tool tip wrapper
+
+  @example
+  {% render 'overlay.tool-tip.trigger', title: 'Tool tip', content: 'This is some content', context: 'size-chart' %}
+{%- enddoc -%}
+
+{% stylesheet %}
+  .tool-tip-trigger {
+    background: none;
+    border: 0;
+    cursor: pointer;
+  }
+
+  .tool-tip-trigger__title {
+    display: inline-block;
+    padding: 0;
+  }
+
+  .tool-tip-trigger__title:hover,
+  .tool-tip-trigger__title:focus {
+    text-decoration: underline;
+    text-underline-offset: 2px;
+  }
+
+  .tool-tip-trigger__content {
+    display: none !important; /* Ensure our content is always hidden */
+  }
+
+  /* Size chart trigger */
+
+  .size-chart__standalone {
+    margin: var(--size-chart-margin);
+
+    & svg {
+      margin-left: var(--size-chart-icon-margin);
+    }
+  }
+{% endstylesheet %}
+
+{%- liquid
+  assign title = title | default: blank
+  assign content = content | default: blank
+  assign context = context | default: blank
+  assign button = button | default: blank
+  assign wrapper_class = wrapper_class | default: blank
+-%}
+
+<tool-tip-trigger
+  class="tool-tip-trigger"
+  data-tool-tip="{{ context }}"
+  data-tool-tip-classes="{{ wrapper_class }}"
+  defer-hydration
+>
+  {% if title != blank %}
+    <button class="tool-tip-trigger__title" type="button" aria-expanded="false" aria-haspopup="dialog">
+      {%- render 'element.text', text: title -%}
+    </button>
+  {% endif %}
+
+  <div
+    class="tool-tip-trigger__content"
+    data-tool-tip-trigger-content=""
+  >
+    {{ content }}
+  </div>
+
+  {% if button != blank %}
+    {{ button }}
+  {% endif %}
+</tool-tip-trigger>
+
+<script type="module">
+  import 'overlay.tool-tip.trigger'
+</script>

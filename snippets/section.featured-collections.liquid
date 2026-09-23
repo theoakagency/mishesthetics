@@ -1,0 +1,43 @@
+{%- doc -%}
+  Copyright © 2025 Archetype Themes LP. All rights reserved.
+
+  Renders a section with a list of collection cards.
+  Supports a custom number of columns to display on desktop and mobile.
+
+  @param {number} [columns_desktop] - The number of columns to display on desktop
+  @param {number} [columns_mobile] - The number of columns to display on mobile
+
+  @example
+  {% render 'section.featured-collections', columns_desktop: 3, columns_mobile: 2 %}
+{%- enddoc -%}
+
+{%- liquid
+  assign columns_desktop = columns_desktop | default: section.settings.columns_desktop | default: 6
+  assign columns_mobile = columns_mobile | default: section.settings.columns_mobile | default: 2
+-%}
+
+{%- capture cards -%}
+  {%- for block in section.blocks -%}
+    {%- render 'list.collection-card', block: block, collection: block.settings.collection, sizeVariable: sizeVariable, fallback: 'variable' -%}
+  {%- endfor -%}
+{%- endcapture -%}
+
+{%- capture content -%}
+  {%- render 'layout.section-heading', url: routes.collections_url -%}
+
+  {%- if section.blocks.size > 0 -%}
+    {%- render 'layout.grid', slot: cards, columns_xs: columns_mobile, columns_md: columns_desktop, gap_xs: 'sm', gap_md: 'md' -%}
+  {%- else -%}
+    {%- render 'utility.translate', key: 'info.section_no_content', fallback: "This section doesn't currently include any content. Add content to this section using the sidebar." -%}
+  {%- endif -%}
+{%- endcapture -%}
+
+{%- render 'layout.section', slot: content, classlist: 'layout-section--featured-collections' -%}
+
+{%- stylesheet -%}
+  /* TODO: remove this once collection card is refactored and removes .grid-item */
+  .layout-section--featured-collections .grid-item {
+    padding: 0;
+    margin: 0;
+  }
+{%- endstylesheet -%}

@@ -1,0 +1,20 @@
+{% doc %}
+  Copyright © 2025 Archetype Themes LP. All rights reserved.
+
+  Main page template displaying page title and content.
+
+  @param {object} [page] - Page object
+
+  @example
+  {% render 'section.main-page' %}
+{% enddoc %}
+
+<div class="page-width page-width--narrow page-content">
+  <header class="section-header">
+    <h1 class="section-header__title">
+      {{ page.title | escape }}
+    </h1>
+  </header>
+
+  {%- render 'element.text', text: page.content, variant: 'rte' -%}
+</div>

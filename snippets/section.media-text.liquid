@@ -1,0 +1,596 @@
+{% doc %}
+  Copyright © 2025 Archetype Themes LP. All rights reserved.
+
+  Flexible media and text layout with customizable positioning and content blocks.
+
+  @param {string} [media_width] - ('33'|'50'|'66') Media column width percentage
+  @param {string} [media_crop] - ('none'|'16-9'|'4-3'|'portrait'|'landscape'|'square'|'rounded'|'rounded-wave'|'rounded-top'|'star'|'splat-1'|'splat-2'|'splat-3'|'splat-4') Media crop style
+  @param {string} [layout] - ('left'|'right') Media position
+  @param {string} [content_alignment] - ('left'|'center'|'right') Text alignment
+  @param {string} [content_position] - ('top'|'center'|'bottom') Vertical content position
+  @param {string} [color_scheme] - ('none'|'1'|'2'|'3') Color scheme
+  @param {boolean} [top_padding] - Enable top padding
+  @param {boolean} [bottom_padding] - Enable bottom padding
+  @param {boolean} [full_width] - Enable full-width layout
+  @param {string} [subheading] - Section subheading
+  @param {string} [heading] - Section heading
+  @param {string} [heading_size] - ('sm'|'md'|'lg'|'xl') Heading size
+  @param {string} [text_highlight] - ('accent-color'|'handwrite'|'outline'|'regular'|'serif') Text styling
+  @param {string} [text] - Body text content
+  @param {string} [button_text] - Button label
+  @param {string} [button_link] - Button URL
+
+  @example
+  {% render 'section.media-text', layout: 'left', media_width: '50', content_alignment: 'center' %}
+{% enddoc %}
+
+{% stylesheet %}
+  .media-with-text {
+    --overlay: 0 0 0;
+
+    position: relative;
+    display: flex;
+    justify-content: space-between;
+
+    @media only screen and (max-width: 959px) {
+      flex-direction: column-reverse;
+    }
+
+    &.media-with-text-layout--left {
+      flex-direction: row-reverse;
+
+      @media only screen and (max-width: 959px) {
+        flex-direction: column-reverse;
+      }
+    }
+
+    &.media-with-text-full-width--true {
+      padding-left: 0;
+      padding-right: 0;
+      overflow: hidden;
+    }
+
+    &.media-with-text-full-width--true .media-with-text__image,
+    &.media-with-text-full-width--true .media-with-text__video {
+      @media only screen and (max-width: 959px) {
+        max-width: 100%;
+        margin: 0;
+      }
+    }
+
+    .color-scheme-1 & {
+      --overlay: var(--color-scheme-1-secondary);
+    }
+
+    .color-scheme-2 & {
+      --overlay: var(--color-scheme-2-secondary);
+    }
+
+    .color-scheme-3 & {
+      --overlay: var(--color-scheme-3-secondary);
+    }
+
+    .color-scheme-none & {
+      --overlay: var(--root-color-secondary);
+    }
+  }
+
+  .media-with-text__content {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    flex: 0 1 50%;
+    padding: var(--index-section-padding) 60px;
+
+    .media-with-text-content-align--center & {
+      text-align: center;
+    }
+
+    .media-with-text-content-align--right & {
+      text-align: right;
+    }
+
+    &.media-with-text-content-position--top {
+      justify-content: flex-start;
+    }
+
+    &.media-with-text-content-position--bottom {
+      justify-content: flex-end;
+    }
+
+    @media only screen and (max-width: 959px) {
+      padding: var(--index-section-padding) 20px 0 20px;
+    }
+
+    .media-with-text-full-width--true & {
+      @media only screen and (max-width: 959px) {
+        padding: var(--index-section-padding) calc(var(--page-width-padding) + 20px);
+      }
+    }
+  }
+
+  .media-with-text__content-button {
+    @media only screen and (max-width: 959px) {
+      margin-top: calc(var(--gutter) / 2);
+    }
+  }
+
+  .media-with-text__media {
+    flex-basis: 100%;
+
+    & video {
+      width: 100%;
+      display: block;
+    }
+
+    & img {
+      object-fit: cover;
+      width: 100%;
+    }
+
+    .media-with-text-full-width--true & {
+      padding: 0;
+    }
+
+    .media-with-text-full-width--true.media-with-text-media-crop--custom-shape & {
+      @media only screen and (max-width: 959px) {
+        padding: 0 0 2em 0;
+      }
+    }
+
+    @media only screen and (max-width: 959px) {
+      padding: 0 20px 0 20px;
+    }
+  }
+
+  .media-with-text__video {
+    position: relative;
+    width: 100%;
+
+    &.media-with-text-video-crop--16-9,
+    &.media-with-text-video-crop--4-3 {
+      & video {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+      }
+    }
+
+    &.media-with-text-video-crop--16-9 {
+      padding-bottom: 56.25%;
+    }
+
+    &.media-with-text-video-crop--4-3 {
+      padding-bottom: 75%;
+    }
+
+    @media only screen and (max-width: 959px) {
+      margin: 0 auto;
+    }
+  }
+
+  .media-with-text__video:not(.media-with-text__video--no-video),
+  .media-with-text__image:not(.media-with-text__image--no-image) {
+    .media-with-text-full-width--true.media-with-text-media-crop--custom-shape & {
+      transform: scale(1.2) translateX(15%);
+    }
+
+    .media-with-text-full-width--true.media-with-text-media-crop--custom-shape.media-with-text-layout--left & {
+      transform: scale(1.2) translateX(-15%);
+    }
+
+    .media-with-text-full-width--true.media-with-text-media-crop--custom-shape.media-with-text-content-align--center & {
+      @media only screen and (max-width: 959px) {
+        transform: scale(1.2);
+      }
+    }
+  }
+
+  /*
+	  Video follows content alignment setting on mobile
+	  When full width enabled, should be in opposite direction
+	  of content alignment
+	*/
+
+  .media-with-text__video:not(.media-with-text__video--no-video),
+  .media-with-text__image:not(.media-with-text__image--no-image) {
+    @media only screen and (max-width: 959px) {
+      .media-with-text-content-align--left & {
+        margin-left: 0;
+      }
+
+      .media-with-text-content-align--right & {
+        margin-right: 0;
+      }
+
+      .media-with-text-full-width--true.media-with-text-media-crop--custom-shape.media-with-text-content-align--left & {
+        transform: scale(1.2) translateX(15%);
+      }
+
+      .media-with-text-full-width--true.media-with-text-media-crop--custom-shape.media-with-text-content-align--right
+        & {
+        transform: scale(1.2) translateX(-15%);
+      }
+    }
+  }
+
+  .media-with-text__play-button {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    z-index: 1;
+  }
+
+  .media-with-text__image {
+    @media only screen and (max-width: 959px) {
+      margin: 0 auto;
+    }
+  }
+
+  .media-with-text__media:has([data-overlay='true']) {
+    position: relative;
+  }
+
+  .media-with-text__media [data-overlay='true']::before {
+    --overlay-direction: to right;
+
+    content: '';
+    display: block;
+    background: linear-gradient(
+      var(--overlay-direction),
+      color-mix(in srgb, var(--overlay) 100%, transparent),
+      color-mix(in srgb, var(--overlay) 0%, transparent)
+    );
+    position: absolute;
+    inset: 0;
+    z-index: 1;
+
+    @media only screen and (max-width: 959px) {
+      /* override overlay direction for mobile */
+      --overlay-direction: to top !important;
+      bottom: -1px; /* fixes 1px rendering gap glitch */
+    }
+  }
+
+  .media-with-text-layout--left [data-overlay='true']::before {
+    --overlay-direction: to left;
+  }
+
+  .media-with-text__alt-image--hidden {
+    display: none;
+  }
+
+  .media-with-text-media-width--33 {
+    & .media-with-text__media {
+      flex: 0 1 33.3333%;
+    }
+
+    & .media-with-text__content {
+      flex: 0 1 66.6667%;
+    }
+
+    & .media-with-text__image,
+    & .media-with-text__video {
+      @media only screen and (max-width: 959px) {
+        max-width: 50%;
+      }
+    }
+
+    @media only screen and (min-width: 960px) {
+      & .media-with-text__media {
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+      }
+
+      & .media-with-text__video--no-video {
+        height: auto;
+      }
+    }
+  }
+
+  .media-with-text-media-width--50 {
+    & .media-with-text__media {
+      flex: 0 1 50%;
+    }
+
+    & .media-with-text__content {
+      flex: 0 1 50%;
+    }
+
+    & .media-with-text__image,
+    & .media-with-text__video {
+      @media only screen and (max-width: 959px) {
+        max-width: 75%;
+      }
+    }
+  }
+
+  .media-with-text-media-width--66 {
+    & .media-with-text__media {
+      flex: 0 1 66.6666%;
+    }
+
+    & .media-with-text__content {
+      flex: 0 1 33.3334%;
+    }
+  }
+
+  .media-with-text__video-wrapper--hidden {
+    display: none;
+  }
+
+  .media-with-text__placeholder-image,
+  .media-with-text__video--no-video {
+    height: 100%;
+  }
+{% endstylesheet %}
+
+{%- liquid
+  assign media_width = media_width | default: section.settings.media_width | default: '50'
+  assign media_crop = media_crop | default: section.settings.media_crop | default: 'none'
+  assign layout = layout | default: section.settings.layout | default: 'right'
+  assign content_alignment = content_alignment | default: section.settings.content_alignment | default: 'left'
+  assign content_position = content_position | default: section.settings.content_position | default: 'center'
+  assign color_scheme = color_scheme | default: section.settings.color_scheme | default: 'none'
+  assign top_padding = top_padding | default: section.settings.top_padding, allow_false: true | default: true, allow_false: true
+  assign bottom_padding = bottom_padding | default: section.settings.bottom_padding, allow_false: true | default: true, allow_false: true
+  assign full_width = full_width | default: section.settings.full_width, allow_false: true | default: false, allow_false: true
+  assign show_overlay = show_overlay | default: section.settings.enable_overlay, allow_false: true | default: false, allow_false
+  assign subheading = subheading | default: section.settings.subheading
+  assign heading = heading | default: section.settings.heading
+  assign heading_size = heading_size | default: section.settings.heading_size | default: 'md'
+  assign text_highlight = text_highlight | default: section.settings.text_highlight | default: 'serif'
+  assign text = text | default: section.settings.text
+  assign button_text = button_text | default: section.settings.button_text
+  assign button_link = button_link | default: section.settings.button_link
+  assign lazyload_images = true
+
+  if section.index == 1
+    assign lazyload_images = false
+  endif
+-%}
+
+{%- style -%}
+  {%- if full_width == true -%}
+    {%- if top_padding == false -%}
+      #shopify-section-{{ section.id }} .media-with-text { padding-top: 0 !important; }
+    {%- elsif top_padding == true -%}
+      #shopify-section-{{ section.id }} .media-with-text { padding-top: var(--index-section-padding) !important; }
+    {%- endif -%}
+    {%- if bottom_padding == false -%}
+      #shopify-section-{{ section.id }} .media-with-text { padding-bottom: 0 !important; }
+      @media only screen and (max-width: 959px) {
+        #shopify-section-{{ section.id }} .media-with-text__content { padding-bottom: 0 !important; }
+      }
+    {%- elsif bottom_padding == true -%}
+      #shopify-section-{{ section.id }} .media-with-text { padding-bottom: var(--index-section-padding) !important; }
+      @media only screen and (max-width: 959px) {
+        #shopify-section-{{ section.id }} .media-with-text__content { padding-bottom: var(--index-section-padding) !important; }
+      }
+    {%- endif -%}
+  {%- else -%}
+    {%- if color_scheme == 'none' -%}
+      #shopify-section-{{ section.id }} .index-section { margin: 0; }
+    {%- endif -%}
+    {%- if top_padding == false -%}
+      #shopify-section-{{ section.id }} .index-section { padding-top: 0 !important; }
+    {%- elsif top_padding == true and color_scheme == 'none' -%}
+      #shopify-section-{{ section.id }} .index-section { padding-top: var(--index-section-padding); }
+    {%- endif -%}
+    {%- if bottom_padding == false -%}
+      #shopify-section-{{ section.id }} .index-section { padding-bottom: 0 !important; }
+    {%- elsif bottom_padding == true and color_scheme == 'none' -%}
+      #shopify-section-{{ section.id }} .index-section { padding-bottom: var(--index-section-padding); }
+    {%- endif -%}
+  {%- endif -%}
+{%- endstyle -%}
+
+<div class="{% unless full_width %}index-section{% endunless %} color-scheme-{{ color_scheme }}">
+  {%- render 'utility.color-scheme-texture', color_scheme: color_scheme -%}
+
+  <section
+    class="
+      media-with-text media-with-text-media-width--{{ media_width }}
+      media-with-text-layout--{{ layout }}
+      media-with-text-full-width--{{ full_width }}
+      media-with-text-content-align--{{ content_alignment }}
+      {% unless full_width %}page-width{% endunless %}
+      {% if media_crop == '16-9' or
+        media_crop == '4-3' or
+        media_crop == 'portrait' or
+        media_crop == 'landscape' or
+        media_crop == 'square'
+      %}
+        media-with-text-media-crop--regular
+      {% elsif media_crop == 'none' %}
+        media-with-text-media-crop--none
+      {% else %}
+        media-with-text-media-crop--custom-shape
+      {% endif %}
+    "
+  >
+    <div
+      class="
+        media-with-text__content
+        media-with-text-content-position--{{ content_position }}
+      "
+    >
+      {%- if subheading != blank -%}
+        <p class="accent-subtitle">{{ subheading | escape }}</p>
+      {%- endif -%}
+      {%- if heading != blank -%}
+        <h2
+          class="
+            heading-{{ heading_size }}
+            text-highlight
+            text-highlight--{{ text_highlight }}
+          "
+        >
+          {{ heading }}
+        </h2>
+      {%- endif -%}
+      {%- if text != blank -%}
+        <div
+          class="rte media-with-text__richtext clearfix"
+        >
+          {{ text }}
+        </div>
+      {%- endif -%}
+      {%- if button_text != blank -%}
+        <div class="media-with-text__content-button">
+          {% render 'element.button', href: button_link, text: button_text %}
+        </div>
+      {%- endif -%}
+    </div>
+    <div class="media-with-text__media">
+      {%- for block in section.blocks -%}
+        {%- if block.type == 'video' -%}
+          <div
+            class="
+              media-with-text__video
+              {% if block.settings.video == blank %}media-with-text__video--no-video{% endif %}
+              {% if block.settings.video != blank %}
+                media-with-text-video-crop--{{ media_crop }}
+              {% endif %}
+            "
+            {% if show_overlay %}
+              data-overlay="true"
+            {% endif %}
+            {{ block.shopify_attributes }}
+          >
+            {%- if block.settings.video != blank -%}
+              {%- if block.settings.alt_image != blank -%}
+                {%- capture image_classes -%}media-with-text__alt-image{%- endcapture -%}
+                <div
+                  class="
+                    media-with-text__alt-image-wrapper media-with-text__alt-image--hidden
+                    {% if media_crop != 'none' and
+                      media_crop != '16-9' and
+                      media_crop != '4-3'
+                    %}
+                      svg-mask svg-mask--{{ media_crop }}
+                    {% endif %}
+                  "
+                >
+                  {%- render 'element.image', img: block.settings.alt_image, classlist: image_classes -%}
+                </div>
+              {%- endif -%}
+              <div
+                class="
+                  media-with-text__video-wrapper
+                  {% if media_crop != 'none' and
+                    media_crop != '16-9' and
+                    media_crop != '4-3'
+                  %}
+                    svg-mask svg-mask--{{ media_crop }}
+                  {% endif %}
+                "
+                {% if show_overlay %}
+                  data-overlay="true"
+                {% endif %}
+              >
+                <media-text>
+                  {{
+                    block.settings.video
+                    | video_tag:
+                      image_size: '1100x',
+                      autoplay: block.settings.autoplay,
+                      loop: block.settings.loop,
+                      controls: false,
+                      muted: block.settings.mute_video
+                  }}
+
+                  {%- assign button_classlist = 'media-with-text__play-button' -%}
+                  {%- if block.settings.hide_controls -%}
+                    {%- assign button_classlist = button_classlist | append: ' hide' -%}
+                  {%- endif -%}
+
+                  {% render 'element.button',
+                    icon: 'play',
+                    classlist: button_classlist,
+                    attributes: 'aria-label="Play"'
+                  %}
+                </media-text>
+              </div>
+            {%- else -%}
+              <div
+                class="
+                  media-with-text__placeholder-image
+                  {% if media_crop == '16-9' %}
+                    svg-mask svg-mask--landscape
+                  {% elsif media_crop == '4-3' %}
+                    svg-mask svg-mask--4-3
+                  {% elsif media_crop != 'none' %}
+                    svg-mask svg-mask--{{ media_crop }}
+                  {% endif %}
+                "
+              >
+                {%- render 'element.placeholder', name: 'image' -%}
+              </div>
+            {%- endif -%}
+          </div>
+        {%- endif -%}
+        {%- if block.type == 'image' -%}
+          <div
+            class="
+              media-with-text__image
+              {% if block.settings.image == blank %}media-with-text__image--no-image{% endif %}
+            "
+            {% if show_overlay %}
+              data-overlay="true"
+            {% endif %}
+            {{ block.shopify_attributes }}
+          >
+            {%- if block.settings.image != blank -%}
+              <div
+                class="{% if media_crop == '16-9' %}svg-mask svg-mask--landscape{% elsif media_crop == '4-3' %}svg-mask svg-mask--4-3{% elsif media_crop != 'none' %}svg-mask svg-mask--{{ media_crop }}{% endif %}"
+                {% if show_overlay %}
+                  data-overlay="true"
+                {% endif %}
+              >
+                {%- liquid
+                  assign sizes = media_width | append: 'vw'
+
+                  assign imageWidth = media_width | times: 1
+                  if imageWidth >= 50
+                    assign loading = lazyload_images
+                  else
+                    assign loading = true
+                  endif
+                -%}
+                {%- render 'element.image', img: block.settings.image, sizes: sizes, loading: loading -%}
+              </div>
+            {%- else -%}
+              <div
+                class="
+                  image-placeholder
+                  {% if media_crop == '16-9' %}
+                    svg-mask svg-mask--landscape
+                  {% elsif media_crop == '4-3' %}
+                    svg-mask svg-mask--4-3
+                  {% elsif media_crop != 'none' %}
+                    svg-mask svg-mask--{{ media_crop }}
+                  {% endif %}
+                "
+              >
+                {%- render 'element.placeholder', name: 'image' -%}
+              </div>
+            {%- endif -%}
+          </div>
+        {%- endif -%}
+        {%- if block.type == 'app' -%}
+          {%- render block -%}
+        {%- endif -%}
+      {%- endfor -%}
+    </div>
+  </section>
+</div>
+
+<script type="module">
+  import 'section.media-text'
+</script>

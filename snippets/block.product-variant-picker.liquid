@@ -1,0 +1,69 @@
+{% doc %}
+  Bridges kit's Shopify shopify:product:select event to the theme's legacy
+  `variant:change:{sectionId}:{productId}` event.
+
+  @param {object} product - Product object
+  @param {object} [block] - Block object
+  @param {boolean} [update_url] - Update URL when variant changes, default: true
+
+  @example
+  {% render 'block.product-variant-picker', product: product %}
+{% enddoc %}
+
+{%- liquid
+  assign product = section.settings.product | default: product
+
+  # Legacy Shopify Files PNG swatches — kit needs the option names, not the
+  # detection rule, so hand it the localized trigger word (plus the 'colour'
+  # spelling English merchants use interchangeably).
+  capture legacy_swatch_triggers
+    render 'utility.translate', key: 'trigger.color_swatch', fallback: 'color'
+  endcapture
+  assign legacy_swatch_triggers = legacy_swatch_triggers | downcase | strip
+  if legacy_swatch_triggers == 'color'
+    assign legacy_swatch_triggers = 'color,colour'
+  endif
+-%}
+
+{%- comment -%}
+  The size chart rides in the matched option's legend — kit.product-variant-picker
+  attaches `legend_extra` to the one option named by `legend_extra_option`.
+{%- endcomment -%}
+{%- if block.settings.size_chart != blank and block.settings.size_chart_option != blank and product.has_only_default_variant == false -%}
+  {%- capture size_chart_title -%}
+    {% echo 'labels.size_chart' | t %}
+    {%- render 'element.icon', name: 'size-chart' -%}
+  {%- endcapture -%}
+
+  {%- capture size_chart_trigger -%}
+    {%- render 'overlay.tool-tip.trigger',
+      title: size_chart_title,
+      content: block.settings.size_chart.content,
+      context: 'size-chart'
+    -%}
+  {%- endcapture -%}
+{%- endif -%}
+
+<div {{ block.shopify_attributes }}>
+  {% render 'kit.product-variant-picker',
+    product: product,
+    picker_type: block.settings.picker_type,
+    show_labels: block.settings.variant_labels,
+    enable_swatches: block.settings.color_swatches,
+    update_url: update_url,
+    legend_extra: size_chart_trigger,
+    legend_extra_option: block.settings.size_chart_option,
+    legacy_swatch_triggers: legacy_swatch_triggers,
+    legacy_swatch_source: 'files'
+  %}
+
+  {%- if size_chart_trigger != blank -%}
+    <script type="module">
+      import 'overlay.tool-tip.trigger'
+    </script>
+  {%- endif -%}
+
+  <script type="module">
+    import 'block.product-variant-picker'
+  </script>
+</div>

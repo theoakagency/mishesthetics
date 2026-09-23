@@ -1,0 +1,49 @@
+{% doc %}
+  Renders one product option as a native select dropdown. Options, availability and
+  selection come from option.values, so it is safe for high-variant products.
+
+  @param {object} option - product_option object (from product.options_with_values)
+  @param {boolean} [enable_select_unavailable] - Keep sold-out values selectable (labelled unavailable) instead of disabling them. Default: false
+{% enddoc %}
+
+{%- liquid
+  assign enable_select_unavailable = enable_select_unavailable | default: false, allow_false: true
+
+  assign option_name_escaped = option.name | escape
+  assign select_attr = 'data-option-name="' | append: option_name_escaped | append: '"'
+-%}
+
+{%- capture option_list -%}
+  {%- for value in option.values -%}
+    {%- liquid
+      assign value_escaped = value | escape
+
+      assign value_unavailable = false
+      unless value.available
+        assign value_unavailable = true
+      endunless
+
+      # Append a text suffix if enable_select_unavailable. Escaped, like the value
+      # attribute — the label is merchant-authored and interpolated raw below.
+      assign option_label = value_escaped
+      if value_unavailable and enable_select_unavailable
+        assign sold_out_suffix = 'kit.info.sold_out' | t | escape
+        assign option_label = value_escaped | append: ' - ' | append: sold_out_suffix
+      endif
+
+      assign input_disabled = false
+      if value_unavailable and enable_select_unavailable == false
+        assign input_disabled = true
+      endif
+    -%}
+    <option
+      value="{{ value_escaped }}"
+      data-option-value-id="{{ value.id }}"
+      {% if value.product_url %}data-product-url="{{ value.product_url }}"{% endif %}
+      {% if value.selected %}selected{% endif %}
+      {% if input_disabled %}disabled{% endif %}
+    >{{ option_label }}</option>
+  {%- endfor -%}
+{%- endcapture -%}
+
+{%- render 'kit.select', options: option_list, attr: select_attr -%}

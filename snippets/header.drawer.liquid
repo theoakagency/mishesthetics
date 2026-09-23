@@ -1,0 +1,103 @@
+{% doc %}
+  Copyright © 2025 Archetype Themes LP. All rights reserved.
+
+  Reusable dropdown drawer container for header content with event-based open/close.
+
+  @param {string} [slot] - Content to render inside the drawer
+  @param {string} [class] - Additional CSS classes
+  @param {string} [open] - Custom event name to trigger drawer opening
+  @param {string} [close] - Custom event name to trigger drawer closing
+  @param {boolean} [no_scroll_lock] - Don't lock page scroll on desktop while open (e.g. the cart dropdown). Still locks on mobile.
+
+  @example
+  {% render 'header.drawer', slot: drawer_content, open: 'cart:open', close: 'cart:close' %}
+{% enddoc %}
+
+{% stylesheet %}
+  /* iOS Safari fix for body-scroll-lock */
+  body:has(.site-header__drawer.is-active)[style*="position: fixed"] {
+    width: 100% !important;
+    overflow-x: hidden !important;
+  }
+
+  /* Safari desktop fix for body-scroll-lock (skipped for drawers opted out via no-scroll-lock) */
+  @media (min-width: 769px) {
+    html:has(.site-header__drawer.is-active:not([no-scroll-lock])) {
+      overflow: hidden;
+    }
+  }
+  @media (max-width: 768px) {
+    html:has(.site-header__drawer.is-active) {
+      overflow: hidden;
+    }
+  }
+  body:has(.site-header__drawer.is-active)[style*="overflow: hidden"] {
+    overflow: visible !important;
+  }
+
+  .site-header__drawer {
+    --color-primary: var(--root-color-primary);
+    --color-secondary: var(--root-color-secondary);
+
+    display: none;
+    position: absolute;
+    top: 1px;
+    padding: 20px;
+    width: 100%;
+    max-height: 75vh;
+    max-height: var(--max-drawer-height);
+    overflow-y: auto;
+    background-color: var(--color-secondary);
+    color: var(--color-primary);
+    box-shadow: var(--drawer-box-shadow);
+    z-index: var(--z-index-header-drawers);
+    transition: all var(--slide-curve);
+    transform: translateY(-100%);
+
+    @media only screen and (max-width: 768px) {
+      top: 0;
+      z-index: var(--z-index-header-drawers-mobile);
+    }
+
+    &.is-active {
+      display: block;
+      transform: translateY(0);
+    }
+
+    .header-wrapper--compressed & {
+      top: 0;
+    }
+  }
+
+  .site-header__drawer-animate {
+    transform: translateY(-20px);
+    opacity: 0;
+
+    .is-active & {
+      opacity: 1;
+      transform: translateY(0px);
+      transition: opacity 0.3s ease 0.15s, transform 0.25s cubic-bezier(0.165, 0.84, 0.44, 1) 0.15s;
+    }
+  }
+{% endstylesheet %}
+
+{%- liquid
+  assign class = class | default: blank
+  assign no_scroll_lock = no_scroll_lock | default: false, allow_false: true
+-%}
+
+<header-drawer
+  class="site-header__drawer {{ class }}"
+  open="{{ open }}"
+  close="{{ close }}"
+  {% if no_scroll_lock %}no-scroll-lock{% endif %}
+  defer-hydration
+>
+  <div class="site-header__drawer-animate">
+    {{- slot -}}
+  </div>
+</header-drawer>
+
+<script type="module">
+  import 'header.drawer'
+</script>

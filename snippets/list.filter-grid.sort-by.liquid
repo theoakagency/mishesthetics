@@ -1,0 +1,107 @@
+{%- doc -%}
+  Copyright © 2025 Archetype Themes LP. All rights reserved.
+
+  Renders the sort by control.
+
+  @param {object} context - Collection or search object
+  @param {string} [type] - ('button'|'select') The type of sort by control
+  @param {boolean} [collapse_filters] - Whether to collapse filters
+
+  @example
+  {% render 'list.filter-grid.sort-by', context: context %}
+{%- enddoc -%}
+
+{% stylesheet %}
+  .collection-filter__sort {
+    display: block;
+
+    @media only screen and (max-width: 768px) {
+      & select {
+        margin-left: -8px;
+      }
+    }
+
+    @media only screen and (min-width: 769px) {
+      padding-right: 15px;
+      margin-right: 15px;
+      border-right: 1px solid;
+      border-right-color: color-mix(in srgb, var(--color-primary) var(--shade-20), var(--color-secondary));
+    }
+  }
+{% endstylesheet %}
+
+{%- liquid
+  assign sort_by = context.sort_by | default: context.default_sort_by
+  assign collapse_filters = collapse_filters | default: section.settings.collapse_filters, allow_false: true | default: true, allow_false: true
+  assign type = type | default: 'select'
+
+  assign collapsed_state = false
+  unless collapse_filters
+    assign collapsed_state = true
+  endunless
+-%}
+
+{%- capture options -%}
+  {%- for option in context.sort_options -%}
+    <option value="{{ option.value }}" {% if option.value == sort_by %}selected="selected"{% endif %}>
+      {{ option.name }}
+    </option>
+  {%- endfor -%}
+{%- endcapture -%}
+
+{%- capture placeholder -%}
+  {% if sort_by == context.default_sort_by %}
+    {% render 'utility.translate', key: 'actions.sort', fallback: 'Sort' %}
+  {% else %}
+    {%- for option in context.sort_options -%}
+      {% if option.value == sort_by %}
+        {{ option.name }}
+      {% endif %}
+    {%- endfor -%}
+  {% endif %}
+{%- endcapture -%}
+
+<sort-by class="collection-filter__sort" defer-hydration>
+  {%- if type == 'select' -%}
+    <label for="SortBy" class="visually-hidden">
+      {% render 'utility.translate', key: 'actions.sort', fallback: 'Sort' -%}
+    </label>
+
+    {% render 'element.select', slot: options, placeholder: placeholder, transparent: true %}
+  {%- else -%}
+    {%- liquid
+      capture sort_title
+        render 'utility.translate', key: 'actions.sort', fallback: 'Sort'
+      endcapture
+
+      assign sort_id = 'CollectionSidebarSort'
+      assign location = 'CollectionSidebar'
+      assign id = location | append: '-' | append: sort_id
+    -%}
+
+    {%- capture sort_options -%}
+      {%- for option in context.sort_options -%}
+        {% assign active = false %}
+        {% if option.value == sort_by %}
+          {% assign active = true %}
+        {%  endif %}
+
+        {%  capture sort_attributes -%}
+          data-value="{{ option.value }}"
+        {%- endcapture -%}
+
+        {% render 'element.chip', label: option.name, attributes: sort_attributes, classlist: 'filter-sort', active: active %}
+      {%- endfor -%}
+    {%- endcapture -%}
+
+    {%- capture slot_collapsible -%}
+      {% render 'layout.grid', slot: sort_options, gap: 'xs', columns_xs: 2, columns_md: 1 %}
+    {%- endcapture -%}
+
+    {%- render 'element.accordion', title: sort_title, slot: slot_collapsible, open: collapsed_state -%}
+  {%- endif -%}
+</sort-by>
+
+<script type="module">
+  import 'list.filter-grid.sort-by'
+</script>

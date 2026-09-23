@@ -1,0 +1,210 @@
+{% doc %}
+  Copyright © 2025 Archetype Themes LP. All rights reserved.
+
+  Main cart template with line items, notes, and checkout controls.
+
+  @param {boolean} [cart_notes_enable] - Enable order notes
+  @param {boolean} [cart_terms_conditions_enable] - Enable terms checkbox
+  @param {object} [cart_terms_conditions_page] - Terms page link
+  @param {boolean} [cart_additional_buttons] - Show dynamic checkout buttons
+  @param {string} [hydration] - Hydration strategy
+
+  @example
+  {% render 'section.main-cart', cart_notes_enable: true %}
+{% enddoc %}
+
+{%- liquid
+  assign cart_notes_enable = cart_notes_enable | default: settings.cart_notes_enable, allow_false: true | default: true, allow_false: true
+  assign cart_terms_conditions_enable = cart_terms_conditions_enable | default: settings.cart_terms_conditions_enable, allow_false: true | default: true, allow_false: true
+  assign cart_terms_conditions_page = cart_terms_conditions_page | default: settings.cart_terms_conditions_page
+  assign cart_additional_buttons = cart_additional_buttons | default: settings.cart_additional_buttons, allow_false: true | default: true, allow_false: true
+  assign hydration = hydration | default: 'on:visible'
+  assign money_format = shop.money_format
+  capture superscript
+    render 'utility.enable-superscript'
+  endcapture
+
+  capture button_submit_text
+    render 'utility.translate', key: 'actions.checkout', fallback: 'Check out'
+  endcapture
+
+  capture button_continue_shopping_text
+    render 'utility.translate', key: 'actions.continue_shopping', fallback: 'Continue shopping'
+  endcapture
+-%}
+
+{%- capture button_submit_attributes -%}
+  data-terms-required="{{ cart_terms_conditions_enable }}"
+{%- endcapture -%}
+
+{%- capture checkbox_label -%}
+  {% if cart_terms_conditions_page != blank %}
+    {% assign actions_terms_i_agree_html = 'actions.terms_i_agree_html'
+      | t: url: cart_terms_conditions_page.url
+    %}
+    {%- capture fallback_actions_terms_i_agree_html -%}
+      I agree with the <a href='{{ cart_terms_conditions_page.url }}' target='_blank'>terms and conditions</a>
+    {%- endcapture -%}
+    {% render 'utility.translate',
+      t: actions_terms_i_agree_html,
+      fallback: fallback_actions_terms_i_agree_html
+    %}
+  {% else %}
+    {% assign actions_terms_i_agree = 'actions.terms_i_agree' | t %}
+    {% render 'utility.translate',
+      t: actions_terms_i_agree,
+      fallback: 'I agree with the terms and conditions'
+    %}
+  {% endif %}
+{%- endcapture -%}
+
+<is-land {{ hydration }}>
+  <div class="page-width page-width--cart page-content">
+    {%- render 'element.breadcrumbs' -%}
+
+    <header class="section-header text-center{% if cart.item_count == 0 %} section-header--404{% endif %}">
+      <h1 class="section-header__title">
+        {% render 'utility.translate', key: 'labels.cart', fallback: 'Cart' %}
+      </h1>
+      <div class="rte text-spacing clearfix">
+        {%- if cart.item_count == 0 -%}
+          <p>
+            {% render 'utility.translate', key: 'info.cart_empty', fallback: 'Your cart is currently empty.' %}
+          </p>
+          <hr class="hr--clear hr--small">
+          <p>
+            {%- render 'element.button', text: button_continue_shopping_text, href: routes.root_url -%}
+          </p>
+        {%- endif -%}
+      </div>
+    </header>
+
+    {%- if cart.item_count > 0 -%}
+      <form
+        action="{{ routes.cart_url }}"
+        method="post"
+        novalidate
+        data-location="page"
+        id="CartPageForm"
+        data-money-format="{{ money_format }}"
+        data-super-script="{{ superscript | strip }}"
+      >
+        <div class="cart__page">
+          <div class="cart__page-col">
+            <div data-products>
+              {% for item in cart.items %}
+                {%- render 'cart.line-item', item: item -%}
+              {% endfor %}
+            </div>
+
+            {%- render 'cart.recommendations', context: 'page' -%}
+          </div>
+
+          <div class="cart__page-col medium-up--overlay">
+            {% if cart_notes_enable %}
+              <div class="cart__item-row">
+                {%- render 'cart.order-note' -%}
+              </div>
+            {% endif %}
+
+            <div class="cart__item-sub cart__item-row cart__item--subtotal">
+              <div>
+                {% render 'utility.translate', key: 'labels.subtotal', fallback: 'Subtotal' %}
+              </div>
+              {%- render 'element.price', price: cart.total_price, attributes: 'data-subtotal' -%}
+            </div>
+
+            <div data-discounts>
+              {% if cart.cart_level_discount_applications != blank %}
+                <div class="cart__discounts text-right">
+                  <div>
+                    {% for cart_discount in cart.cart_level_discount_applications %}
+                      {%- assign savings = cart_discount.total_allocated_amount | money -%}
+                      <div class="cart__discount">
+                        {% assign info_you_save_amount = 'info.you_save_amount' | t: saved_amount: savings %}
+                        {%- capture fallback_info_you_save_amount -%}
+                          You save {{ savings }}
+                        {%- endcapture -%}
+                        {% render 'utility.translate',
+                          t: info_you_save_amount,
+                          fallback: fallback_info_you_save_amount
+                        %}
+                        ({{ cart_discount.title }})
+                      </div>
+                    {% endfor %}
+                  </div>
+                </div>
+              {% endif %}
+            </div>
+
+            {% if cart_terms_conditions_enable %}
+              <div class="cart__item-row cart__terms">
+                {%- render 'element.checkbox',
+                  classlist: 'cart__terms-checkbox',
+                  value: '',
+                  label: checkbox_label,
+                  name: 'CartTerms'
+                -%}
+              </div>
+            {% endif %}
+
+            <div class="cart__item-row cart__checkout-wrapper">
+              {%- render 'element.button',
+                type: 'submit',
+                name: 'checkout',
+                attributes: button_submit_attributes,
+                classlist: 'cart__checkout',
+                text: button_submit_text
+              -%}
+
+              {% if additional_checkout_buttons and cart_additional_buttons %}
+                <div class="additional-checkout-buttons">{{ content_for_additional_checkout_buttons }}</div>
+              {% endif %}
+
+              {%- render 'element.button',
+                text: button_continue_shopping_text,
+                href: routes.all_products_collection_url,
+                inverted: true,
+                classlist: 'cart__continue'
+              -%}
+            </div>
+
+            <div class="cart__item-row text-center">
+              <small>
+                {%- if cart.taxes_included -%}
+                  {% assign info_shipping_at_checkout_taxes_included = 'info.shipping_at_checkout_taxes_included' | t %}
+                  {% render 'utility.translate',
+                    t: info_shipping_at_checkout_taxes_included,
+                    fallback: 'Taxes included. Shipping and discount codes calculated at checkout.'
+                  %}
+                {%- else -%}
+                  {% assign info_shipping_at_checkout = 'info.shipping_at_checkout' | t -%}
+                  {%- render 'utility.translate',
+                    t: info_shipping_at_checkout,
+                    fallback: 'Shipping, taxes, and discount codes calculated at checkout.'
+                  %}
+                {%- endif -%}
+              </small>
+            </div>
+          </div>
+        </div>
+        <script type="application/json" data-locales>
+          {
+            "cartTermsConfirmation":
+              {% render 'utility.translate', key: 'info.you_must_agree', fallback: 'You must agree with the terms and conditions of sales to check out', as_json: true -%}
+            ,
+            "cartSavings":
+              {%- assign info_save_amount = 'info.save_amount' | t: saved_amount: "[savings]" -%}
+              {%- render 'utility.translate', t: info_save_amount, fallback: 'Save [savings]', as_json: true -%}
+          }
+        </script>
+      </form>
+    {%- endif -%}
+  </div>
+
+  <template data-island>
+    <script type="module">
+      import 'section.main-cart'
+    </script>
+  </template>
+</is-land>

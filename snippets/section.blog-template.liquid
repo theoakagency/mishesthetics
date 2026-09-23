@@ -1,0 +1,121 @@
+{% doc %}
+  Copyright © 2025 Archetype Themes LP. All rights reserved.
+
+Main blog template with tag filtering and article grid.
+
+  @param {object} [blog] - Blog to display
+  @param {boolean} [blog_show_tag_filter] - Display tag filter
+  @param {boolean} [blog_show_rss] - Display RSS feed link
+
+  @example
+  {% render 'section.blog-template', blog_show_tag_filter: true %}
+{% enddoc %}
+
+{% stylesheet %}
+  .blog-layout {
+    display: flex;
+    flex-wrap: nowrap;
+    flex-direction: column;
+  }
+
+  .blog-layout__main {
+    margin-bottom: 20px;
+  }
+
+  /* Any section that isn't the main layout or sidebar should be full width */
+  .blog-layout > div:not(.blog-layout__main):not(.blog-layout__sidebar) {
+    flex: 1 0 100%;
+  }
+
+  @media only screen and (min-width: 769px) {
+    .blog-layout {
+      flex-direction: row;
+      flex-wrap: wrap;
+    }
+
+    .blog-layout__main {
+      flex: 1 1 calc(60% - 90px);
+    }
+
+    .blog-layout__sidebar {
+      order: 0;
+      flex: 0 0 calc(40% - 90px);
+      align-self: flex-start;
+
+      padding-left: 0;
+      margin-left: 0;
+      border-left: 0;
+      padding-right: 45px;
+      margin-right: 45px;
+      border-right: 1px solid;
+      border-right-color: color-mix(in srgb, var(--color-primary) var(--shade-12), var(--color-secondary));
+
+      [dir='rtl'] & {
+        padding-right: 0;
+        margin-right: 0;
+        border-right: 0;
+        padding-left: 45px;
+        margin-left: 45px;
+        border-left: 1px solid;
+        border-left-color: color-mix(in srgb, var(--color-primary) var(--shade-12), var(--color-secondary));
+      }
+    }
+
+    .blog-layout__main + .blog-layout__sidebar {
+      padding-right: 0;
+      margin-right: 0;
+      border-right: 0;
+      padding-left: 45px;
+      margin-left: 45px;
+      border-left: 1px solid;
+      border-left-color: color-mix(in srgb, var(--color-primary) var(--shade-12), var(--color-secondary));
+
+      [dir='rtl'] & {
+        padding-left: 0;
+        margin-left: 0;
+        border-left: 0;
+        padding-right: 45px;
+        margin-right: 45px;
+        border-right: 1px solid;
+        border-right-color: color-mix(in srgb, var(--color-primary) var(--shade-12), var(--color-secondary));
+      }
+    }
+  }
+{% endstylesheet %}
+
+{%- paginate blog.articles by 9 -%}
+  <div data-section-id="{{ section.id }}" data-section-type="blog">
+    <header class="section-header{% if blog_show_tag_filter and blog.tags.size > 0 %} section-header--with-link{% endif %}">
+      <h1 class="section-header__title">
+        {{ blog.title }}
+
+        {%- if blog_show_rss -%}
+          <a href="{{ shop.url }}{{ blog.url }}.atom" class="rss-link">
+            {% render 'element.icon', name: 'rss' %}
+            <span class="icon__fallback-text visually-hidden">RSS</span>
+          </a>
+        {%- endif -%}
+      </h1>
+    </header>
+
+    <div class="new-grid">
+      {% liquid
+        for article in blog.articles
+          assign style = 'medium'
+
+          if forloop.first
+            assign style = 'large'
+          endif
+
+          render 'list.article-card', style: style, article: article
+        endfor
+      %}
+    </div>
+
+    {%- liquid
+      if paginate.pages > 1
+        render 'element.pagination', paginate: paginate
+      endif
+    -%}
+  </div>
+{%- endpaginate -%}

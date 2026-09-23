@@ -1,0 +1,99 @@
+{% doc %}
+  Copyright © 2025 Archetype Themes LP. All rights reserved.
+
+  Navigation controls for moving between pages of collection and blog content.
+
+  @param {paginate} [paginate] - The paginate object
+  @param {string} [hash] - A hash to append to the URL
+
+  @example
+  {% render 'element.pagination', paginate: paginate %}
+{% enddoc %}
+
+{%- liquid
+  assign button_prev_url = paginate.previous.url | replace: 'view=ajax', '' | append: hash
+  assign button_next_url = paginate.next.url | replace: 'view=ajax', '' | append: hash
+-%}
+
+{%- capture button_prev_attributes -%}
+  aria-label="{% render 'utility.translate', key: 'actions.previous', fallback: 'Previous' -%}"
+{%- endcapture -%}
+
+{%- capture button_next_attributes -%}
+  aria-label="{% render 'utility.translate', key: 'actions.next', fallback: 'Next' -%}"
+{%- endcapture -%}
+
+{%- capture pagination_content -%}
+  {% if paginate.previous %}
+    {%- render 'element.button', href: button_prev_url, attributes: button_prev_attributes, icon: 'chevron-left' -%}
+  {% endif %}
+
+  {% for part in paginate.parts %}
+    {% if part.is_link %}
+      <a href="{{ part.url | replace: 'view=ajax', '' }}{{ hash }}" class="element-pagination-page">
+        {{- part.title -}}
+      </a>
+    {% else %}
+      <span class="element-pagination-page {% if part.title == paginate.current_page %}element-pagination-page--current{% endif %}">
+        {{- part.title -}}
+      </span>
+    {% endif %}
+  {% endfor %}
+
+  {% if paginate.next %}
+    {%- render 'element.button', href: button_next_url, attributes: button_next_attributes, icon: 'chevron-right' -%}
+  {% endif %}
+{%- endcapture -%}
+
+{%- render 'layout.stack',
+  slot: pagination_content,
+  horizontal: true,
+  align: 'center',
+  classlist: 'element-pagination',
+  style: 'margin: var(--size-10);'
+-%}
+
+{% render 'style.primitive-tokens' %}
+{% render 'style.normalize' %}
+
+{% stylesheet %}
+  .element-pagination {
+    /* Layout */
+    --_font-family: var(
+      --element-pagination-font-family,
+      var(--element-text-font-family--body),
+      var(--element-text-font-family-fallback--body)
+    );
+    --_font-size: var(--element-pagination-font-size, var(--element-text-font-size--body-sm));
+    --_letter-spacing: var(--element-pagination-letter-spacing, var(--element-text-letter-spacing--body));
+    --_line-height: var(--element-pagination-line-height, var(--element-text-line-height--body));
+
+    /* Colors */
+    --_color-primary: var(--color-primary);
+    --_shade-active: 40%;
+    --_shade-hover: 70%;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: var(--size-2);
+    color: var(--_color-primary);
+    font-family: var(--_font-family);
+    font-size: var(--_font-size);
+    letter-spacing: var(--_letter-spacing);
+    line-height: var(--_line-height);
+    width: 100%;
+  }
+
+  .element-pagination-page {
+    padding: var(--size-2) var(--size-3);
+
+    &:not(.element-pagination-page--current):hover {
+      color: color-mix(in srgb, var(--_color-primary) var(--_shade-hover), transparent);
+    }
+  }
+
+  .element-pagination-page--current {
+    color: color-mix(in srgb, var(--_color-primary) var(--_shade-active), transparent);
+  }
+{% endstylesheet %}

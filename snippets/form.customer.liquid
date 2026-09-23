@@ -1,0 +1,182 @@
+{% doc %}
+  Copyright © 2025 Archetype Themes LP. All rights reserved.
+
+  Newsletter subscription form with email input and submit button.
+
+  @param {string} [context] - Rendering context for styling variations
+
+  @example
+  {% render 'form.customer', context: 'footer' %}
+{% enddoc %}
+
+{% stylesheet %}
+  .newsletter__input-group {
+    --_shopify-challenge-px: 0;
+    --_shopify-challenge-py: var(--size-32);
+    --_button-text-display: block;
+    --_button-icon-display: none;
+
+    --element-button-radius: 0 var(--element-input-radius) var(--element-input-radius) 0;
+
+    margin: 0 auto;
+    max-width: 400px;
+    gap: var(--input-button-gap);
+
+    [dir='rtl'] & {
+      --element-button-radius: var(--element-input-radius) 0 0 var(--element-input-radius);
+    }
+
+    @media only screen and (max-width: 768px) {
+      --_shopify-challenge-py: var(--size-7-5);
+      --_shopify-challenge-px: var(--size-5-5);
+      --_button-text-display: none;
+      --_button-icon-display: block;
+    }
+
+    &:last-of-type {
+      margin-bottom: 0;
+    }
+
+    .element-button {
+      span {
+        display: var(--_button-text-display);
+      }
+
+      .element-icon {
+        --element-icon-size: var(--size-5);
+        display: var(--_button-icon-display);
+      }
+    }
+  }
+
+  .shopify-challenge__container {
+    padding: var(--_shopify-challenge-py) var(--_shopify-challenge-px);
+  }
+
+  .input-group {
+    display: flex;
+
+    .element-input {
+      border-start-end-radius: 0;
+      border-end-end-radius: 0;
+    }
+  }
+{% endstylesheet %}
+
+{%- liquid
+  assign newsletter_form_id = 'newsletter-' | append: section.id
+
+  assign input_value = ''
+  if customer
+    assign input_value = customer.email
+  endif
+  capture input_placeholder
+    render 'utility.translate', key: 'actions.enter_email', fallback: 'Enter your email'
+  endcapture
+  capture input_id
+    render 'utility.id', name: 'email'
+  endcapture
+  capture input_attributes
+    echo 'autocorrect="off"'
+    echo 'autocapitalize="off"'
+    echo 'autocomplete="email"'
+    echo 'inputmode="email"'
+    echo 'required'
+    echo 'pattern="^[^\\s@]+@[^\\s@]+\\.[^\\s@]{2,}$"'
+    echo 'title="Enter a valid email like name@example.com"'
+  endcapture
+
+  capture button_id
+    render 'utility.id', name: 'submit'
+  endcapture
+-%}
+
+{%- capture button_text -%}
+  {%- render 'utility.translate', key: 'actions.subscribe', fallback: 'Subscribe' -%}
+{%- endcapture -%}
+
+{%- capture button_attributes -%}
+  aria-label="{% render 'utility.translate', key: 'actions.subscribe', fallback: 'Subscribe' -%}"
+{%- endcapture -%}
+
+{%- capture invalid_message -%}
+  {%- render 'utility.translate', key: 'info.newsletter_invalid_message', fallback: 'Enter a valid email address, for example name@example.com' -%}
+{%- endcapture -%}
+
+<form-customer data-invalid-message="{{ invalid_message | strip | escape }}">
+  {% form 'customer', id: newsletter_form_id, data-newsletter-form: 'true' %}
+    {%- if form.posted_successfully? -%}
+      <div class="note note--success">
+        {% render 'utility.translate', key: 'info.newsletter_success', fallback: 'Thanks for subscribing' %}
+      </div>
+    {%- endif -%}
+    {%- if form.errors and form.context == context -%}
+      {{ form.errors | default_errors }}
+    {%- endif -%}
+
+    {%- unless form.posted_successfully? -%}
+      <label for="{{ button_id }}" class="visually-hidden">
+        {%- render 'utility.translate', key: 'actions.subscribe', fallback: 'Subscribe' -%}
+      </label>
+      <input type="hidden" name="contact[tags]" value="prospect,newsletter">
+      <input type="hidden" name="contact[context]" value="{{ context }}">
+      <div class="input-group newsletter__input-group">
+        {%- render 'element.input',
+          type: 'email',
+          value: input_value,
+          placeholder: input_placeholder,
+          label: input_placeholder,
+          name: 'contact[email]',
+          id: input_id,
+          classlist: 'input-group-field newsletter__input',
+          attributes: input_attributes
+        -%}
+
+        {%- render 'element.button',
+          type: 'submit',
+          id: button_id,
+          name: 'commit',
+          attributes: button_attributes,
+          text: button_text,
+          icon: 'arrow-right'
+        -%}
+      </div>
+    {%- endunless -%}
+  {% endform %}
+</form-customer>
+
+{% javascript %}
+  class FormCustomer extends HTMLElement {
+    static emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/
+
+    connectedCallback() {
+      this.controller?.abort()
+      const { signal } = (this.controller = new AbortController())
+
+      const form = this.querySelector('form')
+      const input = form?.querySelector('input[name="contact[email]"]')
+      if (!input) return
+
+      const validate = () => {
+        const ok = FormCustomer.emailPattern.test(input.value.trim())
+        input.setCustomValidity(ok ? '' : this.dataset.invalidMessage)
+      }
+
+      input.addEventListener('input', validate, { signal })
+      form.addEventListener(
+        'submit',
+        (e) => {
+          validate()
+          if (!form.reportValidity()) e.preventDefault()
+        },
+        { signal, passive: false }
+      )
+    }
+
+    disconnectedCallback() {
+      this.controller?.abort()
+    }
+  }
+
+  customElements.define('form-customer', FormCustomer)
+{% endjavascript %}

@@ -1,0 +1,38 @@
+{% doc %}
+  Copyright © 2025 Archetype Themes LP. All rights reserved.
+
+  Product description content with optional accordion/tab display.
+
+  @param {object} [block] - Block object
+  @param {object} [product] - Product object
+  @param {boolean} [is_tab] - Render as collapsible accordion tab, default: true
+
+  @example
+  {% render 'block.product-description', product: product, is_tab: true %}
+{% enddoc %}
+
+{%- liquid
+  assign product = section.settings.product | default: product
+  assign is_tab = is_tab | default: block.settings.is_tab, allow_false: true | default: true, allow_false: true
+  assign description = 'info.placeholder_product_description' | t
+
+  if product
+    assign description = product.description
+  endif
+
+  if is_tab
+    capture accordion_title
+      render 'utility.translate', key: 'labels.description', fallback: 'Description'
+    endcapture
+  endif
+-%}
+
+<div style="width: 100%;" {{ block.shopify_attributes }}>
+  {%- liquid
+    if is_tab
+      render 'element.accordion', title: accordion_title, slot: description
+    else
+      render 'element.text', text: description, variant: 'rte'
+    endif
+  -%}
+</div>

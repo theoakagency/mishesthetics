@@ -1,0 +1,60 @@
+{% doc %}
+  Copyright © 2025 Archetype Themes LP. All rights reserved.
+
+  Icon-based sales point with custom text for highlighting product features or benefits.
+
+  @param {object} [block] - Block object
+
+  @example
+  {% render 'block.product-sales-point', block: block %}
+{% enddoc %}
+
+{% stylesheet %}
+  .sales-points {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+
+    .quick-add-modal & {
+      display: none;
+    }
+  }
+
+  .sales-point {
+    display: block;
+    margin-bottom: 10px;
+
+    &:last-child {
+      margin-bottom: 0;
+    }
+
+    & .element-icon {
+      position: relative;
+      width: 25px;
+      height: 25px;
+      margin-right: 10px;
+
+      [dir='rtl'] & {
+        margin-right: 0;
+        margin-left: 10px;
+      }
+    }
+  }
+
+  .product-block--sales-point + .product-block--sales-point {
+    margin-top: calc(-1 * var(--layout-stack-gap));
+  }
+{% endstylesheet %}
+
+{%- unless block.settings.text == blank -%}
+  <div class="product-block--sales-point" {{ block.shopify_attributes }}>
+    <ul class="sales-points">
+      <li class="sales-point">
+        <span class="icon-and-text">
+          {% render 'element.icon', name: block.settings.icon %}
+          <span>{{ block.settings.text }}</span>
+        </span>
+      </li>
+    </ul>
+  </div>
+{%- endunless -%}

@@ -1,0 +1,66 @@
+{% doc %}
+  Copyright © 2025 Archetype Themes LP. All rights reserved.
+
+  Customer account element with a signed-out avatar slot styled to match the
+  header icon link. Expanse design tokens are mapped to the shopify-account
+  custom property API so no per-shop settings are referenced here.
+{% enddoc %}
+
+{% stylesheet %}
+  shopify-account {
+    --shopify-account-color-accent: var(--color-button-primary);
+    --shopify-account-color-accent-hover: var(--color-button-primary-dim);
+    --shopify-account-color-accent-text: var(--color-button-primary-text);
+    --shopify-account-color-background: var(--color-secondary);
+    --shopify-account-color-border: color-mix(in srgb, var(--color-primary) var(--shade-12), var(--color-secondary));
+    --shopify-account-color-card-background: var(--color-secondary);
+    --shopify-account-color-control-background: var(--color-secondary);
+    --shopify-account-color-text: var(--color-primary);
+    --shopify-account-color-text-subdued: color-mix(in srgb, var(--color-primary) var(--shade-80), var(--color-secondary));
+    --shopify-account-font-body: var(--element-text-font-family--body), var(--element-text-font-family-fallback--body);
+    --shopify-account-font-body-weight: var(--element-text-font-weight--body);
+    --shopify-account-font-heading: var(--element-text-font-family--heading), var(--element-text-font-family-fallback--heading);
+    --shopify-account-font-heading-weight: var(--element-text-font-weight--heading);
+    --shopify-account-radius-base: var(--roundness);
+    --shopify-account-signed-in-avatar-color-background: var(--color-secondary);
+    --shopify-account-signed-in-avatar-color-text: var(--color-primary);
+  }
+
+  .site-nav__icons shopify-account {
+    display: inline-flex;
+    align-items: center;
+    flex: 0 0 auto;
+  }
+
+  .site-nav__icons shopify-account::part(signed-out-avatar) {
+    --element-icon-size: var(--size-6-5);
+
+    display: flex;
+    align-items: center;
+    padding-left: var(--site-nav-icon-padding);
+    padding-right: var(--site-nav-icon-padding);
+    color: var(--color-primary);
+    text-decoration: none;
+  }
+
+  @media only screen and (max-width: 768px) {
+    .site-nav__icons shopify-account::part(signed-out-avatar) {
+      padding-left: calc(var(--site-nav-item-padding) / 2);
+      padding-right: calc(var(--site-nav-item-padding) / 2);
+    }
+  }
+
+  .header-section:not(:has(+ .shopify-section-group-header-group)) .header-wrapper--overlay:not(.not-light-style) shopify-account::part(signed-out-avatar) {
+    color: var(--color-sticky-nav-links);
+  }
+{% endstylesheet %}
+
+<shopify-account
+  {% if settings.customer_accounts_menu != blank %}
+    menu="{{ settings.customer_accounts_menu }}"
+  {% endif %}
+>
+  <span slot="signed-out-avatar">
+    {% render 'element.icon', name: 'user' %}
+  </span>
+</shopify-account>

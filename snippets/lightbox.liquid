@@ -1,0 +1,30 @@
+{%- doc -%}
+  Copyright © 2025 Archetype Themes LP. All rights reserved.
+
+  Renders a lightbox for the section gallery.
+
+  Element needs to have the .lightbox-trigger class and be wrapped in <image-lightbox><image-lightbox>
+
+  @param {string} [context] - The context of the lightbox
+  @param {string} [classlist] - The classes to add to the lightbox image container
+  @param {image} [img] - The image to display in the lightbox
+
+  @example
+  {%- render 'lightbox', context: 'This is some content', img: img -%}
+{%- enddoc -%}
+
+<div class="lightbox lightbox--{{ context }}">
+  <div class="lightbox-outer-container">
+    <div class="lightbox-content {{ classlist }}">
+      {%- render 'element.image', img: img -%}
+
+      <button class="lightbox-close-btn">
+        {% render 'element.icon', name: 'close' %}
+      </button>
+    </div>
+  </div>
+</div>
+
+<script type="module">
+  import 'component.lightbox'
+</script>

@@ -1,0 +1,160 @@
+{%- doc -%}
+  Select dropdown for single-option choice.
+
+  @param {string} [name] - Form field name
+  @param {string} [label] - Accessible label (sets `aria-label`)
+  @param {string} [placeholder] - Placeholder text (renders as disabled first `option`)
+  @param {string} [options] - HTML string of `option` elements
+  @param {boolean} [disabled] - Disabled state. Default: false
+  @param {boolean} [required] - Required validation. Default: false
+  @param {string} [custom_icon] - Custom icon HTML (replaces default chevron)
+  @param {string} [classes] - Additional CSS classes
+  @param {string} [style] - Inline style overrides
+  @param {string} [id] - HTML id attribute
+  @param {string} [attr] - Additional HTML attributes (applied to the `select` element)
+
+  @example
+  {% render 'kit.select', name: 'size', label: 'Size', placeholder: 'Choose a size', options: size_options %}
+{%- enddoc -%}
+
+{%- render 'kit.tokens' -%}
+
+{%- liquid
+  assign disabled = disabled | default: false, allow_false: true
+  assign required = required | default: false, allow_false: true
+
+  assign class_list = 'kit-select'
+
+  if classes != blank
+    assign class_list = class_list | append: ' ' | append: classes
+  endif
+-%}
+
+<div
+  class="{{ class_list }}"
+  {%- if style != blank %}
+    style="{{ style | escape }}"
+  {% endif %}
+>
+  <select
+    class="kit-select__native"
+    {%- if name != blank %}
+      name="{{ name }}"
+    {% endif %}
+    {%- if label != blank %}
+      aria-label="{{ label }}"
+    {% endif %}
+    {%- if disabled %}
+      disabled
+    {% endif %}
+    {%- if required %}
+      required
+    {% endif %}
+    {%- if id != blank %}
+      id="{{ id }}"
+    {% endif %}
+    {%- if attr != blank %}
+      {{ attr -}}
+    {% endif %}
+  >
+    {%- if placeholder != blank -%}
+      <option value="" disabled selected hidden>{{ placeholder }}</option>
+    {%- endif -%}
+    {{ options }}
+  </select>
+  {%- if custom_icon != blank -%}
+    <span class="kit-select__icon" aria-hidden="true">{{ custom_icon }}</span>
+  {%- else -%}
+    <svg class="kit-select__icon" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+      <path d="M5 7.5l5 5 5-5" stroke="currentColor" stroke-width="1.25" stroke-linecap="round" stroke-linejoin="round" vector-effect="non-scaling-stroke"/>
+    </svg>
+  {%- endif -%}
+</div>
+
+{% stylesheet %}
+  .kit-select {
+    --kit-select-icon-size: 16px;
+
+    position: relative;
+    display: block;
+    width: 100%;
+  }
+
+  .kit-select__native {
+    display: block;
+    width: 100%;
+    padding: var(--kit-control-padding-block) var(--kit-control-padding-inline);
+    padding-inline-end: calc((var(--kit-control-padding-inline) * 2) + var(--kit-select-icon-size));
+    appearance: none;
+    border: none;
+    border-radius: var(--kit-radius-sm);
+    box-shadow: inset 0 0 0 1px var(--kit-color-border, color-mix(in srgb, var(--kit-color-primary) var(--kit-color-mix-border), var(--kit-color-secondary)));
+    background-color: var(--kit-color-secondary);
+    background-image: none;
+    color: var(--kit-color-primary);
+    font-family: var(--kit-font-family-body);
+    font-size: var(--kit-font-size-base);
+    line-height: var(--kit-body-line-height);
+    letter-spacing: var(--kit-body-letter-spacing);
+    outline: none;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    cursor: pointer;
+    transition: box-shadow var(--kit-transition-normal), background-color var(--kit-transition-normal);
+  }
+
+  /* Placeholder */
+  .kit-select:has(option[disabled]:checked) .kit-select__native {
+    color: color-mix(in srgb, var(--kit-color-primary) var(--kit-color-mix-text-subdued), var(--kit-color-secondary));
+  }
+
+  /* Hover */
+  .kit-select__native:hover:not(:disabled):not(:focus) {
+    background-color: color-mix(in srgb, var(--kit-color-primary) var(--kit-color-mix-off-background), var(--kit-color-secondary));
+    box-shadow: inset 0 0 0 2px color-mix(in srgb, var(--kit-color-primary) var(--kit-color-mix-hover), var(--kit-color-secondary));
+  }
+
+  /* Focus */
+  .kit-select__native:focus-visible {
+    box-shadow: inset 0 0 0 2px var(--kit-color-focus);
+  }
+
+  /* Disabled */
+  .kit-select__native:disabled {
+    box-shadow: none;
+    background-color: color-mix(in srgb, var(--kit-color-primary) var(--kit-color-mix-disabled), var(--kit-color-secondary));
+    color: color-mix(in srgb, var(--kit-color-primary) var(--kit-color-mix-on-disabled), var(--kit-color-secondary));
+    cursor: not-allowed;
+  }
+
+  /* Error -- caller sets aria-invalid="true" via attr param */
+  .kit-select__native[aria-invalid='true'] {
+    box-shadow: inset 0 0 0 2px var(--kit-color-error);
+  }
+
+  /* Chevron */
+  .kit-select__icon {
+    position: absolute;
+    top: 50%;
+    inset-inline-end: var(--kit-control-padding-inline);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: var(--kit-select-icon-size);
+    height: var(--kit-select-icon-size);
+    transform: translateY(-50%);
+    pointer-events: none;
+    color: var(--kit-color-primary);
+  }
+
+  .kit-select__icon > svg,
+  .kit-select__icon > .kit-icon {
+    width: 100%;
+    height: 100%;
+  }
+
+  .kit-select:has(.kit-select__native:disabled) .kit-select__icon {
+    color: color-mix(in srgb, var(--kit-color-primary) var(--kit-color-mix-on-disabled), var(--kit-color-secondary));
+  }
+{% endstylesheet %}

@@ -1,0 +1,14 @@
+{% doc %}
+  Copyright © 2025 Archetype Themes LP. All rights reserved.
+
+  Custom rich text content block for additional product information.
+
+  @param {object} [block] - Block object
+
+  @example
+  {% render 'block.product-text', block: block %}
+{% enddoc %}
+
+<div {{ block.shopify_attributes }}>
+  {{ block.settings.text }}
+</div>

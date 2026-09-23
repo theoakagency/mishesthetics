@@ -1,0 +1,358 @@
+{% doc %}
+  Copyright © 2025 Archetype Themes LP. All rights reserved.
+
+  Mobile navigation with slide-out menu panels for multi-level navigation.
+
+  @param {string} [container] - Container element ID
+  @param {object} main_menu - Linklist object for navigation menu
+  @param {string} [text_direction] - Text direction ('ltr' or 'rtl')
+  @param {boolean} [in_header] - Whether nav is rendered in the header, default: false
+
+  @example
+  {% render 'header.mobile-nav', main_menu: linklists.main-menu, container: 'MobileNav' %}
+{% enddoc %}
+
+{% stylesheet %}
+  /*Height changes based on active subnav*/
+  .slide-nav__wrapper {
+    --z-index-overlay: 1;
+    position: relative;
+    overflow: hidden;
+    display: block;
+
+    &:after {
+      background-color: rgba(0, 0, 0, 0.027);
+      pointer-events: none;
+      border-radius: var(--roundness);
+    }
+  }
+
+  /*Element slides left/right to reveal current nav level*/
+  .slide-nav {
+    margin: 0;
+    list-style: none;
+    transition: transform var(--slide-curve);
+
+    [data-level='2'] & {
+      transform: translateX(-100%);
+    }
+
+    [data-level='3'] & {
+      transform: translateX(-200%);
+    }
+  }
+
+  /*button element cannot be flex, so make invisible and style child*/
+  .slide-nav__button {
+    display: block;
+    background: none;
+    border: 0;
+    padding: 0;
+    width: 100%;
+    text-align: left;
+
+    [dir='rtl'] & {
+      text-align: right;
+    }
+  }
+
+  .slide-nav__link {
+    position: relative;
+    display: flex;
+    width: 100%;
+    padding: 10px 20px;
+    align-items: center;
+    justify-content: space-between;
+    font-size: calc(var(--element-text-font-size--body-md) + 2px);
+
+    & > span {
+      display: block;
+      flex: 1 1 auto;
+    }
+
+    & .element-icon {
+      width: 11px;
+      height: 11px;
+      margin-left: 10px;
+    }
+  }
+
+  /*Collection link image*/
+  .slide-nav__image {
+    position: absolute;
+    width: 40px;
+    height: 40px;
+    left: 15px;
+    top: 50%;
+    margin-top: -20px;
+
+    & img {
+      object-fit: cover;
+      width: 100%;
+      height: 100%;
+    }
+
+    & + span {
+      padding-left: 45px;
+    }
+  }
+
+  /*Slightly different style, icon on left*/
+  .slide-nav__link--back {
+    font-weight: var(--element-text-font-weight--heading);
+    justify-content: flex-start;
+
+    & > span {
+      text-decoration: underline;
+      text-underline-offset: 2px;
+    }
+
+    & .element-icon {
+      margin-right: 15px;
+      margin-left: 0;
+      transform: rotate(180deg);
+    }
+  }
+
+  /*list item*/
+  .slide-nav__item {
+    display: block;
+    width: 100%;
+    margin: 0;
+
+    &:first-child {
+      padding-top: 10px;
+    }
+
+    &:last-child {
+      padding-bottom: 10px;
+    }
+  }
+
+  .slide-nav__dropdown {
+    display: none;
+    visibility: hidden;
+    position: absolute;
+    width: 100%;
+    top: 0;
+    right: -100%;
+    margin: 0;
+    opacity: 0;
+    transition: all var(--slide-curve);
+
+    &.is-active {
+      display: block;
+      visibility: visible;
+      opacity: 1;
+      transition: all 0.55s cubic-bezier(0.165, 0.84, 0.44, 1) 0.1s forwards;
+    }
+  }
+
+  /*Adjustments to footer menus when inside mobile nav*/
+  .site-header__mobile-nav .footer__section--menus {
+    margin-top: 20px;
+    margin-left: calc(var(--page-width-padding) * -1);
+    margin-right: calc(var(--page-width-padding) * -1);
+  }
+{% endstylesheet %}
+
+{%- liquid
+  assign main_menu = main_menu | default: section.settings.main_menu_link_list
+  assign text_direction = text_direction | default: settings.text_direction
+  assign in_header = in_header | default: false, allow_false: true
+
+  if text_direction == 'rtl'
+    assign chevron_icon = 'chevron-left'
+  else
+    assign chevron_icon = 'chevron-right'
+  endif
+-%}
+
+<mobile-nav
+  class="slide-nav__wrapper overlay"
+  data-level="1"
+  container="{{ container }}"
+  inHeader="{{ in_header }}"
+  defer-hydration
+>
+  <ul class="slide-nav">
+    {%- for link in main_menu.links -%}
+      {%- liquid
+        assign link_index = forloop.index
+        assign child_list_handle = link.title | handleize | append: link_index
+
+        assign is_collection = false
+        assign have_image = false
+        if link.url contains '/collections/'
+          assign lang_code_string = request.locale.iso_code | prepend: '/' | downcase
+          assign subcollection_handle = link.url | remove: '/collections/' | remove: lang_code_string
+          assign subcollection_drop = collections[subcollection_handle]
+          assign have_image = subcollection_drop.products.first.featured_media.preview_image
+          assign is_collection = true
+        endif
+      -%}
+
+      {%- if have_image -%}
+        {%- capture collection_image -%}
+          <div class="slide-nav__image">
+            {%- render 'element.image',
+              img: have_image,
+              loading: 'eager',
+              sizes: '40px',
+              alt: collections[subcollection_handle].title,
+            -%}
+          </div>
+        {%- endcapture -%}
+      {%- endif -%}
+
+      <li class="slide-nav__item">
+        {%- if link.levels > 0 -%}
+          <button
+            type="button"
+            class="slide-nav__button js-toggle-submenu"
+            data-target="tier-2-{{ child_list_handle }}"
+            {% if link.active or link.child_active %}
+              data-active="true"
+            {% endif %}
+          >
+            <span class="slide-nav__link">
+              {%- if have_image -%}
+                {{ collection_image }}
+              {%- endif -%}
+              <span>{{ link.title }}</span>
+              {% render 'element.icon', name: chevron_icon %}
+              <span class="icon__fallback-text visually-hidden">
+                {% render 'utility.translate', key: 'actions.expand_submenu', fallback: 'Expand submenu' -%}
+              </span>
+            </span>
+          </button>
+
+          <ul
+            class="slide-nav__dropdown"
+            data-parent="tier-2-{{ child_list_handle }}"
+            data-level="2"
+          >
+            <li class="slide-nav__item">
+              <button
+                type="button"
+                class="slide-nav__button js-toggle-submenu"
+              >
+                <span class="slide-nav__link slide-nav__link--back">
+                  {% render 'element.icon', name: chevron_icon %}
+                  <span>{{ link.title }}</span>
+                </span>
+              </button>
+            </li>
+
+            {% comment %}
+              If a collection, automatically add 'view all' link
+            {% endcomment %}
+            {%- if is_collection -%}
+              <li class="slide-nav__item">
+                <a href="{{ link.url }}" class="slide-nav__link">
+                  <span>
+                    {% render 'utility.translate', key: 'actions.view_all', fallback: 'View all' -%}
+                  </span>
+                </a>
+              </li>
+            {%- endif -%}
+
+            {%- for childlink in link.links -%}
+              {%- liquid
+                assign grand_child_list_handle = childlink.title | handleize
+                assign grand_child_link_id = grand_child_list_handle | append: link_index
+              -%}
+
+              <li class="slide-nav__item">
+                {%- if childlink.levels > 0 -%}
+                  <button
+                    type="button"
+                    class="slide-nav__button js-toggle-submenu"
+                    data-target="tier-3-{{ grand_child_link_id }}"
+                    {% if link.active or link.child_active %}
+                      data-active="true"
+                    {% endif %}
+                  >
+                    <span class="slide-nav__link slide-nav__sublist-link">
+                      <span>{{ childlink.title }}</span>
+                      {% render 'element.icon', name: chevron_icon %}
+                      <span class="icon__fallback-text visually-hidden">
+                        {% render 'utility.translate', key: 'actions.expand_submenu', fallback: 'Expand submenu' -%}
+                      </span>
+                    </span>
+                  </button>
+                  <ul
+                    class="slide-nav__dropdown"
+                    data-parent="tier-3-{{ grand_child_link_id }}"
+                    data-level="3"
+                  >
+                    <li class="slide-nav__item">
+                      <button
+                        type="button"
+                        class="slide-nav__button js-toggle-submenu"
+                        data-target="tier-2-{{ child_list_handle }}"
+                      >
+                        <span class="slide-nav__link slide-nav__link--back">
+                          {% render 'element.icon', name: chevron_icon %}
+                          <span>{{ childlink.title }}</span>
+                        </span>
+                      </button>
+                    </li>
+
+                    {% comment %}
+                      If a collection, automatically add 'view all' link
+                    {% endcomment %}
+                    {%- if childlink.url contains '/collections/' -%}
+                      <li class="slide-nav__item">
+                        <a href="{{ childlink.url }}" class="slide-nav__link">
+                          <span>
+                            {% render 'utility.translate', key: 'actions.view_all', fallback: 'View all' -%}
+                          </span>
+                        </a>
+                      </li>
+                    {%- endif -%}
+
+                    {%- for grandchildlink in childlink.links -%}
+                      <li class="slide-nav__item">
+                        <a href="{{ grandchildlink.url }}" class="slide-nav__link">
+                          <span>{{ grandchildlink.title | escape }}</span>
+                        </a>
+                      </li>
+                    {%- endfor -%}
+                  </ul>
+                {%- else -%}
+                  <a href="{{ childlink.url }}" class="slide-nav__link">
+                    <span>{{ childlink.title | escape }}</span>
+                  </a>
+                {%- endif -%}
+              </li>
+            {%- endfor -%}
+          </ul>
+        {%- else -%}
+          <a href="{{ link.url }}" class="slide-nav__link">
+            {%- if have_image -%}
+              {{ collection_image }}
+            {%- endif -%}
+
+            <span>{{ link.title | escape }}</span>
+          </a>
+        {%- endif -%}
+      </li>
+    {%- endfor -%}
+    {%- if shop.customer_accounts_enabled -%}
+      <li class="slide-nav__item">
+        {%- if customer -%}
+          <span class="slide-nav__link">
+            {%- render 'customer-account' -%}
+          </span>
+        {%- else -%}
+          {%- render 'customer-account' -%}
+        {%- endif -%}
+      </li>
+    {%- endif -%}
+  </ul>
+</mobile-nav>
+
+<script type="module">
+  import 'header.mobile-nav'
+</script>

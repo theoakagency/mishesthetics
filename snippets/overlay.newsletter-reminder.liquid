@@ -1,0 +1,107 @@
+{% doc %}
+  Copyright © 2025 Archetype Themes LP. All rights reserved.
+
+  Timed popup reminder for newsletter subscriptions with delay and dismissal controls.
+
+  @param {object} [block] - The block object
+  @param {string} [reminder_label] - The label text for the reminder
+  @param {number} [popup_days] - Days to wait before showing again after dismissal (2-30), default: 30
+  @param {number} [popup_seconds] - Seconds to wait on page before initial display (5-60), default: 30
+  @param {string} [color_scheme] - The color scheme of the reminder, default: 'none'
+  @param {string} [hydration] - The hydration strategy, default: 'on:idle'
+
+  @example
+  {% render 'overlay.newsletter-reminder', reminder_label: 'Subscribe to our newsletter', popup_days: 15, popup_seconds: 10 %}
+{% enddoc %}
+
+{% stylesheet %}
+  /* Newsletter reminder */
+
+  newsletter-reminder {
+    position: fixed;
+    left: 20px;
+    bottom: 20px;
+    transition: ease-in-out 0.3s opacity;
+    box-shadow: 0 12px 25px rgba(0, 0, 0, 0.15);
+    max-width: 240px;
+    z-index: 10;
+    @media only screen and (max-width: 768px) {
+      max-width: calc(100% - 40px);
+    }
+
+    &[data-enabled='false'] {
+      opacity: 0;
+      visibility: hidden;
+      pointer-events: none;
+    }
+
+    &[class*='color-scheme-']:not(.color-scheme-none) {
+      position: fixed;
+    }
+
+    & .color-scheme-none {
+      color: var(--color-button-primary-text);
+      background-color: var(--color-button-primary);
+    }
+
+    & .newsletter-reminder__close {
+      position: absolute;
+      top: 0;
+      right: 0;
+      transform: translate(25%, -25%);
+      z-index: 2;
+    }
+  }
+
+  .newsletter-reminder__message.heading-md {
+    cursor: pointer;
+    padding: var(--newsletter-reminder-padding);
+    margin: 0;
+  }
+{% endstylesheet %}
+
+{%- liquid
+  assign reminder_label = reminder_label | default: block.settings.reminder_label
+  assign popup_seconds = popup_seconds | default: section.settings.popup_seconds | default: 30
+  assign popup_days = popup_days | default: section.settings.popup_days | default: 30
+  assign color_scheme = color_scheme | default: section.settings.color_scheme | default: 'none'
+  assign hydration = hydration | default: 'on:idle'
+-%}
+
+{%- capture close_button_attributes -%}
+  data-close-button
+  aria-label="{% render 'utility.translate', key: 'actions.close_esc', fallback: 'Close (esc)' %}"
+{%- endcapture -%}
+
+{% if reminder_label != blank %}
+  <is-land {{ hydration }}>
+    <newsletter-reminder
+      section-id="{{ section.id }}"
+      data-enabled="false"
+      data-delay-days="{{ popup_days }}"
+      data-delay-seconds="{{ popup_seconds }}"
+      {{ block.shopify_attributes }}
+      style="display: none;"
+    >
+      <div class="newsletter-reminder__content color-scheme-{{ color_scheme }}">
+        {%- render 'utility.color-scheme-texture', color_scheme: color_scheme -%}
+
+        <div class="newsletter-reminder__message heading-md" data-message>
+          {{ reminder_label | escape }}
+        </div>
+      </div>
+
+      {% render 'element.button',
+        classlist: 'newsletter-reminder__close',
+        icon: 'close',
+        attributes: close_button_attributes
+      %}
+    </newsletter-reminder>
+
+    <template data-island>
+      <script type="module">
+        import 'overlay.newsletter-reminder'
+      </script>
+    </template>
+  </is-land>
+{% endif %}

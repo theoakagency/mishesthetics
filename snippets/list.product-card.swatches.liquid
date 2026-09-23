@@ -1,0 +1,134 @@
+{%- comment -%}
+  Renders a product's color swatches.
+
+  Accepts:
+  - product {product} - The product object
+  - disabled_high_variants {boolean} - When true (default), swatch hover effects
+    are disabled for products with more than 250 variants. Set to false to keep
+    hover enabled for high-variant products. Prevents accidental breakage in
+    themes where the swatch hover behavior does not yet support high variants.
+
+  Usage:
+  {% render 'list.product-card.swatches', product: product %}
+{%- endcomment -%}
+
+{%- liquid
+  capture swatch_trigger
+    assign trigger_color_swatch = 'trigger.color_swatch' | t | downcase
+    render 'utility.translate', t: trigger_color_swatch, fallback: 'color'
+  endcapture
+
+  assign swatch_file_extension = 'png'
+  assign color_count = 0
+  assign max_colors_show = 4
+  assign more_than_max = false
+  assign hydration = hydration | default: 'on:idle'
+  assign disabled_high_variants = disabled_high_variants | default: true, allow_false: true
+
+  assign enable_hover = true
+  if disabled_high_variants and product.variants_count > 250
+    assign enable_hover = false
+  endif
+-%}
+
+{% capture swatches_items %}
+  {% for option in product.options_with_values %}
+    {% for value in option.values %}
+      {%- liquid
+        assign is_color = false
+        assign swatch_trigger = swatch_trigger | strip
+        assign downcased_option = option.name | downcase
+        if value.swatch
+          assign is_color = true
+        elsif downcased_option contains swatch_trigger
+          assign is_color = true
+        elsif swatch_trigger == 'color' and downcased_option contains 'colour'
+          assign is_color = true
+        endif
+      -%}
+      {% if is_color %}
+        {% assign color_count = color_count | plus: 1 %}
+        {%- if color_count <= max_colors_show -%}
+          {%- assign variant = value.variant -%}
+
+          {%- liquid
+            assign swatch_color = nil
+            assign swatch_image = nil
+
+            if value.swatch
+              assign swatch_color = value.swatch.color
+              assign swatch_image = value.swatch.image | image_url: width: 50
+            else
+              assign swatch_color = value.name | split: ' ' | last | handle
+              assign color_file_name = value | handle | append: '.' | append: swatch_file_extension
+              assign swatch_image = color_file_name | file_img_url: '50x50' | prepend: 'https:' | split: '?' | first
+            endif
+
+            assign value_sold_out = false
+            if value.available == false
+              assign value_sold_out = true
+            endif
+
+            if variant
+              assign swatch_url = variant.url | within: collection
+            elsif value.product_url
+              assign swatch_url = value.product_url
+            else
+              assign swatch_url = product.url | within: collection
+              assign option_values_separator = '?'
+              if swatch_url contains '?'
+                assign option_values_separator = '&'
+              endif
+              assign option_values_query = option_values_separator | append: 'option_values=' | append: value.id
+              assign swatch_url = swatch_url | append: option_values_query
+            endif
+          -%}
+
+          {%- capture swatch_label -%}
+            {{- option.name }}: {{ value.name }}
+            {%- if value_sold_out %} ({{ 'info.sold_out' | t }}){% endif -%}
+          {%- endcapture -%}
+          {%- assign swatch_label = swatch_label | strip -%}
+
+          {%- capture swatch_attributes -%}
+            data-url="{{ swatch_url }}"
+            data-variant-id="{{ variant.id }}"
+            data-variant-image="{{ variant.image | image_url: width: 400 }}"
+          {%- endcapture -%}
+
+          {% render 'kit.swatch',
+            href: swatch_url,
+            color: swatch_color,
+            image: swatch_image,
+            disabled: value_sold_out,
+            aria_label: swatch_label,
+            attr: swatch_attributes
+          %}
+        {%- else -%}
+          {%- assign more_than_max = true -%}
+        {%- endif -%}
+      {% endif %}
+    {% endfor %}
+  {% endfor %}
+
+  {%- if more_than_max -%}
+    {%- assign more_colors = color_count | minus: max_colors_show | prepend: '+' -%}
+    {% render 'element.text', text: more_colors, variant: 'body-sm' %}
+  {%- endif -%}
+{% endcapture %}
+
+{% if enable_hover %}
+  <is-land {{ hydration }}> <color-swatches>
+{% endif %}
+
+{% render 'layout.stack', slot: swatches_items, gap: 'xs', horizontal: true %}
+
+{% if enable_hover %}
+  <template data-island>
+    <script type="module">
+      import 'list.product-card.swatches'
+    </script>
+  </template>
+  </color-swatches>
+  </is-land>
+{% endif %}

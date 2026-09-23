@@ -1,0 +1,42 @@
+{%- doc -%}
+  Copyright © 2025 Archetype Themes LP. All rights reserved.
+
+  Renders the footer menu block for the footer.
+
+  @param {object} block - The block object
+  @param {string} [menu] - The menu handle
+  @param {string} [title] - The title of the block
+  @param {boolean} [enable_account_link] - Whether or not to show the account link
+  @param {string} [blocks_heading_size] - The heading size for the block
+
+  @example
+  {% render 'footer-menu', block: block %}
+{%- enddoc -%}
+
+{%- liquid
+  assign menu = menu | default: block.settings.menu
+  assign title = title | default: block.settings.title
+  assign enable_account_link = enable_account_link | default: block.settings.enable_account_link, allow_false: true | default: true, allow_false: true
+  assign blocks_heading_size = blocks_heading_size | default: block.settings.heading_size | default: 'sm'
+-%}
+
+<h2 class="footer__title heading-{{ blocks_heading_size }}">
+  {{ title | default: linklists[menu].title }}
+</h2>
+
+<ul class="footer__menu">
+  {%- for link in linklists[menu].links -%}
+    <li>
+      <a href="{{ link.url }}">{{ link.title }}</a>
+    </li>
+  {%- endfor -%}
+
+  {%- if enable_account_link -%}
+    <li>
+      <a href="{{ routes.account_url }}">
+        {% assign labels_my_account = 'labels.my_account' | t %}
+        {% render 'utility.translate', t: labels_my_account, fallback: 'My account' -%}
+      </a>
+    </li>
+  {%- endif -%}
+</ul>

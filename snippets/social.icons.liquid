@@ -1,0 +1,79 @@
+{% doc %}
+  Copyright © 2025 Archetype Themes LP. All rights reserved.
+
+  Collection of social media profile icons with links to configured platforms.
+
+  @param {string} [social_facebook_link] - Facebook profile URL
+  @param {string} [social_twitter_link] - Twitter/X profile URL
+  @param {string} [social_pinterest_link] - Pinterest profile URL
+  @param {string} [social_instagram_link] - Instagram profile URL
+  @param {string} [social_snapchat_link] - Snapchat profile URL
+  @param {string} [social_tiktok_link] - TikTok profile URL
+  @param {string} [social_tumblr_link] - Tumblr profile URL
+  @param {string} [social_linkedin_link] - LinkedIn profile URL
+  @param {string} [social_youtube_link] - YouTube profile URL
+  @param {string} [social_vimeo_link] - Vimeo profile URL
+  @param {string} [wrapper_class] - Additional wrapper CSS classes
+
+  @example
+  {% render 'social.icons', social_facebook_link: settings.social_facebook_link %}
+{% enddoc %}
+
+{%- liquid
+  assign social_facebook_link = social_facebook_link | default: settings.social_facebook_link | default: shop.brand.metafields.social_links.facebook.value
+  assign social_twitter_link = social_twitter_link | default: settings.social_twitter_link | default: shop.brand.metafields.social_links.twitter.value | default: shop.brand.metafields.social_links.x.value
+  assign social_pinterest_link = social_pinterest_link | default: settings.social_pinterest_link | default: shop.brand.metafields.social_links.pinterest.value
+  assign social_instagram_link = social_instagram_link | default: settings.social_instagram_link | default: shop.brand.metafields.social_links.instagram.value
+  assign social_snapchat_link = social_snapchat_link | default: settings.social_snapchat_link | default: shop.brand.metafields.social_links.snapchat.value
+  assign social_tiktok_link = social_tiktok_link | default: settings.social_tiktok_link | default: shop.brand.metafields.social_links.tiktok.value
+  assign social_tumblr_link = social_tumblr_link | default: settings.social_tumblr_link | default: shop.brand.metafields.social_links.tumblr.value
+  assign social_linkedin_link = social_linkedin_link | default: settings.social_linkedin_link | default: shop.brand.metafields.social_links.linkedin.value
+  assign social_youtube_link = social_youtube_link | default: settings.social_youtube_link | default: shop.brand.metafields.social_links.youtube.value
+  assign social_vimeo_link = social_vimeo_link | default: settings.social_vimeo_link | default: shop.brand.metafields.social_links.vimeo.value
+
+  capture social_media_icons
+    if social_facebook_link != blank
+      render 'social.icon-link', platform: 'Facebook', link: social_facebook_link
+    endif
+
+    if social_twitter_link != blank
+      render 'social.icon-link', platform: 'X', link: social_twitter_link
+    endif
+
+    if social_pinterest_link != blank
+      render 'social.icon-link', platform: 'Pinterest', link: social_pinterest_link
+    endif
+
+    if social_instagram_link != blank
+      render 'social.icon-link', platform: 'Instagram', link: social_instagram_link
+    endif
+
+    if social_snapchat_link != blank
+      render 'social.icon-link', platform: 'Snapchat', link: social_snapchat_link
+    endif
+
+    if social_tiktok_link != blank
+      render 'social.icon-link', platform: 'TikTok', link: social_tiktok_link
+    endif
+
+    if social_tumblr_link != blank
+      render 'social.icon-link', platform: 'Tumblr', link: social_tumblr_link
+    endif
+
+    if social_linkedin_link != blank
+      render 'social.icon-link', platform: 'LinkedIn', link: social_linkedin_link
+    endif
+
+    if social_youtube_link != blank
+      render 'social.icon-link', platform: 'YouTube', link: social_youtube_link
+    endif
+
+    if social_vimeo_link != blank
+      render 'social.icon-link', platform: 'Vimeo', link: social_vimeo_link
+    endif
+  endcapture
+
+  if social_media_icons != blank
+    render 'layout.stack', as: 'ul', horizontal: true, slot: social_media_icons, classlist: wrapper_class, gap: 'xs'
+  endif
+-%}

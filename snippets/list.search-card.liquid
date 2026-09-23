@@ -1,0 +1,37 @@
+{% doc %}
+  Copyright © 2025 Archetype Themes LP. All rights reserved.
+
+  Search result card for displaying products, pages, and articles in search results.
+
+  @param {object} item - Search result item object (product, page, or article)
+
+  @example
+  {% render 'list.search-card', item: item %}
+{% enddoc %}
+
+<div class="grid-item grid-product">
+  <div class="grid-item__content">
+    <a href="{{ item.url }}" class="grid-item__link">
+      {%- if item.object_type == 'article' and item.image -%}
+        <div class="grid-product__image-wrap">
+          {%- render 'element.image',
+            img: item.image,
+            classlist: 'grid-product__image',
+            alt: item.title,
+            widths: '180, 360, 540',
+            sizes: sizes,
+            sizeVariable: sizeVariable,
+            fallback: fallback
+          -%}
+        </div>
+      {%- endif -%}
+
+      <div class="grid-item__meta">
+        <span class="heading-sm">{{ item.title }}</span>
+        <div>
+          {{ item.content | strip_html | truncatewords: 45 }}
+        </div>
+      </div>
+    </a>
+  </div>
+</div>

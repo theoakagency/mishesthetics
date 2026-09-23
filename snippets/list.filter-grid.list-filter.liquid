@@ -1,0 +1,176 @@
+{%- doc -%}
+  Copyright © 2025 Archetype Themes LP. All rights reserved.
+
+  Renders the list filter for the collection grid.
+
+  @param {object} filter - Filter object
+  @param {string} [filter_variant] - Filter variant ('checkbox'|'pill')
+  @param {boolean} [enable_swatch_labels] - Enable swatch labels
+  @param {boolean} [enable_show_more_filters] - Enable show more filters
+  @param {number} [threshold_show_more] - Threshold for show more filters
+
+  @example
+  {% render 'list.filter-grid.list-filter', filter: filter %}
+{%- enddoc -%}
+
+{% stylesheet %}
+  .filter-list {
+    display: block;
+
+    .tag__count:before {
+      .item-grid:not(.item-grid--filters-pill) & {
+        content: '(';
+      }
+    }
+
+    .tag__count:after {
+      .item-grid:not(.item-grid--filters-pill) & {
+        content: ')';
+      }
+    }
+
+    .tag__checkbox-wrapper {
+      &:hover {
+        --element-swatch-shade-outer: 20%;
+      }
+
+      &:has(input[type='checkbox']:focus),
+      &:has(input[type='checkbox']:checked) {
+        --element-swatch-shade-outer: 100%;
+      }
+    }
+  }
+  .filter-list:not(.show-all) .show-more ~ li {
+    display: none !important;
+  }
+
+  .filter-list.show-all li.show-more {
+    display: none !important;
+  }
+
+  .filter-list {
+    .show-more,
+    .show-less {
+      width: 100%;
+      font-size: 0.875rem;
+
+      button {
+        font-size: inherit;
+      }
+    }
+  }
+{% endstylesheet %}
+
+{%- liquid
+  assign filter_index = filter_index | default: forloop.index
+  assign enable_swatch_labels = enable_swatch_labels | default: section.settings.enable_swatch_labels, allow_false: true | default: true, allow_false: true
+  assign enable_show_more_filters = enable_show_more_filters | default: false, allow_false: true
+  assign threshold_show_more = 6
+  assign filter_variant = filter_variant | default: 'checkbox'
+-%}
+
+{% capture filter_items %}
+  {%- assign tag_count = filter.values.size -%}
+  {%- assign current_items_count = 0 -%}
+  {%- assign has_show_more_button = false -%}
+  {%- for filter_value in filter.values -%}
+    {%- liquid
+      assign tag_count = tag_count | plus: 1
+      assign filter_value_index = forloop.index
+      assign is_product_tag = false
+    -%}
+
+    {% if filter_value.label contains 'at_' %}
+      {% assign is_product_tag = true %}
+      {% assign formatted_tag = filter_value.label | remove_first: 'at_' %}
+
+      {% assign tag_id = formatted_tag | strip %}
+      {% assign tag_text = 'tags.' | append: tag_id | replace: '-', '_' | t %}
+
+      {% if tag_text contains 'Translation missing' %}
+        {% continue %}
+      {% endif %}
+    {% endif %}
+    {%- if filter_value.count != 0 -%}
+      {%- assign current_items_count = current_items_count | plus: 1 -%}
+    {%- endif -%}
+
+    {%- # Checkbox label -%}
+    {%- capture checkbox_label_text -%}
+      {% if is_product_tag %}
+        {% if tag_text %}
+          {{ tag_text | capitalize }}
+        {% endif %}
+      {% else %}
+        {{ filter_value.label }}
+      {% endif %}
+      ({{ filter_value.count }})
+    {%- endcapture -%}
+
+    {%- capture checkbox_label -%}
+      {%  render 'element.text', variant: 'body', text: checkbox_label_text, as: 'span' %}
+    {%- endcapture -%}
+
+    {%- # Checkbox label for pill variant -%}
+    {%- assign checkbox_display_icon = true -%}
+    {%- if filter_variant == 'pill' -%}
+      {%- assign chip_active = false -%}
+      {%- if filter_value.active -%}
+        {%- assign chip_active = true -%}
+      {%- endif -%}
+      {%- assign checkbox_display_icon = false -%}
+      {%- capture checkbox_label -%}
+          {% render 'element.chip', as: 'span', label: filter_value.label, caption: filter_value.count, display_swatch: false, active: chip_active %}
+      {%- endcapture -%}
+    {%- endif -%}
+
+    {%- if current_items_count > threshold_show_more
+      and enable_show_more_filters
+      and has_show_more_button == false
+    -%}
+      {%- assign has_show_more_button = true -%}
+      <div class="show-more">
+        <button type="button" class="js-show-more" aria-expanded="false">
+          {%- render 'utility.translate', key: 'actions.show_more', fallback: 'Show more' -%}
+        </button>
+      </div>
+    {%- endif -%}
+
+    <div class="tag{% if filter_value.active %} tag--active{% endif %}{% if filter_value.count == 0 %} hide{% endif %}">
+      {%- render 'element.checkbox',
+        index: filter_value_index,
+        name: filter_value.param_name,
+        classlist: 'tag__checkbox-wrapper',
+        value: filter_value.value,
+        checked: filter_value.active,
+        label: checkbox_label,
+        display_icon: checkbox_display_icon
+      -%}
+    </div>
+  {%- endfor -%}
+  {%- if has_show_more_button and enable_show_more_filters -%}
+    <div class="show-less">
+      <button type="button" class="js-show-less" aria-expanded="true">
+        {%- render 'utility.translate', key: 'actions.show_less', fallback: 'Show less' -%}
+      </button>
+    </div>
+  {%- endif -%}
+{% endcapture %}
+
+<filter-list class="filter-list">
+  {%- if filter_variant == 'pill' -%}
+    {% render 'layout.stack', slot: filter_items, gap: 'xs', horizontal: true %}
+  {% else %}
+    {% render 'layout.grid', slot: filter_items, gap: 'xs', columns_xs: 2, columns_md: 1 %}
+  {% endif %}
+</filter-list>
+
+<script type="module">
+  import 'list.filter-grid.list-filter'
+</script>
+
+{%- if current_items_count == 0 -%}
+  {%- style -%}
+    .collection-sidebar__group--{{ filter_index }} { display: none; }
+  {%- endstyle -%}
+{%- endif -%}

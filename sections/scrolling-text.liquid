@@ -1,0 +1,95 @@
+{%- render 'section.scrolling-text' -%}
+
+{% schema %}
+{
+  "name": "t:labels.scrolling_text",
+  "class": "index-section--flush",
+  "settings": [
+    {
+      "type": "text",
+      "id": "text",
+      "label": "t:labels.text",
+      "default": "Free shipping and returns"
+    },
+    {
+      "type": "url",
+      "id": "link",
+      "label": "t:labels.link"
+    },
+    {
+      "type": "range",
+      "id": "text_size",
+      "label": "t:labels.text_size",
+      "default": 70,
+      "min": 20,
+      "max": 150,
+      "step": 2,
+      "unit": "px"
+    },
+    {
+      "type": "checkbox",
+      "id": "text_spacing",
+      "label": "t:actions.add_spacing",
+      "default": true
+    },
+    {
+      "type": "select",
+      "id": "direction",
+      "label": "t:labels.direction",
+      "default": "reverse",
+      "options": [
+        {
+          "label": "t:labels.forward",
+          "value": "normal"
+        },
+        {
+          "label": "t:labels.reverse",
+          "value": "reverse"
+        }
+      ]
+    },
+    {
+      "type": "range",
+      "id": "speed",
+      "label": "t:labels.speed",
+      "default": 2,
+      "min": 1,
+      "max": 10,
+      "step": 1
+    },
+    {
+      "type": "select",
+      "id": "color_scheme",
+      "label": "t:labels.color_scheme",
+      "default": "1",
+      "options": [
+        {
+          "value": "none",
+          "label": "t:labels.none"
+        },
+        {
+          "value": "1",
+          "label": "1"
+        },
+        {
+          "value": "2",
+          "label": "2"
+        },
+        {
+          "value": "3",
+          "label": "3"
+        }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "name": "t:labels.scrolling_text",
+      "category": "t:labels.category_banners"
+    }
+  ],
+  "disabled_on": {
+    "groups": ["custom.popups"]
+  }
+}
+{% endschema %}

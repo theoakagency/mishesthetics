@@ -1,0 +1,57 @@
+{% doc %}
+  Copyright © 2025 Archetype Themes LP. All rights reserved.
+
+  Individual social media icon links with platform-specific icons.
+
+  @param {string} platform - Social media platform name
+  @param {string} link - URL to the social media profile
+  @param {string} [link_title] - Link title for accessibility
+  @param {string} [label] - Visible label text for the icon
+  @param {string} [classlist] - Additional CSS classes
+
+  @example
+  {% render 'social.icon-link', platform: 'Facebook', link: 'https://facebook.com/shop' %}
+{% enddoc %}
+
+{% stylesheet %}
+  .social-sharing__title {
+    font-size: calc(var(--element-text-font-size--body-md) * 0.85);
+    display: inline-block;
+    vertical-align: middle;
+    padding-right: 15px;
+    padding-left: 3px;
+  }
+{% endstylesheet %}
+
+{%- capture actions_shop_on_social -%}
+  {% assign actions_shop_on_social = 'actions.shop_on_social' | t: name: shop.name, platform: platform %}
+  {%- capture fallback_actions_shop_on_social -%}
+    {{ shop.name }} on {{ platform }}
+  {%- endcapture -%}
+  {% render 'utility.translate', t: actions_shop_on_social, fallback: fallback_actions_shop_on_social %}
+{%- endcapture -%}
+
+{%- liquid
+  assign link_title = link_title | default: actions_shop_on_social
+-%}
+
+<li>
+  <a
+    target="_blank"
+    rel="noopener"
+    href="{{ link }}"
+    title="{{ link_title }}"
+    {% if classlist != blank %}
+      class="{{ classlist }}"
+    {% endif %}
+  >
+    {%- assign icon_name = platform | downcase -%}
+    {%- render 'element.icon', name: icon_name -%}
+
+    {%- if label != blank -%}
+      <span class="social-sharing__title" aria-hidden="true">{{ label }}</span>
+    {%- endif -%}
+
+    <span class="icon__fallback-text visually-hidden">{{ platform }}</span>
+  </a>
+</li>

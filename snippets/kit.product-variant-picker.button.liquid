@@ -1,0 +1,96 @@
+{% doc %}
+  Renders one product option's values as radios. Swatch options (value.swatch)
+  render as swatches; every other option renders button-styled radios.
+
+  @param {object} option - product_option object (from product.options_with_values)
+  @param {boolean} [enable_swatches] - Render values with a swatch as swatches. Default: false
+  @param {boolean} [enable_select_unavailable] - Keep sold-out values selectable (marked unavailable) instead of disabling them. Default: false
+  @param {string} [legacy_swatch_source] - Where to find swatches for values that have no `value.swatch`: 'files' (Shopify Files) or 'assets' (theme assets), keyed on `{value-handle}.png`. Every value in the option becomes a swatch, so only pass this for color options. Requires `enable_swatches`.
+{% enddoc %}
+
+{% liquid
+  assign enable_swatches = enable_swatches | default: false, allow_false: true
+  assign enable_select_unavailable = enable_select_unavailable | default: false, allow_false: true
+  
+  assign option_name_escaped = option.name | escape
+%}
+
+{% capture stack_content %}
+  {% for value in option.values %}
+    {%- liquid
+      assign input_value = value | escape
+      assign value_name_escaped = value.name | escape
+
+      assign radio_attr = 'data-option-value-id="' | append: value.id | append: '"'
+      if value.product_url
+        assign radio_attr = radio_attr | append: ' data-product-url="' | append: value.product_url | append: '"'
+      endif
+
+      assign button_swatch_disabled = false
+      if value.available == false
+        assign button_swatch_disabled = true
+      endif
+
+      assign input_disabled = false
+      if button_swatch_disabled and enable_select_unavailable == false
+        assign input_disabled = true
+      endif
+
+      assign is_swatch = false
+      assign swatch_color = nil
+      assign swatch_image = nil
+      if enable_swatches and value.swatch
+        assign is_swatch = true
+        assign swatch_color = value.swatch.color
+        assign swatch_image = value.swatch.image | image_url: width: 50
+      elsif enable_swatches and legacy_swatch_source != blank
+        # Legacy swatches predate value.swatch: an image named after the value
+        # handle, backed by the last word of the value name as a CSS color.
+        assign is_swatch = true
+        assign swatch_color = value.name | split: ' ' | last | handle
+        assign legacy_swatch_file = value.name | handle | append: '.png'
+        if legacy_swatch_source == 'files' and images[legacy_swatch_file] != blank
+          assign swatch_image = images[legacy_swatch_file] | image_url: width: 50
+        elsif legacy_swatch_source == 'assets'
+          assign swatch_image = legacy_swatch_file | asset_url
+        endif
+      endif
+    -%}
+
+    {% capture radio_content %}
+      {% if is_swatch %}
+        {%- render 'kit.swatch',
+          tag: 'span',
+          color: swatch_color,
+          image: swatch_image,
+          disabled: button_swatch_disabled
+        -%}
+        {%- comment -%} A swatch carries no text, so the radio has no accessible name without this. {%- endcomment -%}
+        {%- render 'kit.visually-hidden', text: value_name_escaped -%}
+      {% else %}
+        {% render 'kit.button',
+          tag: 'span',
+          text: value_name_escaped,
+          variant: 'secondary',
+          disabled: button_swatch_disabled
+        %}
+      {% endif %}
+    {% endcapture %}
+
+    {% render 'kit.radio',
+      name: option_name_escaped,
+      content: radio_content,
+      value: input_value,
+      checked: value.selected,
+      disabled: input_disabled,
+      attr: radio_attr
+    %}
+  {% endfor %}
+{% endcapture %}
+
+{% render 'kit.stack',
+  content: stack_content,
+  direction: 'horizontal',
+  gap: 'xs',
+  wrap: true
+%}

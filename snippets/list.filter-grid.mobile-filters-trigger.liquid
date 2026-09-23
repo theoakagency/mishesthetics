@@ -1,0 +1,88 @@
+{%- doc -%}
+  Copyright © 2025 Archetype Themes LP. All rights reserved.
+
+  Renders the mobile filters trigger button for the collection grid.
+
+  @param {object} context - Collection or search object
+  @param {boolean} [enable_reset_price_filter] - Whether to enable the reset price filter button
+
+  @example
+  {% render 'list.filter-grid.mobile-filters-trigger', context: context %}
+{%- enddoc -%}
+
+{% stylesheet %}
+  .collection-filter__btn {
+    padding: 12px 0;
+    font-weight: var(--element-text-font-weight--heading);
+    font-size: calc(var(--element-text-font-size--body-md) + 1px);
+
+    & .element-icon {
+      vertical-align: middle;
+      width: 25px;
+      height: 25px;
+      margin-top: -1px;
+      margin-right: 5px;
+    }
+
+    & path {
+      transition: all 0.3s cubic-bezier(0.18, 0.77, 0.58, 1);
+    }
+
+    /*Animate SVG to become close icon*/
+    &.is-active {
+      & path:nth-child(3) {
+        transform: rotate(45deg);
+        transform-origin: 70% 90%;
+      }
+      & path:nth-child(1),
+      & path:nth-child(2),
+      & path:nth-child(4),
+      & path:nth-child(5) {
+        opacity: 0;
+      }
+      & path:nth-child(6) {
+        transform: rotate(-45deg);
+        transform-origin: 80% 44%;
+      }
+    }
+  }
+{% endstylesheet %}
+
+{%- liquid
+  assign current_filter_size = 0
+  assign enable_reset_price_filter = enable_reset_price_filter | default: false, allow_false: true
+  for filter in context.filters
+    if filter.type == 'price_range'
+      assign min = filter.min_value.value
+      assign max = filter.max_value.value
+      assign is_price_filter_active = false
+      if min != null or max != null
+        assign is_price_filter_active = true
+      endif
+      if is_price_filter_active and enable_reset_price_filter
+        assign current_filter_size = current_filter_size | plus: 1
+        continue
+      endif
+    endif
+    assign current_filter_size = current_filter_size | plus: filter.active_values.size
+  endfor
+-%}
+
+<mobile-filters-trigger>
+  <button
+    type="button"
+    class="collection-filter__btn text-link"
+  >
+    {% render 'element.icon', name: 'filter' %}
+    <span>
+      {% render 'utility.translate', key: 'actions.filter', fallback: 'Filter' -%}
+    </span>
+    {%- if current_filter_size > 0 -%}
+      ({{ current_filter_size }})
+    {%- endif -%}
+  </button>
+</mobile-filters-trigger>
+
+<script type="module">
+  import 'list.filter-grid.mobile-filters-trigger'
+</script>

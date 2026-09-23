@@ -1,0 +1,51 @@
+{%- doc -%}
+  Copyright © 2025 Archetype Themes LP. All rights reserved.
+
+  Renders the price range text for the collection grid.
+
+  @param {object} filter - Filter object
+  @param {string} [edges] - Edges style ('square'|'round')
+  @param {string} [filter_type] - Filter type
+
+  @example
+  {% render 'list.filter-grid.price-range-text', filter: filter %}
+{%- enddoc -%}
+
+{% stylesheet %}
+  .facets__price {
+    display: flex;
+    width: fit-content;
+    gap: 16px;
+
+    &.edges-square {
+      --radius: 0px;
+    }
+
+    &.edges-round {
+      --radius: 9999px;
+    }
+
+    .field {
+      display: flex;
+      align-items: center;
+      flex: 1;
+      gap: 4px;
+    }
+
+    .field__input {
+      width: 72px;
+    }
+  }
+{% endstylesheet %}
+
+{%- liquid
+  assign edges = edges | default: settings.edges | default: 'square'
+-%}
+
+<price-range-text class="facets__price edges-{{ edges }}">
+  {% render 'list.filter-grid.price-facet', filter: filter, id_prefix: 'Filter-', filter_type: filter_type %}
+</price-range-text>
+
+<script type="module">
+  import 'list.filter-grid.price-range-text'
+</script>

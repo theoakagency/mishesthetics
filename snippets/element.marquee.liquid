@@ -1,0 +1,108 @@
+{%- doc -%}
+  Copyright © 2025 Archetype Themes LP. All rights reserved.
+
+  Continuously scrolling content for showcasing logos, announcements, or repeating messages.
+
+  @param {string} slot - Content to be scrolled in the marquee
+  @param {string} [classlist] - Additional classes to class attribute
+  @param {string} [attributes] - Additional HTML attributes
+  @param {string} [style] - Additional inline styles
+  @param {string} [direction] - ('normal'|'reverse') - Direction of scroll animation (default: 'normal')
+  @param {number} [speed] - Speed multiplier (1-10): 1=slowest, 5=default, 10=fastest (default: 5)
+  @param {string} [gap] - Gap size between items ('none'|'2xs'|'xs'|'sm'|'md'|'lg'|'xl') (default: 'none')
+
+  @example
+  {% render 'element.marquee', slot: logos, direction: 'reverse', speed: 7 %}
+{%- enddoc -%}
+
+{%- liquid
+  assign classlist = classlist | default: '' | append: ' element-marquee' | strip
+  assign attributes = attributes | default: ''
+  assign style = style | default: ''
+  assign direction = direction | default: 'normal'
+  assign speed = speed | default: 5
+  assign gap = gap | default: 'none'
+
+  assign style = style | append: ' --marquee-gap: var(--gap-size-' | append: gap | append: ');'
+-%}
+
+<element-marquee
+  class="{{ classlist }}"
+  data-direction="{{ direction }}"
+  data-speed="{{ speed }}"
+
+  {% if attributes != blank %}
+    {{ attributes -}}
+  {% endif %}
+
+  {%- if style != blank -%}
+    style="{{ style | escape }}"
+  {%- endif -%}
+>
+  <div class="element-marquee__wrapper">
+    <div class="element-marquee__content">
+      <div class="element-marquee__items">
+        {{ slot }}
+      </div>
+    </div>
+  </div>
+</element-marquee>
+
+{% render 'style.primitive-tokens' %}
+{% render 'style.normalize' %}
+
+{% stylesheet %}
+  .element-marquee {
+    display: block;
+    width: 100%;
+    overflow: hidden;
+    --marquee-gap: 0px;
+  }
+
+  .element-marquee__wrapper {
+    display: flex;
+    gap: var(--marquee-gap);
+    width: fit-content;
+    white-space: nowrap;
+  }
+
+  .element-marquee__content {
+    min-width: max-content;
+    display: flex;
+    gap: var(--marquee-gap);
+  }
+
+  .element-marquee__items {
+    min-width: max-content;
+    display: flex;
+    gap: var(--marquee-gap);
+    align-items: center;
+  }
+
+  @media (prefers-reduced-motion: no-preference) {
+    .element-marquee[data-loaded] .element-marquee__wrapper {
+      --marquee-start: calc(-50% - (var(--marquee-gap) / 2));
+      --marquee-end: 0px;
+      animation: marquee-motion var(--marquee-speed, 10s) linear infinite;
+    }
+
+    .element-marquee[data-direction='reverse'][data-loaded] .element-marquee__wrapper {
+      --marquee-start: 0px;
+      --marquee-end: calc(-50% - (var(--marquee-gap) / 2));
+    }
+  }
+
+  @keyframes marquee-motion {
+    from {
+      transform: translate3d(var(--marquee-start), 0, 0);
+    }
+
+    to {
+      transform: translate3d(var(--marquee-end), 0, 0);
+    }
+  }
+{% endstylesheet %}
+
+<script type="module">
+  import 'element.marquee'
+</script>

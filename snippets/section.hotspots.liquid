@@ -1,0 +1,427 @@
+{% doc %}
+  Copyright © 2025 Archetype Themes LP. All rights reserved.
+
+  Interactive image with clickable hotspots linking to products or content.
+
+  @param {string} [title] - Section heading
+  @param {string} [heading_size] - ('sm'|'md'|'lg'|'xl') Heading size
+  @param {string} [heading_position] - ('left'|'center'|'right') Heading alignment
+  @param {object} [image] - Main image with hotspots
+  @param {boolean} [indent_image] - Add image indentation
+  @param {string} [image_position] - ('left'|'right') Image placement
+  @param {string} [hotspot_style] - ('dot'|'plus'|'tag'|'bag') Hotspot icon style
+  @param {string} [hotspot_color] - Hotspot color value
+  @param {string} [product_grid_content_align] - Product grid content alignment
+  @param {string} [hydration] - Hydration strategy
+
+  @example
+  {% render 'section.hotspots', hotspot_style: 'dot', title: 'Shop collections' %}
+{% enddoc %}
+
+{% stylesheet %}
+  .hotspots-section .index-section {
+    @media only screen and (max-width: 768px) {
+      margin-bottom: 10px;
+    }
+  }
+
+  .hotspots-section .hotspots-wrapper {
+    display: flex;
+    flex-wrap: wrap;
+
+    &.is-reverse {
+      flex-direction: row-reverse;
+    }
+  }
+
+  .hotspots__title {
+    width: 100%;
+  }
+
+  .hotspots {
+    position: relative;
+    width: 70%;
+
+    @media only screen and (max-width: 768px) {
+      width: 100%;
+    }
+
+    & .grid__image-ratio img {
+      opacity: 1;
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+
+      [data-animate_images='true'] & {
+        opacity: 1;
+      }
+    }
+  }
+
+  .hotspots__buttons {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    border: 0;
+    background-color: transparent;
+  }
+
+  .hotspot__button {
+    padding: 10px;
+    border-radius: 50%;
+    position: absolute;
+    line-height: 0;
+    transform: translate(-50%, -50%);
+
+    @media only screen and (max-width: 768px) {
+      padding: 6px;
+    }
+
+    &:hover .hotspot__button-content {
+      opacity: 1;
+      visibility: visible;
+      pointer-events: auto;
+    }
+  }
+
+  .hotspot__button-content {
+    color: var(--root-color-primary);
+    background-color: var(--root-color-secondary);
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none;
+    padding: 1rem;
+    position: absolute;
+    top: calc(100% + 1rem);
+    left: 50%;
+    transform: translateX(-50%);
+    transition: opacity 0.3s ease-in-out;
+    min-width: 5rem;
+    border-radius: 5px;
+    box-shadow: 3px 3px 10px 3px rgba(0, 0, 0, 0.2);
+
+    & p,
+    & span {
+      white-space: nowrap;
+      margin-bottom: 0;
+    }
+
+    &:before {
+      position: absolute;
+      top: -10px;
+      left: 50%;
+      content: '';
+      width: 0;
+      height: 0;
+      border-style: solid;
+      border-width: 0 5px 10px 5px;
+      transform: translateX(-50%);
+      border-color: transparent transparent var(--root-color-secondary) transparent;
+    }
+
+    & .content__prices {
+      display: flex;
+      flex-wrap: nowrap;
+    }
+  }
+
+  .hotspots__content {
+    width: 30%;
+    padding: 24px;
+    display: flex;
+    align-items: center;
+
+    .page-width & {
+      padding-right: 0;
+      padding-left: 40px;
+
+      @media only screen and (max-width: 768px) {
+        padding-left: 0;
+      }
+    }
+
+    .page-width.is-reverse & {
+      padding-left: 0;
+      padding-right: 40px;
+
+      @media only screen and (max-width: 768px) {
+        padding-right: 0;
+      }
+    }
+
+    @media only screen and (max-width: 768px) {
+      width: 100%;
+      padding: 1rem 20px 0;
+    }
+  }
+
+  .hotspot-content__block {
+    display: none;
+    max-height: 0;
+    width: 100%;
+    animation: fade-in 0.5s ease 0s forwards;
+    position: sticky;
+    top: 0;
+
+    /* animation and position:sticky causes issues in themes where quickshop modal is nested */
+    .modal-open &,
+    .modal-closing & {
+      animation: none;
+      position: static;
+    }
+
+    @media only screen and (max-width: 768px) {
+      align-items: center;
+      position: relative;
+      padding-top: 0;
+    }
+
+    &.is-active {
+      display: block;
+      max-height: initial;
+    }
+
+    & .grid-product__image-wrap {
+      margin: 0;
+    }
+
+    & .grid__item {
+      display: block;
+      float: none;
+      padding: 0;
+    }
+
+    & .grid-item__meta,
+    & .grid-product__meta {
+      padding-top: 10px;
+
+      @media only screen and (max-width: 768px) {
+        display: flex;
+        justify-content: center;
+        flex-direction: column;
+        flex-wrap: wrap;
+        padding-left: 10px;
+        padding-top: 0;
+        text-align: left;
+
+        & .grid-item__meta-main {
+          width: 100%;
+          flex: none;
+        }
+      }
+    }
+
+    @media only screen and (max-width: 768px) {
+      & .grid-product {
+        padding-right: 0;
+        padding-left: 0;
+      }
+
+      & .quick-add-btn {
+        display: none;
+      }
+
+      /* Class is unique to Impulse */
+      & .grid__item-image-wrapper {
+        display: flex;
+
+        & .grid-product__image-mask {
+          flex: 0 0 30%;
+        }
+      }
+
+      & .grid-item__link,
+      & .grid-product__link {
+        display: flex;
+        flex-wrap: nowrap;
+      }
+
+      /* TODO: Adjust global stylings in grid.css so we don't have to add exceptions like this */
+      & .grid-item__link {
+        [data-grid-style='grey-round'] & {
+          border-radius: 10px 0 0 10px;
+        }
+
+        [data-grid-style='white-round'] & {
+          border-radius: 10px 0 0 10px;
+        }
+      }
+
+      & .grid-product__image-mask,
+      & .grid-product__image-wrap,
+      & .product-slider {
+        width: 30%;
+      }
+
+      & .grid-product__actions {
+        right: initial;
+        left: 10px;
+        top: 10px;
+      }
+    }
+  }
+{% endstylesheet %}
+
+{%- liquid
+  assign title = title | default: section.settings.title
+  assign heading_size = heading_size | default: section.settings.heading_size | default: 'md'
+  assign heading_position = heading_position | default: section.settings.heading_position | default: 'center'
+  assign image = image | default: section.settings.image
+  assign indent_image = indent_image | default: section.settings.indent_image, allow_false: true | default: false, allow_false: true
+  assign image_position = image_position | default: section.settings.image_position | default: 'left'
+  assign hotspot_style = hotspot_style | default: section.settings.hotspot_style | default: 'bag'
+  assign hotspot_color = hotspot_color | default: section.settings.hotspot_color | default: '#000'
+  assign product_grid_content_align = product_grid_content_align | default: settings.product_grid_content_align | default: 'start'
+  assign hydration = hydration | default: 'on:visible'
+-%}
+
+{%- liquid
+  assign lazyload_images = true
+
+  if section.index == 1
+    assign lazyload_images = false
+  endif
+-%}
+
+{% assign bgBrightness = hotspot_color | brightness_difference: '#fff' %}
+{% style %}
+  {% for block in section.blocks %}
+    @keyframes pulse {
+      0% { box-shadow: 0 0 0 0 {{ hotspot_color | color_modify: 'alpha', 0.5 }}; }
+      100% { box-shadow: 0 0 0 10px {{ hotspot_color | color_modify: 'alpha', 0 }}; }
+    }
+
+    .{{ section.id }} .hotspot__button--{{ block.id }} {
+      left: {{ block.settings.horizontal }}%;
+      top: {{ block.settings.vertical }}%;
+      background-color: {{ hotspot_color }};
+      animation: pulse 2s infinite;
+    }
+
+    .{{ section.id }} .hotspot__button--{{ block.id }}:hover {
+      {% if bgBrightness < 125 %}
+        background-color: {{ hotspot_color | color_darken: 10 }};
+      {% else %}
+        background-color: {{ hotspot_color | color_lighten: 10 }};
+      {% endif %}
+    }
+  {% endfor %}
+
+  .{{ section.id }} .hotspot__button path {
+    {% if bgBrightness < 125 %}
+      stroke: #000 !important;
+    {% else %}
+      stroke: #fff !important;
+    {% endif %}
+  }
+
+  .{{ section.id }} .hotspot__button circle {
+    {% if bgBrightness < 125 %}
+      fill: #000 !important;
+    {% else %}
+      fill: #fff !important;
+    {% endif %}
+    stroke: none !important;
+  }
+{% endstyle %}
+
+<is-land {{ hydration }}>
+  {%- render 'utility.color-scheme-texture', color_scheme: section.settings.color_scheme -%}
+
+  <div
+    class="
+      index-section
+      {{ section.id }}
+      {{ bgBrightness }}
+      color-scheme-{{ section.settings.color_scheme }}
+    "
+  >
+    {% if title != blank %}
+      <div class="page-width">
+        <h2 class="hotspots__title heading-{{ heading_size }} text-{{ heading_position }}">{{ title | escape }}</h2>
+      </div>
+    {% endif %}
+
+    <hot-spots
+      class="hotspots-wrapper {% unless indent_image %}page-width{% endunless %} {% if image_position == 'right' %}is-reverse{% endif %}"
+      section-id="{{ section.id }}"
+    >
+      <div class="hotspots">
+        <div class="hotspots__image hotspots__image--indent-{{ indent_image }}">
+          <div class="grid__image-ratio grid__image-ratio--square">
+            {% if image != blank %}
+              {%- render 'element.image',
+                img: image,
+                img_width: 2400,
+                loading: lazyload_images,
+                sizeVariable: '70vw'
+              -%}
+            {% else %}
+              {%- render 'element.placeholder', name: 'lifestyle-1' -%}
+            {% endif %}
+          </div>
+        </div>
+
+        <div class="hotspots__buttons">
+          {% for block in section.blocks %}
+            <button class="hotspot__button hotspot__button--{{ block.id }}" data-button="{{ block.id }}">
+              {%- render 'element.icon', name: hotspot_style -%}
+            </button>
+          {% endfor %}
+        </div>
+      </div>
+
+      <div class="hotspots__content" data-block-container>
+        {% for block in section.blocks %}
+          <div
+            class="hotspot-content__block {% if forloop.index0 == 0 %}is-active{% endif %}"
+            data-block-type="{{ block.type }}"
+            data-hotspot-block="{{ block.id }}"
+            {{ block.shopify_attributes }}
+          >
+            {% case block.type %}
+              {% when 'product' %}
+                {% if block.settings.featured_product != blank %}
+                  {%- render 'list.product-card',
+                    product: block.settings.featured_product,
+                    sizes: '30vw',
+                    product_grid_content_align: product_grid_content_align,
+                    disabled_high_variants: false
+                  -%}
+                {% else %}
+                  {%- render 'list.product-card.placeholder', index: forloop.index -%}
+                {% endif %}
+              {% when 'paragraph' %}
+                {% if block.settings.subheading != blank %}
+                  <p class="subheading">{{ block.settings.subheading }}</p>
+                {% endif %}
+
+                {% if block.settings.heading != blank %}
+                  <h3>{{ block.settings.heading }}</h3>
+                {% endif %}
+
+                {% if block.settings.content != blank %}
+                  {{ block.settings.content }}
+                {% endif %}
+
+                {% if block.settings.button_text != blank %}
+                  {%- render 'element.button', text: block.settings.button_text, href: block.settings.button_link -%}
+                {% endif %}
+            {% endcase %}
+          </div>
+        {% endfor %}
+      </div>
+    </hot-spots>
+  </div>
+
+  <template data-island>
+    <script type="module">
+      import 'section.hotspots'
+    </script>
+  </template>
+</is-land>

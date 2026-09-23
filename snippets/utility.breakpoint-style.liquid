@@ -1,0 +1,40 @@
+{% doc %}
+  Copyright © 2025 Archetype Themes LP. All rights reserved.
+
+  Generates responsive CSS custom property values across breakpoints.
+
+  @param {string} property - CSS custom property name to set
+  @param {string} selector - CSS selector to apply styles to
+  @param {object} values - Map of breakpoint values (e.g., {xs: 'value', sm: 'value'})
+  @param {string} [value_prefix] - Optional prefix for property values
+  @param {string} [value_type] - 'value' for direct values or 'property' for CSS variable references, default: 'value'
+
+  @example
+  {% render 'utility.breakpoint-style', property: '_gap', selector: '.layout-stack', values: gap_breakpoint_map %}
+{% enddoc %}
+
+{% liquid
+  assign breakpoints = 'xs,sm,md,lg,xl' | split: ','
+  assign breakpoint_values = null | default: xs: 0, sm: 576, md: 768, lg: 992, xl: 1200
+  assign value_prefix = value_prefix | default: ''
+  assign value_type = value_type | default: 'value'
+%}
+
+{% for breakpoint in breakpoints %}
+  {% assign value = values[breakpoint] %}
+  {%- if value != blank -%}
+    {% if value_type == 'property' %}
+      <style>
+        @media (min-width: {{ breakpoint_values[breakpoint] }}px) {
+          {{ selector }} { --{{ property }}: var({{ value_prefix }}{{ value }}); }
+        }
+      </style>
+    {% else %}
+      <style>
+        @media (min-width: {{ breakpoint_values[breakpoint] }}px) {
+          {{ selector }} { --{{ property }}: {{ value_prefix }}{{ value }}; }
+        }
+      </style>
+    {% endif %}
+  {%- endif -%}
+{% endfor %}

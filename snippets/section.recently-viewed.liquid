@@ -1,0 +1,48 @@
+{% doc %}
+  Copyright © 2025 Archetype Themes LP. All rights reserved.
+
+  Recently viewed products carousel tracked via browser storage.
+
+  @param {object} [product] - Current product context
+  @param {number} [recently_viewed_max_products] - Max products to display (2-16)
+  @param {string} [hydration] - Hydration strategy
+
+  @example
+  {% render 'section.recently-viewed', recently_viewed_max_products: 8 %}
+{% enddoc %}
+
+{%- liquid
+  assign product = product | default: section.settings.product
+  assign recently_viewed_max_products = recently_viewed_max_products | default: settings.recently_viewed_max_products | default: 5
+  assign hydration = hydration | default: 'on:idle'
+-%}
+
+<is-land {{ hydration }}>
+  <recently-viewed
+    data-subsection
+    data-section-id="{{ section.id }}"
+    data-section-type="recently-viewed"
+    data-product-id="{{ product.id }}"
+    data-max-products="{{ recently_viewed_max_products }}"
+  >
+    <div class="index-section index-section--sub-product">
+      <div class="page-width">
+        <header class="section-header">
+          <div class="heading-md section-header__title">
+            {% render 'utility.translate', key: 'labels.recently_viewed', fallback: 'Recently viewed' %}
+          </div>
+        </header>
+      </div>
+
+      <div class="page-width page-width--flush-small">
+        <div id="RecentlyViewed-{{ section.id }}"></div>
+      </div>
+    </div>
+  </recently-viewed>
+
+  <template data-island>
+    <script type="module">
+      import 'section.recently-viewed'
+    </script>
+  </template>
+</is-land>

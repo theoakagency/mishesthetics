@@ -1,0 +1,20 @@
+{% doc %}
+  Copyright © 2025 Archetype Themes LP. All rights reserved.
+
+  Full-width page template extending content edge-to-edge.
+
+  @param {object} [page] - Page object
+
+  @example
+  {% render 'section.main-page-full-width' %}
+{% enddoc %}
+
+<div class="page-full page-content">
+  <header class="section-header">
+    <h1 class="section-header__title">
+      {{ page.title | escape }}
+    </h1>
+  </header>
+
+  {%- render 'element.text', text: page.content, variant: 'rte' -%}
+</div>

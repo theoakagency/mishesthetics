@@ -1,0 +1,15 @@
+{%- doc -%}
+  Copyright © 2025 Archetype Themes LP. All rights reserved.
+
+  Renders the follow shop login button for the footer.
+  https://shopify.dev/docs/api/liquid/filters/login_button
+
+  @example
+  {% render 'follow-shop-cta' %}
+{%- enddoc -%}
+
+{%- if shop.features.follow_on_shop? -%}
+  <div class="footer__follow-on-shop">
+    {{ shop | login_button: action: 'follow' }}
+  </div>
+{%- endif -%}
