@@ -264,7 +264,6 @@
     },
     "blog-posts": {
       "type": "blog-posts",
-      "disabled": true,
       "settings": {
         "title": "From the Blog",
         "heading_size": "h2",
