@@ -18,7 +18,7 @@
           "type": "header",
           "disabled": true,
           "settings": {
-            "reminder_label": "Get 10% off"
+            "reminder_label": "Get 15% off"
           }
         }
       },
@@ -30,8 +30,8 @@
         "disable_for_account_holders": true,
         "popup_seconds": 5,
         "popup_days": 30,
-        "popup_title": "Save 10% off your first purchase",
-        "popup_text": "<p>Sign up today and we'll send you a 10% discount code towards your first purchase.</p>",
+        "popup_title": "Save 15% off your first purchase",
+        "popup_text": "<p>Sign up today and we'll send you a 15% discount code towards your first purchase.</p>",
         "image_position": "left",
         "color_scheme": "3",
         "show_social_icons": false,

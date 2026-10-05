@@ -187,14 +187,14 @@
         "title": {
           "type": "title",
           "settings": {
-            "title": "Save 10% on your first purchase",
+            "title": "Save 15% on your first purchase",
             "heading_size": "h2"
           }
         },
         "text": {
           "type": "text",
           "settings": {
-            "text": "<p>Sign up today and we'll send you a 10% discount code towards your first purchase.</p>"
+            "text": "<p>Sign up today and we'll send you a 15% discount code towards your first purchase.</p>"
           }
         },
         "form": {
