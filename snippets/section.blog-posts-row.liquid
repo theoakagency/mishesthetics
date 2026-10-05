@@ -5,7 +5,8 @@
   behavior with the Featured collection (Best Sellers) product row.
 
   @param {object} [blog] - Blog to display articles from
-  @param {number} [count] - Number of posts to display
+  @param {number} [count] - Number of posts to display (extras beyond posts_per_row only show in the mobile swipe)
+  @param {number} [posts_per_row] - Desktop posts in the single row (3-5)
   @param {boolean} [view_all] - Show the "View all" link
   @param {boolean} [show_date] - Display publish date
   @param {string} [blog_image_size] - ('natural'|'square'|'landscape'|'portrait'|'wide') Image aspect ratio
@@ -51,7 +52,8 @@
 
 {%- liquid
   assign blog = section.settings.blog | default: blog
-  assign count = count | default: section.settings.count | default: 6
+  assign count = count | default: section.settings.count | default: 4
+  assign posts_per_row = posts_per_row | default: section.settings.posts_per_row | default: 4 | times: 1
   assign view_all = view_all | default: section.settings.view_all, allow_false: true | default: true, allow_false: true
   assign show_date = show_date | default: section.settings.show_date, allow_false: true | default: false, allow_false: true
   assign blog_image_size = blog_image_size | default: section.settings.blog_image_size | default: 'landscape'
@@ -77,10 +79,10 @@
   {%- render 'layout.section-heading', url: blog.url, view_all: view_all, wrapper_class: 'page-width' -%}
 
   <div class="page-width page-width--flush-small">
-    <div class="new-grid product-grid scrollable-grid--small" data-view="medium">
+    <div class="new-grid product-grid scrollable-grid--small" {% render 'utility.grid-view-type', products_per_row: posts_per_row %}>
       {%- if have_blog -%}
         {%- for article in blog.articles limit: count -%}
-          <div class="grid-item blog-row-card">
+          <div class="grid-item blog-row-card{% if forloop.index > posts_per_row %} medium-up--hide{% endif %}">
             <div class="blog-row-card__inner">
               <div class="blog-row-card__image">
                 {%- if article.image -%}
@@ -90,7 +92,7 @@
                         <div class="grid__image-ratio grid__image-ratio--{{ blog_image_size }}">
                           {%- render 'element.image',
                             img: article.image,
-                            sizeVariable: 3,
+                            sizeVariable: posts_per_row,
                             fallback: '45vw',
                             widths: '360, 540, 720, 900'
                           -%}
@@ -103,7 +105,7 @@
                       >
                         {%- render 'element.image',
                           img: article.image,
-                          sizeVariable: 3,
+                          sizeVariable: posts_per_row,
                           fallback: '45vw',
                           widths: '360, 540, 720, 900'
                         -%}
@@ -126,7 +128,7 @@
         {%- endfor -%}
       {%- else -%}
         {%- for i in (1..count) -%}
-          <div class="grid-item blog-row-card">
+          <div class="grid-item blog-row-card{% if forloop.index > posts_per_row %} medium-up--hide{% endif %}">
             <div class="blog-row-card__inner">
               <div class="blog-row-card__image">
                 <div class="image-wrap">
