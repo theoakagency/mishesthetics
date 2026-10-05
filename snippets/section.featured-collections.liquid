@@ -40,4 +40,13 @@
     padding: 0;
     margin: 0;
   }
+
+  /* Match .page-width: page-width-padding outer padding, content capped at page-width minus padding */
+  .layout-section--featured-collections {
+    --layout-section-padding-inline: var(--page-width-padding);
+
+    & > .layout-section__content {
+      --_max-inline-size: calc(var(--page-width) - var(--page-width-padding) * 2);
+    }
+  }
 {%- endstylesheet -%}
