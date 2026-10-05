@@ -85,7 +85,7 @@
       "settings": {
         "color_scheme": "3",
         "show_newsletter": true,
-        "newsletter_richtext": "<p>Subscribe today and get 10% off your first purchase</p>",
+        "newsletter_richtext": "<p>Join the list for the first look at all things Mish.</p>",
         "footer_main_menu": false,
         "show_copyright": true,
         "copyright_text": "",
