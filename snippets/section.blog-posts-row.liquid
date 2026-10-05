@@ -1,0 +1,154 @@
+{% doc %}
+  Copyright © 2025 Archetype Themes LP. All rights reserved.
+
+  Horizontal row of blog post cards. Shares its grid, spacing and mobile swipe
+  behavior with the Featured collection (Best Sellers) product row.
+
+  @param {object} [blog] - Blog to display articles from
+  @param {number} [count] - Number of posts to display
+  @param {boolean} [view_all] - Show the "View all" link
+  @param {boolean} [show_date] - Display publish date
+  @param {string} [blog_image_size] - ('natural'|'square'|'landscape'|'portrait'|'wide') Image aspect ratio
+  @param {boolean} [divider] - Show divider above section
+
+  @example
+  {% render 'section.blog-posts-row', count: 6 %}
+{% enddoc %}
+
+{% stylesheet %}
+  .blog-row-card__inner {
+    display: block;
+    flex: 1 1 auto;
+    min-width: 0;
+    width: 100%;
+    text-align: left;
+
+    html[dir='rtl'] & {
+      text-align: right;
+    }
+  }
+
+  .blog-row-card__image {
+    position: relative;
+
+    & .image-wrap {
+      border-radius: var(--roundness);
+    }
+  }
+
+  .blog-row-card__meta {
+    margin-top: 12px;
+  }
+
+  .blog-row-card__meta .article__title {
+    display: block;
+  }
+
+  .blog-row-card__meta .article__sub-meta {
+    margin-top: 4px;
+  }
+{% endstylesheet %}
+
+{%- liquid
+  assign blog = section.settings.blog | default: blog
+  assign count = count | default: section.settings.count | default: 6
+  assign view_all = view_all | default: section.settings.view_all, allow_false: true | default: true, allow_false: true
+  assign show_date = show_date | default: section.settings.show_date, allow_false: true | default: false, allow_false: true
+  assign blog_image_size = blog_image_size | default: section.settings.blog_image_size | default: 'landscape'
+  assign divider = divider | default: section.settings.divider, allow_false: true | default: false, allow_false: true
+
+  assign have_blog = true
+  if blog.empty? or blog.articles.size == 0
+    assign have_blog = false
+  endif
+
+  assign fixed_aspect_ratio = true
+  if blog_image_size == 'natural'
+    assign fixed_aspect_ratio = false
+  endif
+-%}
+
+{%- if divider -%}<div class="section--divider">{%- endif -%}
+
+<div
+  id="BlogPostsRow-{{ section.id }}"
+  data-section-id="{{ section.id }}"
+>
+  {%- render 'layout.section-heading', url: blog.url, view_all: view_all, wrapper_class: 'page-width' -%}
+
+  <div class="page-width page-width--flush-small">
+    <div class="new-grid product-grid scrollable-grid--small" data-view="medium">
+      {%- if have_blog -%}
+        {%- for article in blog.articles limit: count -%}
+          <div class="grid-item blog-row-card">
+            <div class="blog-row-card__inner">
+              <div class="blog-row-card__image">
+                {%- if article.image -%}
+                  <a href="{{ article.url }}" aria-label="{{ article.title | escape }}">
+                    {%- if fixed_aspect_ratio -%}
+                      <div class="image-wrap">
+                        <div class="grid__image-ratio grid__image-ratio--{{ blog_image_size }}">
+                          {%- render 'element.image',
+                            img: article.image,
+                            sizeVariable: 3,
+                            fallback: '45vw',
+                            widths: '360, 540, 720, 900'
+                          -%}
+                        </div>
+                      </div>
+                    {%- else -%}
+                      <div
+                        class="image-wrap"
+                        style="height: 0; padding-bottom: {{ 100 | divided_by: article.image.aspect_ratio }}%;"
+                      >
+                        {%- render 'element.image',
+                          img: article.image,
+                          sizeVariable: 3,
+                          fallback: '45vw',
+                          widths: '360, 540, 720, 900'
+                        -%}
+                      </div>
+                    {%- endif -%}
+                  </a>
+                {%- endif -%}
+              </div>
+
+              <div class="blog-row-card__meta">
+                <a href="{{ article.url }}" class="article__title">{{ article.title }}</a>
+                {%- if show_date -%}
+                  <div class="article__sub-meta">
+                    <span class="article__sub-meta-date">{{ article.published_at | date: format: 'abbreviated_date' }}</span>
+                  </div>
+                {%- endif -%}
+              </div>
+            </div>
+          </div>
+        {%- endfor -%}
+      {%- else -%}
+        {%- for i in (1..count) -%}
+          <div class="grid-item blog-row-card">
+            <div class="blog-row-card__inner">
+              <div class="blog-row-card__image">
+                <div class="image-wrap">
+                  <div class="grid__image-ratio grid__image-ratio--{{ blog_image_size }}">
+                    {%- render 'element.placeholder', name: 'image', no_padding: true -%}
+                  </div>
+                </div>
+              </div>
+              <div class="blog-row-card__meta">
+                <span class="article__title">Example blog post</span>
+                {%- if show_date -%}
+                  <div class="article__sub-meta">
+                    <span class="article__sub-meta-date">Jul 17, {{ 'now' | date: '%Y' }}</span>
+                  </div>
+                {%- endif -%}
+              </div>
+            </div>
+          </div>
+        {%- endfor -%}
+      {%- endif -%}
+    </div>
+  </div>
+</div>
+
+{%- if divider -%}</div>{%- endif -%}

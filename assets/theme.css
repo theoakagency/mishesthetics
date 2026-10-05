@@ -8668,6 +8668,39 @@
     }
   }
 
+/* Source: snippets/section.blog-posts-row.liquid */
+  .blog-row-card__inner {
+    display: block;
+    flex: 1 1 auto;
+    min-width: 0;
+    width: 100%;
+    text-align: left;
+
+    html[dir='rtl'] & {
+      text-align: right;
+    }
+  }
+
+  .blog-row-card__image {
+    position: relative;
+
+    & .image-wrap {
+      border-radius: var(--roundness);
+    }
+  }
+
+  .blog-row-card__meta {
+    margin-top: 12px;
+  }
+
+  .blog-row-card__meta .article__title {
+    display: block;
+  }
+
+  .blog-row-card__meta .article__sub-meta {
+    margin-top: 4px;
+  }
+
 /* Source: snippets/section.blog-posts.liquid */
   .blog-layout {
     display: flex;
