@@ -21,6 +21,10 @@
       <meta name="description" content="{{ page_description | escape }}">
     {%- endif -%}
 
+    {%- if request.page_type contains 'customers/' or request.page_type == 'cart' or request.page_type == 'search' -%}
+      <meta name="robots" content="noindex">
+    {%- endif -%}
+
     {%- render 'head.social-meta-tags' -%}
 
     {%- style -%}
