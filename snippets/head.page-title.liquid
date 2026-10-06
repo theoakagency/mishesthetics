@@ -12,11 +12,12 @@
     echo page_title
 
     if current_tags
-      assign meta_tags = current_tags | join: ', ' | append: ' &ndash; '
+      assign meta_tags = current_tags | join: ', '
       assign labels_tagged_with = 'labels.tagged_with' | t: tags: meta_tags
       capture fallback_labels_tagged_with
         echo 'Tagged with: "' | append: meta_tags | append: '"'
       endcapture
+      echo ' &ndash; '
       render 'utility.translate', t: labels_tagged_with, fallback: fallback_labels_tagged_with
     endif
 

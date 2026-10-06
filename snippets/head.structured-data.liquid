@@ -1,0 +1,65 @@
+{% doc %}
+  Organization and WebSite JSON-LD, output on the homepage only.
+
+  @example
+  {% render 'head.structured-data' %}
+{% enddoc %}
+
+{%- if template == 'index' -%}
+  {%- liquid
+    assign logo_image = shop.brand.logo
+    for group_section in sections['header-group'].sections
+      for group_block in group_section.blocks
+        if group_block.type == 'logo' and group_block.settings.logo != blank
+          assign logo_image = group_block.settings.logo
+          break
+        endif
+      endfor
+    endfor
+
+    assign social_links = settings.social_facebook_link | append: '|' | append: settings.social_twitter_link | append: '|' | append: settings.social_pinterest_link | append: '|' | append: settings.social_instagram_link | append: '|' | append: settings.social_snapchat_link | append: '|' | append: settings.social_tiktok_link | append: '|' | append: settings.social_tumblr_link | append: '|' | append: settings.social_linkedin_link | append: '|' | append: settings.social_youtube_link | append: '|' | append: settings.social_vimeo_link
+  -%}
+  {%- assign social_list = social_links | split: '|' -%}
+  <script type="application/ld+json">
+    [
+      {
+        "@context": "https://schema.org",
+        "@type": "Organization",
+        "name": {{ shop.name | json }},
+        "url": {{ shop.url | json }}
+        {%- if logo_image != blank -%}
+          ,"logo": {{ logo_image | image_url: width: 600 | prepend: 'https:' | json }}
+        {%- endif -%}
+        {%- assign first_link = true -%}
+        {%- capture same_as_items -%}
+          {%- for link in social_list -%}
+            {%- if link != blank -%}
+              {%- unless first_link -%},{%- endunless -%}
+              {{- link | json -}}
+              {%- assign first_link = false -%}
+            {%- endif -%}
+          {%- endfor -%}
+        {%- endcapture -%}
+        {%- if same_as_items != blank -%}
+          ,"sameAs": [{{ same_as_items }}]
+        {%- endif -%}
+        {%- if shop.address.address1 != blank or shop.address.city != blank -%}
+          ,"address": {
+            "@type": "PostalAddress"
+            {%- if shop.address.address1 != blank -%},"streetAddress": {{ shop.address.address1 | json }}{%- endif -%}
+            {%- if shop.address.city != blank -%},"addressLocality": {{ shop.address.city | json }}{%- endif -%}
+            {%- if shop.address.province_code != blank -%},"addressRegion": {{ shop.address.province_code | json }}{%- endif -%}
+            {%- if shop.address.zip != blank -%},"postalCode": {{ shop.address.zip | json }}{%- endif -%}
+            {%- if shop.address.country_code != blank -%},"addressCountry": {{ shop.address.country_code | json }}{%- endif -%}
+          }
+        {%- endif -%}
+      },
+      {
+        "@context": "https://schema.org",
+        "@type": "WebSite",
+        "name": {{ shop.name | json }},
+        "url": {{ shop.url | json }}
+      }
+    ]
+  </script>
+{%- endif -%}

@@ -18,7 +18,11 @@
     {%- render 'head.page-title' -%}
 
     {%- if page_description -%}
-      <meta name="description" content="{{ page_description | escape }}">
+      {%- if template == 'list-collections' -%}
+        <meta name="description" content="Explore our premium lash products, including high-quality lash glue, lash trays, and precision lash tweezers. Find everything you need for flawless lash application and maintenance in one place!">
+      {%- else -%}
+        <meta name="description" content="{{ page_description | escape }}">
+      {%- endif -%}
     {%- endif -%}
 
     {%- if request.page_type contains 'customers/' or request.page_type == 'cart' or request.page_type == 'search' -%}
@@ -26,6 +30,7 @@
     {%- endif -%}
 
     {%- render 'head.social-meta-tags' -%}
+    {%- render 'head.structured-data' -%}
 
     {%- style -%}
       :root {
