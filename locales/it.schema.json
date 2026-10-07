@@ -130,6 +130,7 @@
     "customers_who_subscribe_accept_marketing": "I clienti che si iscrivono avranno il loro indirizzo email aggiunto alla 'accepts marketing' [lista clienti](/admin/customers?query=&accepts_marketing=1).",
     "darkens_your_image": "Scurisce la tua immagine per assicurare che il tuo testo sia leggibile",
     "darkens_your_video": "Scurisce il tuo video per assicurare che il tuo testo sia leggibile",
+    "columns_auto_zero": "0 = automatico, in base al numero di colonne. Il tablet ne mostra al massimo 3.",
     "defaults_to_collection_title": "Predefinito il titolo della collezione",
     "defaults_to_menu_title": "Predefinito al titolo del menu",
     "does_not_appear_on_mobile": "Non appare su mobile per soddisfare le [linee guida interstiziali] di Google (https://webmasters.googleblog.com/2016/08/helping-users-easily-access-content-on.html) per migliorare il SEO",
@@ -185,7 +186,8 @@
     "used_when_on_top_of_image": "Usato quando si trova sopra un'immagine",
     "values_below_10_not_recommended": "I valori inferiori a 10 secondi non sono raccomandati. Ritardo disabilitato nell'editor.",
     "variant_picker_display_options": "Mostra le opzioni del prodotto come pulsanti e campioni o menu a discesa. [Scopri come impostare i campioni di colore.](https://help.shopify.com/en/manual/custom-data/metafields/category-metafields/using-category-metafields)",
-    "video_with_sound_not_autoplay": "I video sonori non verranno riprodotti automaticamente."
+    "video_with_sound_not_autoplay": "I video sonori non verranno riprodotti automaticamente.",
+    "zero_uses_theme_default": "0 = dimensione predefinita del tema"
   },
   "labels": {
     "404_page": "Pagina 404",
@@ -298,6 +300,10 @@
     "color_swatches": "Campioni di colore",
     "colors": "Colori",
     "column": "Colonna",
+    "column_heading_size": "Dimensione titolo colonne",
+    "column_text_size": "Dimensione testo colonne",
+    "columns_per_row_desktop": "Colonne per riga (desktop)",
+    "columns_per_row_mobile": "Colonne per riga (mobile)",
     "contact": "Contatti",
     "contact_and_social": "Contatto e social network",
     "contact_form": "Modulo di contatto",
@@ -426,6 +432,7 @@
     "language": "Lingua",
     "large_image_with": "Immagine grande con casella di testo",
     "layout": "Layout",
+    "layout_and_text": "Layout e testo",
     "layout_on_desktop": "Disposizione sul desktop",
     "leaf": "Foglia",
     "letter_spacing": "Spaziatura lettere",

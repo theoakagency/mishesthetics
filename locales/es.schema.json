@@ -130,6 +130,7 @@
     "customers_who_subscribe_accept_marketing": "Los clientes que se suscriban se les añadirá su dirección de correo electrónico a la [lista de clientes] que aceptan comunicaciones de marketing (/admin/customers?query=&accepts_marketing=1).",
     "darkens_your_image": "Oscurece su imagen para asegurar que su texto sea legible",
     "darkens_your_video": "Oscurece el vídeo para que el texto sea legible",
+    "columns_auto_zero": "0 = automático, según el número de columnas. La tableta muestra como máximo 3.",
     "defaults_to_collection_title": "Por defecto, el título de la colección",
     "defaults_to_menu_title": "Por defecto, el título del menú",
     "does_not_appear_on_mobile": "Non appare su mobile per soddisfare le [linee guida interstiziali] di Google (https://webmasters.googleblog.com/2016/08/helping-users-easily-access-content-on.html) per migliorare il SEO",
@@ -185,7 +186,8 @@
     "used_when_on_top_of_image": "Utilizar cuando está encima de una imagen",
     "values_below_10_not_recommended": "No se recomiendan valores inferiores a 10 segundos. Retraso desactivado en el editor.",
     "variant_picker_display_options": "Muestra las opciones de producto como botones y muestras o menús desplegables. [Aprende a configurar muestras de color.](https://help.shopify.com/en/manual/custom-data/metafields/category-metafields/using-category-metafields)",
-    "video_with_sound_not_autoplay": "El vídeo con sonido no se reproducirá de forma automática"
+    "video_with_sound_not_autoplay": "El vídeo con sonido no se reproducirá de forma automática",
+    "zero_uses_theme_default": "0 = tamaño predeterminado del tema"
   },
   "labels": {
     "404_page": "página 404",
@@ -298,6 +300,10 @@
     "color_swatches": "Muestras de color",
     "colors": "Colores",
     "column": "Columna",
+    "column_heading_size": "Tamaño del encabezado de columna",
+    "column_text_size": "Tamaño del texto de columna",
+    "columns_per_row_desktop": "Columnas por fila (escritorio)",
+    "columns_per_row_mobile": "Columnas por fila (móvil)",
     "contact": "Contacto",
     "contact_and_social": "Contacto y social",
     "contact_form": "Formulario de contacto",
@@ -426,6 +432,7 @@
     "language": "Idioma",
     "large_image_with": "Imagen grande con caja de texto",
     "layout": "Diseño",
+    "layout_and_text": "Diseño y texto",
     "layout_on_desktop": "Diseño en el escritorio",
     "leaf": "Hoja",
     "letter_spacing": "Espacio entre letras",

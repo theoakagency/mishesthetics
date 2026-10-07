@@ -130,6 +130,7 @@
     "customers_who_subscribe_accept_marketing": "Les clients qui s'inscrivent verront leur adresse e-mail ajoutée à la [liste des clients] qui acceptent le marketing (/admin/customers?query=&accepts_marketing=1).",
     "darkens_your_image": "Assombrit votre image pour garantir la lisibilité de votre texte",
     "darkens_your_video": "Assombrit votre vidéo pour que votre texte soit lisible",
+    "columns_auto_zero": "0 = automatique, selon le nombre de colonnes. La tablette en affiche 3 au maximum.",
     "defaults_to_collection_title": "Le titre de la collection s'affiche par défaut",
     "defaults_to_menu_title": "Titre du menu par défaut",
     "does_not_appear_on_mobile": "N'apparaît pas sur les téléphones mobiles afin de respecter les [directives interstitielles de Google] (https://developers.google.com/search/blog/2016/08/helping-users-easily-access-content-on) pour un meilleur référencement.",
@@ -185,7 +186,8 @@
     "used_when_on_top_of_image": "Utilisé lorsqu'il se trouve au-dessus d'une image",
     "values_below_10_not_recommended": "Le délai est désactivé dans l'éditeur de thème pour des raisons de visibilité",
     "variant_picker_display_options": "Affichez les options du produit sous forme de boutons et d’échantillons ou de listes déroulantes. [Découvrez comment configurer des échantillons de couleurs.](https://help.shopify.com/en/manual/custom-data/metafields/category-metafields/using-category-metafields)",
-    "video_with_sound_not_autoplay": "La vidéo avec du son ne sera pas lue automatiquement"
+    "video_with_sound_not_autoplay": "La vidéo avec du son ne sera pas lue automatiquement",
+    "zero_uses_theme_default": "0 = taille par défaut du thème"
   },
   "labels": {
     "404_page": "Page 404",
@@ -298,6 +300,10 @@
     "color_swatches": "Nuanciers",
     "colors": "Couleurs",
     "column": "Colonne",
+    "column_heading_size": "Taille du titre des colonnes",
+    "column_text_size": "Taille du texte des colonnes",
+    "columns_per_row_desktop": "Colonnes par rangée (ordinateur)",
+    "columns_per_row_mobile": "Colonnes par rangée (mobile)",
     "contact": "Contact",
     "contact_and_social": "Contact et réseaux sociaux",
     "contact_form": "Formulaire de contact",
@@ -426,6 +432,7 @@
     "language": "Langue",
     "large_image_with": "Grande image avec zone de texte",
     "layout": "Mise en page",
+    "layout_and_text": "Mise en page et texte",
     "layout_on_desktop": "Disposition sur le bureau",
     "leaf": "Feuille",
     "letter_spacing": "Espacement des lettres",

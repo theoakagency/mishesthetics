@@ -130,6 +130,7 @@
     "customers_who_subscribe_accept_marketing": "Kunden, die ein Abonnement abschließen, werden mit ihrer E-Mail-Adresse in die „akzeptiert Marketing“-[Kundenliste](/admin/customers?query=&accepts_marketing=1) aufgenommen.",
     "darkens_your_image": "Dunkelt dein Bild ab, damit der Text lesbar ist",
     "darkens_your_video": "Verdunkelt dein Video, damit dein Text lesbar ist",
+    "columns_auto_zero": "0 = automatisch, abhängig von der Anzahl der Spalten. Tablets zeigen höchstens 3.",
     "defaults_to_collection_title": "Standardmäßig wird der Titel der Kategorie verwendet",
     "defaults_to_menu_title": "Standardmäßig wird der Menütitel verwendet",
     "does_not_appear_on_mobile": "Erscheint nicht auf Mobilgeräten, um die [Interstitial-Richtlinien](https://webmasters.googleblog.com/2016/08/helping-users-easily-access-content-on.html) von Google für eine bessere Suchmaschinenoptimierung zu erfüllen.",
@@ -185,7 +186,8 @@
     "used_when_on_top_of_image": "Verwendet, wenn über einem Bild",
     "values_below_10_not_recommended": "Werte unter 10 Sekunden werden nicht empfohlen. Verzögerung im Editor deaktiviert.",
     "variant_picker_display_options": "Zeigen Sie Produktoptionen als Schaltflächen und Farbfelder oder Dropdowns an. [Erfahren Sie, wie Sie Farbfelder einrichten.](https://help.shopify.com/en/manual/custom-data/metafields/category-metafields/using-category-metafields)",
-    "video_with_sound_not_autoplay": "Video mit Ton wird nicht automatisch abgespielt"
+    "video_with_sound_not_autoplay": "Video mit Ton wird nicht automatisch abgespielt",
+    "zero_uses_theme_default": "0 = Standardgröße des Themes"
   },
   "labels": {
     "404_page": "404-Seite",
@@ -298,6 +300,10 @@
     "color_swatches": "Farbige Swatches",
     "colors": "Farben",
     "column": "Spalte",
+    "column_heading_size": "Überschriftgröße der Spalten",
+    "column_text_size": "Textgröße der Spalten",
+    "columns_per_row_desktop": "Spalten pro Reihe (Desktop)",
+    "columns_per_row_mobile": "Spalten pro Reihe (Mobil)",
     "contact": "Kontakt",
     "contact_and_social": "Kontakt und Social",
     "contact_form": "Kontaktformular",
@@ -426,6 +432,7 @@
     "language": "Sprache",
     "large_image_with": "Großes Bild mit Textfeld",
     "layout": "Layout",
+    "layout_and_text": "Layout und Text",
     "layout_on_desktop": "Layout auf dem Desktop",
     "leaf": "Blatt",
     "letter_spacing": "Abstand zwischen Buchstaben",

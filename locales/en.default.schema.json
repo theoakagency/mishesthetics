@@ -130,6 +130,7 @@
     "customers_who_subscribe_accept_marketing": "Customers who subscribe will have their email address added to the 'accepts marketing' [customer list](/admin/customers?query=&accepts_marketing=1).",
     "darkens_your_image": "Darkens your image to ensure your text is readable",
     "darkens_your_video": "Darkens your video to ensure your text is readable",
+    "columns_auto_zero": "0 = automatic, based on the number of columns. Tablet shows at most 3.",
     "defaults_to_collection_title": "Defaults to collection title",
     "defaults_to_menu_title": "Defaults to menu title",
     "does_not_appear_on_mobile": "Does not appear on mobile in order to meet [Google's interstitial guidelines](https://developers.google.com/search/blog/2016/08/helping-users-easily-access-content-on) for improved SEO",
@@ -185,7 +186,8 @@
     "used_when_on_top_of_image": "Used when on top of an image",
     "values_below_10_not_recommended": "Values below 10 seconds are not recommended. Delay disabled in the editor.",
     "variant_picker_display_options": "Show product options as buttons and swatches or dropdowns. [Learn how to set up color swatches.](https://help.shopify.com/en/manual/custom-data/metafields/category-metafields/using-category-metafields)",
-    "video_with_sound_not_autoplay": "Video with sound will not autoplay"
+    "video_with_sound_not_autoplay": "Video with sound will not autoplay",
+    "zero_uses_theme_default": "0 = use the theme default size"
   },
   "labels": {
     "404_page": "404 page",
@@ -298,6 +300,10 @@
     "color_swatches": "Color swatches",
     "colors": "Colors",
     "column": "Column",
+    "column_heading_size": "Column heading size",
+    "column_text_size": "Column text size",
+    "columns_per_row_desktop": "Columns per row (desktop)",
+    "columns_per_row_mobile": "Columns per row (mobile)",
     "contact": "Contact",
     "contact_and_social": "Contact and social",
     "contact_form": "Contact form",
@@ -426,6 +432,7 @@
     "language": "Language",
     "large_image_with": "Large image with text box",
     "layout": "Layout",
+    "layout_and_text": "Layout and text",
     "layout_on_desktop": "Layout on desktop",
     "leaf": "Leaf",
     "letter_spacing": "Letter spacing",
