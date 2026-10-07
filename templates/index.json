@@ -317,7 +317,10 @@
         "align_text": "center",
         "divider": false,
         "color_scheme": "none",
-        "columns_desktop": 5
+        "columns_desktop": 5,
+        "columns_mobile": 2,
+        "column_heading_size": 14,
+        "column_text_size": 0
       }
     },
     "1790057253c88c07b7": {
