@@ -246,7 +246,7 @@
             "image_mask": "none",
             "image_width": 60,
             "title": "QUALITY",
-            "text": "",
+            "text": "<p>Pro-grade supplies, tested by working lash artists.</p>",
             "button_label": "",
             "button_link": ""
           }
@@ -259,7 +259,7 @@
             "image_mask": "none",
             "image_width": 60,
             "title": "INNOVATION",
-            "text": "",
+            "text": "<p>Solving real problems with smarter lash supplies.</p>",
             "button_label": "",
             "button_link": ""
           }
@@ -272,7 +272,7 @@
             "image_mask": "none",
             "image_width": 60,
             "title": "EDUCATION",
-            "text": "",
+            "text": "<p>Courses, seminars and mentorship taught by Mish.</p>",
             "button_label": "",
             "button_link": ""
           }
@@ -285,7 +285,7 @@
             "image_mask": "none",
             "image_width": 60,
             "title": "COMMUNITY",
-            "text": "",
+            "text": "<p>Lash artists learning and growing together.</p>",
             "button_label": "",
             "button_link": ""
           }
@@ -298,7 +298,7 @@
             "image_mask": "none",
             "image_width": 60,
             "title": "ARTIST-FIRST",
-            "text": "",
+            "text": "<p>Made by a lash artist, for lash artists.</p>",
             "button_label": "",
             "button_link": ""
           }
