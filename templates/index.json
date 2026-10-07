@@ -181,6 +181,22 @@
         "divider": false
       }
     },
+    "blog_posts_row_PBTJmT": {
+      "type": "blog-posts-row",
+      "name": "t:labels.blog_posts_row",
+      "settings": {
+        "title": "From the blog",
+        "heading_size": "h2",
+        "heading_position": "left",
+        "blog": "news",
+        "count": 4,
+        "posts_per_row": 4,
+        "blog_image_size": "landscape",
+        "view_all": true,
+        "show_date": false,
+        "divider": false
+      }
+    },
     "newsletter": {
       "type": "newsletter",
       "blocks": {
@@ -219,47 +235,88 @@
         "bottom_padding": false
       }
     },
-    "text-with-icons": {
-      "type": "text-with-icons",
+    "text_columns_JJgDUt": {
+      "type": "text-columns",
       "blocks": {
-        "text_block-1": {
+        "text_block_bdgWQW": {
           "type": "text_block",
           "settings": {
-            "icon": "sales-tag",
-            "title": "Unique Brands",
-            "text": "<p>We source products from young independent designers and established brands.</p>"
+            "enable_image": true,
+            "image": "shopify://shop_images/quality.svg",
+            "image_mask": "none",
+            "image_width": 60,
+            "title": "QUALITY",
+            "text": "",
+            "button_label": "",
+            "button_link": ""
           }
         },
-        "text_block-2": {
+        "text_block_Eg6xMQ": {
           "type": "text_block",
           "settings": {
-            "icon": "plant",
-            "title": "Sustainable Materials",
-            "text": "<p>We carefully curate only products designed with the environment in mind. </p>"
+            "enable_image": true,
+            "image": "shopify://shop_images/innovation.svg",
+            "image_mask": "none",
+            "image_width": 60,
+            "title": "INNOVATION",
+            "text": "",
+            "button_label": "",
+            "button_link": ""
           }
         },
-        "text_block-3": {
+        "text_block_jC4GmQ": {
           "type": "text_block",
           "settings": {
-            "icon": "store",
-            "title": "Multiple Locations",
-            "text": "<p>Our unique stores are located across Toronto, New York City and Los Angeles.</p>"
+            "enable_image": true,
+            "image": "shopify://shop_images/education.svg",
+            "image_mask": "none",
+            "image_width": 60,
+            "title": "EDUCATION",
+            "text": "",
+            "button_label": "",
+            "button_link": ""
+          }
+        },
+        "text_block_Lqz7LK": {
+          "type": "text_block",
+          "settings": {
+            "enable_image": true,
+            "image": "shopify://shop_images/community.svg",
+            "image_mask": "none",
+            "image_width": 60,
+            "title": "COMMUNITY",
+            "text": "",
+            "button_label": "",
+            "button_link": ""
+          }
+        },
+        "text_block_TrmLVt": {
+          "type": "text_block",
+          "settings": {
+            "enable_image": true,
+            "image": "shopify://shop_images/artist.svg",
+            "image_mask": "none",
+            "image_width": 60,
+            "title": "ARTIST-FIRST",
+            "text": "",
+            "button_label": "",
+            "button_link": ""
           }
         }
       },
       "block_order": [
-        "text_block-1",
-        "text_block-2",
-        "text_block-3"
+        "text_block_bdgWQW",
+        "text_block_Eg6xMQ",
+        "text_block_jC4GmQ",
+        "text_block_Lqz7LK",
+        "text_block_TrmLVt"
       ],
+      "name": "t:labels.text_columns_with",
       "settings": {
         "title": "",
         "align_text": "center",
-        "desktop_columns_per_row": 3,
-        "icon_color": "#a6cfce",
-        "button_label": "",
-        "button_link": "",
-        "divider": false
+        "divider": false,
+        "color_scheme": "none"
       }
     },
     "1790057253c88c07b7": {
@@ -309,22 +366,6 @@
         "full_width": false,
         "space_around": true
       }
-    },
-    "blog_posts_row_PBTJmT": {
-      "type": "blog-posts-row",
-      "name": "t:labels.blog_posts_row",
-      "settings": {
-        "title": "From the blog",
-        "heading_size": "h2",
-        "heading_position": "left",
-        "blog": "news",
-        "count": 4,
-        "posts_per_row": 4,
-        "blog_image_size": "landscape",
-        "view_all": true,
-        "show_date": false,
-        "divider": false
-      }
     }
   },
   "order": [
@@ -335,7 +376,7 @@
     "rich_text_PFLziL",
     "blog_posts_row_PBTJmT",
     "newsletter",
-    "text-with-icons",
+    "text_columns_JJgDUt",
     "1790057253c88c07b7",
     "17900588409f7f7947"
   ]
