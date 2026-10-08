@@ -65,6 +65,7 @@
         },
         "payment": {
           "type": "payment",
+          "disabled": true,
           "settings": {
             "show_payment_icons": true,
             "show_locale_selector": true,
