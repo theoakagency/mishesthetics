@@ -17,7 +17,17 @@
 
     {%- render 'head.page-title' -%}
 
-    {%- if page_description -%}
+    {%- liquid
+      assign all_products_description = 'Shop every Mish Esthetics product: lash trays, lash glue, tweezers, Korean lash lift supplies, brow tools, aftercare and online lash courses.'
+      assign description_override = blank
+      if request.page_type == 'collection' and collection.handle == 'all'
+        assign description_override = all_products_description
+      endif
+    -%}
+
+    {%- if description_override != blank -%}
+      <meta name="description" content="{{ description_override | escape }}">
+    {%- elsif page_description -%}
       {%- if template == 'list-collections' -%}
         <meta name="description" content="Explore our premium lash products, including high-quality lash glue, lash trays, and precision lash tweezers. Find everything you need for flawless lash application and maintenance in one place!">
       {%- else -%}
@@ -29,7 +39,7 @@
       <meta name="robots" content="noindex">
     {%- endif -%}
 
-    {%- render 'head.social-meta-tags' -%}
+    {%- render 'head.social-meta-tags', description_override: description_override -%}
     {%- render 'head.structured-data' -%}
 
     {%- style -%}

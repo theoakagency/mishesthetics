@@ -3,6 +3,8 @@
 
   Open Graph and Twitter Card meta tags for social media sharing.
 
+  @param {string} [description_override] - Replaces the og:description and twitter:description
+
   @example
   {% render 'head.social-meta-tags' %}
 {% enddoc %}
@@ -26,6 +28,10 @@
     assign og_title = shop.name
     assign og_url = shop.url
     assign og_description = shop.description | default: shop.name
+  endif
+
+  if description_override != blank
+    assign og_description = description_override
   endif
 -%}
 
