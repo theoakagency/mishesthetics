@@ -176,44 +176,6 @@
         "autoplay_speed": 7
       }
     },
-    "rich_text_PFLziL": {
-      "type": "rich-text",
-      "blocks": {
-        "heading_WwhipR": {
-          "type": "heading",
-          "settings": {
-            "title": "Never run out",
-            "heading_size": "h2"
-          }
-        },
-        "text_PfxWXG": {
-          "type": "text",
-          "settings": {
-            "enlarge_text": true,
-            "text": "<p>Subscribe to your go-to adhesive and save 15% on every delivery.</p>"
-          }
-        },
-        "button_nhrthm": {
-          "type": "button",
-          "settings": {
-            "link": "shopify://collections/lash-adhesives-liquids",
-            "link_text": "Shop adhesives"
-          }
-        }
-      },
-      "block_order": [
-        "heading_WwhipR",
-        "text_PfxWXG",
-        "button_nhrthm"
-      ],
-      "name": "t:labels.rich_text",
-      "settings": {
-        "align_text": "center",
-        "narrow_column": true,
-        "color_scheme": "1",
-        "divider": false
-      }
-    },
     "blog_posts_row_PBTJmT": {
       "type": "blog-posts-row",
       "name": "t:labels.blog_posts_row",
@@ -411,7 +373,6 @@
     "featured-collection",
     "text_and_image_qMJz4B",
     "slideshow_split_FPfRfY",
-    "rich_text_PFLziL",
     "blog_posts_row_PBTJmT",
     "newsletter",
     "text_columns_JJgDUt",
