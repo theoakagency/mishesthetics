@@ -1,0 +1,122 @@
+{% doc %}
+  Copyright © 2025 Archetype Themes LP. All rights reserved.
+
+  Shopping guide shown above the product grid on collection pages. Reads the
+  collection's custom.guide rich text metafield and renders nothing when it is empty.
+  On mobile it can collapse behind a toggle button; on desktop it is always open.
+
+  @param {boolean} [collapse_on_mobile] - Collapse the guide behind a toggle on mobile
+  @param {string} [toggle_label] - Label of the mobile toggle button
+
+  @example
+  {% render 'section.collection-guide' %}
+{% enddoc %}
+
+{%- liquid
+  assign guide = collection.metafields.custom.guide
+  assign collapse_on_mobile = collapse_on_mobile | default: section.settings.collapse_on_mobile, allow_false: true | default: true, allow_false: true
+  assign toggle_label = toggle_label | default: section.settings.toggle_label | default: 'Which one is right for me?'
+  assign panel_id = 'CollectionGuidePanel-' | append: section.id
+-%}
+
+{%- if guide != blank -%}
+  {% style %}
+    #shopify-section-{{ section.id }} .collection-guide {
+      padding-block-start: var(--size-6, 24px);
+    }
+
+    #shopify-section-{{ section.id }} .collection-guide__text {
+      font-size: var(--element-text-font-size--body-lg);
+    }
+
+    #shopify-section-{{ section.id }} .collection-guide__text > :last-child {
+      margin-bottom: 0;
+    }
+
+    #shopify-section-{{ section.id }} .collection-guide__toggle {
+      display: none;
+    }
+
+    @media only screen and (min-width: 769px) {
+      #shopify-section-{{ section.id }} .collection-guide__text {
+        max-width: 60%;
+      }
+    }
+
+    @media only screen and (max-width: 768px) {
+      #shopify-section-{{ section.id }} .collection-guide__toggle {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+        width: 100%;
+        padding: 12px 16px;
+        border: 1px solid currentColor;
+        border-radius: var(--element-button-radius, 0);
+        background: transparent;
+        color: inherit;
+        font: inherit;
+        font-weight: 700;
+        text-align: start;
+        cursor: pointer;
+      }
+
+      #shopify-section-{{ section.id }} .collection-guide__toggle::after {
+        content: '';
+        flex: 0 0 auto;
+        width: 8px;
+        height: 8px;
+        border-right: 2px solid currentColor;
+        border-bottom: 2px solid currentColor;
+        transform: rotate(45deg);
+        transition: transform 0.2s ease;
+      }
+
+      #shopify-section-{{ section.id }} .collection-guide__toggle[aria-expanded='true']::after {
+        transform: rotate(-135deg);
+      }
+
+      #shopify-section-{{ section.id }} .collection-guide__toggle[aria-expanded='false'] + .collection-guide__panel {
+        display: none;
+      }
+
+      #shopify-section-{{ section.id }} .collection-guide__panel {
+        padding-block-start: 16px;
+      }
+    }
+  {% endstyle %}
+
+  <div class="collection-guide color-scheme-none">
+    <div class="page-width">
+      {%- if collapse_on_mobile -%}
+        <button
+          type="button"
+          class="collection-guide__toggle"
+          aria-expanded="false"
+          aria-controls="{{ panel_id }}"
+          data-collection-guide-toggle
+        >
+          {{ toggle_label | escape }}
+        </button>
+      {%- endif -%}
+      <div class="collection-guide__panel" id="{{ panel_id }}">
+        <div class="rte collection-guide__text">
+          {{ guide | metafield_tag }}
+        </div>
+      </div>
+    </div>
+  </div>
+
+  {%- if collapse_on_mobile -%}
+    <script>
+      (function () {
+        var root = document.getElementById('shopify-section-{{ section.id }}');
+        var toggle = root && root.querySelector('[data-collection-guide-toggle]');
+        if (!toggle) return;
+        toggle.addEventListener('click', function () {
+          toggle.setAttribute('aria-expanded', toggle.getAttribute('aria-expanded') === 'true' ? 'false' : 'true');
+        });
+      })();
+    </script>
+  {%- endif -%}
+{%- endif -%}

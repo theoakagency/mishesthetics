@@ -32,6 +32,11 @@
     display: block;
     padding-block-end: var(--size-9);
   }
+
+  /* Description placed after the product grid */
+  .rte--collection-desc--below {
+    padding-block-start: var(--size-9);
+  }
 {% endstylesheet %}
 
 {%- liquid
@@ -47,6 +52,7 @@
   assign enable_scroll_to_top = enable_scroll_to_top | default: true, allow_false: true
   assign product_grid_content_align = product_grid_content_align | default: settings.product_grid_content_align | default: 'start'
   assign current_filter_size = 0
+  assign grid_rendered = false
   for filter in collection.filters
     assign current_filter_size = current_filter_size | plus: filter.active_values.size
   endfor
@@ -92,10 +98,14 @@
         {%- when 'collection_description' -%}
           <div {{ block.shopify_attributes }}>
             {%- if collection.description != blank and current_filter_size == 0 -%}
+              {%- assign description_classlist = 'rte--collection-desc' -%}
+              {%- if grid_rendered -%}
+                {%- assign description_classlist = description_classlist | append: ' rte--collection-desc--below' -%}
+              {%- endif -%}
               {%- render 'element.text',
                 text: collection.description,
                 variant: 'rte',
-                classlist: 'rte--collection-desc',
+                classlist: description_classlist,
                 style: '--element-text-font-size--rte-body: var(--element-text-font-size--body-lg);'
               -%}
             {%- endif -%}
@@ -122,6 +132,7 @@
           <div class="new-grid product-grid collection-grid" data-view="{{ grid_style }}" data-scroll-to>
             {{ product_items }}
           </div>
+          {%- assign grid_rendered = true -%}
       {%- endcase -%}
     {%- endfor -%}
   {%- endif -%}

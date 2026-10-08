@@ -14,8 +14,16 @@
       "settings": {
         "enable": true,
         "collection_image_enable": false,
+        "show_collection_description": false,
         "parallax": false,
         "parallax_direction": "top"
+      }
+    },
+    "collection-guide": {
+      "type": "collection-guide",
+      "settings": {
+        "collapse_on_mobile": true,
+        "toggle_label": "Which one is right for me?"
       }
     },
     "main-collection": {
@@ -23,7 +31,6 @@
       "blocks": {
         "collection_description": {
           "type": "collection_description",
-          "disabled": true,
           "settings": {}
         },
         "subcollections": {
@@ -38,9 +45,9 @@
         }
       },
       "block_order": [
-        "collection_description",
         "subcollections",
-        "product_grid"
+        "product_grid",
+        "collection_description"
       ],
       "settings": {
         "enable_sidebar": true,
@@ -56,6 +63,7 @@
   },
   "order": [
     "collection-header",
+    "collection-guide",
     "main-collection",
     "recently-viewed"
   ]

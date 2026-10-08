@@ -1,0 +1,24 @@
+{%- render 'section.collection-guide' -%}
+
+{% schema %}
+{
+  "name": "t:labels.collection_guide",
+  "settings": [
+    {
+      "type": "checkbox",
+      "id": "collapse_on_mobile",
+      "label": "t:actions.collapse_on_mobile",
+      "default": true
+    },
+    {
+      "type": "text",
+      "id": "toggle_label",
+      "label": "t:labels.button_label",
+      "default": "Which one is right for me?"
+    }
+  ],
+  "enabled_on": {
+    "templates": ["collection"]
+  }
+}
+{% endschema %}

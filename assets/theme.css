@@ -10982,6 +10982,11 @@
     padding-block-end: var(--size-9);
   }
 
+  /* Description placed after the product grid */
+  .rte--collection-desc--below {
+    padding-block-start: var(--size-9);
+  }
+
 /* Source: snippets/section.main-gift-card.liquid */
   .template-giftcard,
   .template-giftcard body {
