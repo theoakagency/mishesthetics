@@ -39,7 +39,7 @@
       "settings": {
         "full_width": false,
         "height": 600,
-        "height_mobile": 370,
+        "height_mobile": 430,
         "style": "minimal",
         "autoplay": true,
         "autoplay_speed": 7
