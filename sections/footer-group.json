@@ -65,12 +65,11 @@
         },
         "payment": {
           "type": "payment",
-          "disabled": true,
           "settings": {
-            "show_payment_icons": true,
-            "show_locale_selector": true,
+            "show_payment_icons": false,
+            "show_locale_selector": false,
             "show_currency_selector": true,
-            "show_currency_flags": true
+            "show_currency_flags": false
           }
         }
       },
