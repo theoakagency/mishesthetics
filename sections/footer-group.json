@@ -42,8 +42,8 @@
           "type": "menu",
           "settings": {
             "title": "Explore",
-            "menu": "main-menu-202609",
-            "enable_account_link": false
+            "menu": "footer-explore-202609",
+            "enable_account_link": true
           }
         },
         "menu-2": {
