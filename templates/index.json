@@ -113,7 +113,7 @@
         "heading_size": "h2",
         "heading_position": "left",
         "home_featured_products": "best-sellers-home-page",
-        "count": 5,
+        "count": 7,
         "products_per_row": 5,
         "mobile_scrollable": true,
         "view_all": true,
