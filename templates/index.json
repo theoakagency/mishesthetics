@@ -151,7 +151,7 @@
           "settings": {
             "top_subheading": "Subscribe & Save",
             "title": "Never Run Out Again",
-            "title_size": 60,
+            "title_size": 40,
             "subheading": "Subscribe to your go-to lash adhesives or Pristine Cysteamine Lift and save 15% on every order. Choose auto-delivery every 4, 6 or 8 weeks, and your restock shows up before you need it.",
             "link": "shopify://collections/lash-adhesives-liquids",
             "link_text": "Shop Adhesives",
@@ -159,7 +159,7 @@
             "link_text_2": "Shop Pristine",
             "text_position": "left",
             "indent_image": true,
-            "color_scheme": "1"
+            "color_scheme": "3"
           }
         }
       },
@@ -169,8 +169,8 @@
       "name": "t:labels.split_optional_slides",
       "settings": {
         "full_width": true,
-        "height": 650,
-        "height_mobile": 450,
+        "height": 540,
+        "height_mobile": 540,
         "style": "arrows",
         "autoplay": true,
         "autoplay_speed": 7
