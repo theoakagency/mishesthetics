@@ -238,7 +238,7 @@
       <div class="page-width{% if mobile_scrollable %} page-width--flush-small{% endif %}">
         <div
           class="new-grid product-grid{% if mobile_scrollable %} scrollable-grid--small{% endif %}"
-          {% render 'utility.grid-view-type' %}
+          {% render 'utility.grid-view-type', extended: true %}
         >
           {%- if collection == blank or collection.empty? or collection.products_count == 0 -%}
             {%- liquid

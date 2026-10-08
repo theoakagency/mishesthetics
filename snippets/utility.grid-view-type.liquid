@@ -6,6 +6,7 @@
   @param {number} [products_per_row] - Number of products per row (1-6), default: 3
   @param {string} [style] - ('product-grid'|'fractions') Grid style system, default: 'product-grid'
   @param {boolean} [type] - Output as data attribute (true) or class names (false), default: true
+  @param {boolean} [extended] - Opt in to dedicated 6, 7 and 8 per row product-grid views, default: false
 
   @example
   {% render 'utility.grid-view-type', products_per_row: 4, style: 'product-grid' %}
@@ -15,6 +16,7 @@
   assign products_per_row = products_per_row | default: section.settings.products_per_row | default: 3 | times: 1
   assign style = style | default: 'product-grid'
   assign type = type | default: true, allow_false: true
+  assign extended = extended | default: false, allow_false: true
 
   if style == 'product-grid'
     case products_per_row
@@ -26,6 +28,24 @@
         assign grid_view = 'medium'
       when 4
         assign grid_view = 'small'
+      when 6
+        if extended
+          assign grid_view = 'per-row-6'
+        else
+          assign grid_view = 'xsmall'
+        endif
+      when 7
+        if extended
+          assign grid_view = 'per-row-7'
+        else
+          assign grid_view = 'xsmall'
+        endif
+      when 8
+        if extended
+          assign grid_view = 'per-row-8'
+        else
+          assign grid_view = 'xsmall'
+        endif
       else
         assign grid_view = 'xsmall'
     endcase

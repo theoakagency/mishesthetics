@@ -126,6 +126,19 @@
 	    flex: 0 0 20%;
 	  }
 
+	  /* 6, 7 and 8 per row, 2 per row mobile (Featured collection) */
+	  [data-view='per-row-6'] & {
+	    flex: 0 0 calc(100% / 6);
+	  }
+
+	  [data-view='per-row-7'] & {
+	    flex: 0 0 calc(100% / 7);
+	  }
+
+	  [data-view='per-row-8'] & {
+	    flex: 0 0 calc(100% / 8);
+	  }
+
 	  /* 4 per row, 2 per row mobile */
 	  [data-view='small'] & {
 	    flex: 0 0 25%;
@@ -155,7 +168,10 @@
 	  }
 
 	  @media only screen and (max-width: 768px) {
-	    [data-view='xsmall'] & {
+	    [data-view='xsmall'] &,
+	    [data-view='per-row-6'] &,
+	    [data-view='per-row-7'] &,
+	    [data-view='per-row-8'] & {
 	      flex: 0 0 50%;
 	    }
 
