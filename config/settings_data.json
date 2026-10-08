@@ -43,6 +43,7 @@
     "enable_swatches": true,
     "product_grid_style": "grey-round",
     "product_grid_image_margin": 10,
+    "recently_viewed_max_products": 3,
     "collection_grid_shape": "circle",
     "collection_grid_image_fill": true,
     "collection_grid_color": "grey",
