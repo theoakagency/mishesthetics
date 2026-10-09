@@ -158,6 +158,7 @@
             "link_2": "shopify://products/pristine-cysteamine-lift",
             "link_text_2": "Shop Pristine",
             "text_position": "left",
+            "image": "shopify://shop_images/mish-subscription-adhesives-pristine.png",
             "indent_image": true,
             "color_scheme": "3"
           }
@@ -169,8 +170,8 @@
       "name": "t:labels.split_optional_slides",
       "settings": {
         "full_width": true,
-        "height": 540,
-        "height_mobile": 540,
+        "height": 580,
+        "height_mobile": 480,
         "style": "arrows",
         "autoplay": true,
         "autoplay_speed": 7
