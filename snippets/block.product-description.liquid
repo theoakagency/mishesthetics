@@ -7,11 +7,11 @@
   @param {object} [product] - Product object
   @param {boolean} [is_tab] - Render as collapsible accordion tab, default: true
   @param {boolean} [preview_enabled] - Show a clipped preview with a Read more button instead of the accordion, default: false
-  @param {number} [preview_lines] - Number of body text lines shown in the preview, default: 4
+  @param {number} [preview_lines] - Number of text lines shown in the preview (a heading counts as the lines it wraps to), default: 8
 
   @example
   {% render 'block.product-description', product: product, is_tab: true %}
-  {% render 'block.product-description', product: product, preview_enabled: true, preview_lines: 4 %}
+  {% render 'block.product-description', product: product, preview_enabled: true, preview_lines: 8 %}
 {% enddoc %}
 
 {% stylesheet %}
@@ -24,11 +24,11 @@
     overflow: hidden;
     font-size: var(--element-text-font-size--rte-body);
     line-height: var(--element-text-line-height--rte-body);
-    max-height: calc(var(--preview-lines, 4) * 1.6em);
+    max-height: var(--preview-height, calc(var(--preview-lines, 8) * 1.6em));
     transition: max-height 0.3s ease;
 
     @supports (height: 1lh) {
-      max-height: calc(var(--preview-lines, 4) * 1lh);
+      max-height: var(--preview-height, calc(var(--preview-lines, 8) * 1lh));
     }
 
     & .element-text > :last-child {
@@ -41,7 +41,7 @@
       position: absolute;
       inset-inline: 0;
       bottom: 0;
-      height: 2.5em;
+      height: 4em;
       background: linear-gradient(
         to bottom,
         color-mix(in srgb, var(--color-secondary) 0%, transparent),
@@ -91,7 +91,7 @@
   assign product = section.settings.product | default: product
   assign is_tab = is_tab | default: block.settings.is_tab, allow_false: true | default: true, allow_false: true
   assign preview_enabled = preview_enabled | default: block.settings.preview_enabled, allow_false: true | default: false, allow_false: true
-  assign preview_lines = preview_lines | default: block.settings.preview_lines | default: 4 | times: 1
+  assign preview_lines = preview_lines | default: block.settings.preview_lines | default: 8 | times: 1
   assign preview_id = 'ProductDescription-' | append: block.id | append: product.id
   assign description = 'info.placeholder_product_description' | t
 
@@ -172,6 +172,7 @@
               this.toggle.addEventListener('click', () => (this.expanded ? this.collapse() : this.expand()));
 
               this.measure();
+              this.content.addEventListener('load', () => this.measure(), true);
               if (document.fonts && document.fonts.ready) document.fonts.ready.then(() => this.measure());
               if ('ResizeObserver' in window) {
                 this.observer = new ResizeObserver(() => this.measure());
@@ -183,9 +184,55 @@
               if (this.observer) this.observer.disconnect();
             }
 
+            // Finds the clip height that shows the first N lines of text. A heading counts as the
+            // lines it wraps to (not as extra body lines), so long headings do not eat the preview.
             measure() {
               if (this.expanded || this.animating) return;
-              const truncated = this.content.scrollHeight - this.content.clientHeight > 1;
+
+              const maxLines = parseFloat(getComputedStyle(this).getPropertyValue('--preview-lines')) || 8;
+              const blocks = Array.from(this.content.querySelectorAll('p, h1, h2, h3, h4, h5, h6, li, blockquote, dt, dd, pre')).filter(
+                (el) => !el.querySelector('p, h1, h2, h3, h4, h5, h6, li, blockquote, dt, dd, pre')
+              );
+
+              let clipBottom = null;
+              let truncated = false;
+
+              if (blocks.length) {
+                const contentTop = this.content.getBoundingClientRect().top;
+                let counted = 0;
+
+                for (let i = 0; i < blocks.length; i++) {
+                  const rect = blocks[i].getBoundingClientRect();
+                  const style = getComputedStyle(blocks[i]);
+                  const lineHeight = parseFloat(style.lineHeight) || parseFloat(style.fontSize) * 1.3;
+                  const lines = Math.max(1, Math.round(rect.height / lineHeight));
+                  const remaining = maxLines - counted;
+
+                  if (lines > remaining) {
+                    clipBottom = rect.top - contentTop + remaining * lineHeight;
+                    truncated = true;
+                    break;
+                  }
+
+                  counted += lines;
+
+                  if (counted === maxLines) {
+                    clipBottom = rect.bottom - contentTop;
+                    truncated = i < blocks.length - 1;
+                    break;
+                  }
+                }
+              } else {
+                truncated = this.content.scrollHeight - this.content.clientHeight > 1;
+              }
+
+              if (truncated && clipBottom !== null) {
+                const height = Math.ceil(clipBottom) + 'px';
+                if (this.style.getPropertyValue('--preview-height') !== height) this.style.setProperty('--preview-height', height);
+              } else {
+                this.style.removeProperty('--preview-height');
+              }
+
               this.classList.toggle('is-truncated', truncated);
             }
 

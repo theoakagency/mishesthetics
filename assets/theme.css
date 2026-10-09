@@ -281,11 +281,11 @@
     overflow: hidden;
     font-size: var(--element-text-font-size--rte-body);
     line-height: var(--element-text-line-height--rte-body);
-    max-height: calc(var(--preview-lines, 4) * 1.6em);
+    max-height: var(--preview-height, calc(var(--preview-lines, 8) * 1.6em));
     transition: max-height 0.3s ease;
 
     @supports (height: 1lh) {
-      max-height: calc(var(--preview-lines, 4) * 1lh);
+      max-height: var(--preview-height, calc(var(--preview-lines, 8) * 1lh));
     }
 
     & .element-text > :last-child {
@@ -298,7 +298,7 @@
       position: absolute;
       inset-inline: 0;
       bottom: 0;
-      height: 2.5em;
+      height: 4em;
       background: linear-gradient(
         to bottom,
         color-mix(in srgb, var(--color-secondary) 0%, transparent),
