@@ -40,7 +40,7 @@
     "product_grid_image_size": "square",
     "product_grid_image_fill": true,
     "product_hover_image": true,
-    "enable_swatches": true,
+    "enable_swatches": false,
     "product_grid_style": "gridlines-thin",
     "product_grid_image_margin": 10,
     "recently_viewed_max_products": 3,
@@ -951,8 +951,8 @@
       ".grid-product__actions .quick-product__btn,.grid-product__actions .quick-add-btn .btn {background: #f6c4c0; border-color: #f6c4c0; color: #000000; transition: background-color 0.2s ease;}",
       ".grid-product__actions .quick-product__btn:hover,.grid-product__actions .quick-product__btn:focus-visible,.grid-product__actions .quick-add-btn:hover .btn,.grid-product__actions .quick-add-btn:focus-visible .btn {background: #efbeba; border-color: #efbeba; color: #000000;}",
       ".grid-product__actions .quick-product__btn svg,.grid-product__actions .quick-add-btn .btn svg {color: #000000;}",
-      "[data-grid-style*='gridlines'] .grid-product.grid-product:after {box-shadow: 0 0 0 var(--grid-thickness) #F6C4C0;}",
-      "[data-grid-style*='gridlines'] product-recommendations[data-intent='complementary'] .product-recommendations__slide .grid-product:first-child:after {border-top-color: #F6C4C0;}"
+      "[data-grid-style*=\"gridlines\"] .grid-product.grid-product:after {box-shadow: 0 0 0 var(--grid-thickness) #f6c4c0;}",
+      "[data-grid-style*=\"gridlines\"] product-recommendations[data-intent=\"complementary\"] .product-recommendations__slide .grid-product:first-child:after {border-top-color: #f6c4c0;}"
     ]
   }
 }
