@@ -12961,6 +12961,32 @@
     }
   }
 
+  /* Per-button styles (Pink is the global default) */
+  .element-button.split-btn--outlined:not(.add-to-cart) {
+    background: transparent;
+    border: 1px solid #000000;
+    box-shadow: none;
+    &:hover {
+      background: rgba(0, 0, 0, 0.06);
+    }
+  }
+  .element-button.split-btn--outlined:not(.add-to-cart),
+  .element-button.split-btn--outlined:not(.add-to-cart) .element-text {
+    color: #000000;
+  }
+
+  .element-button.split-btn--black:not(.add-to-cart) {
+    background: #000000;
+    border: 1px solid #000000;
+    &:hover {
+      background: #2b2b2b;
+    }
+  }
+  .element-button.split-btn--black:not(.add-to-cart),
+  .element-button.split-btn--black:not(.add-to-cart) .element-text {
+    color: #ffffff;
+  }
+
 /* Source: snippets/section.slideshow.liquid */
   .hero__image-wrapper--no-overlay:before {
     content: none;

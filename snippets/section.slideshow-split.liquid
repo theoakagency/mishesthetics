@@ -137,6 +137,32 @@
       object-position: center left;
     }
   }
+
+  /* Per-button styles (Pink is the global default) */
+  .element-button.split-btn--outlined:not(.add-to-cart) {
+    background: transparent;
+    border: 1px solid #000000;
+    box-shadow: none;
+    &:hover {
+      background: rgba(0, 0, 0, 0.06);
+    }
+  }
+  .element-button.split-btn--outlined:not(.add-to-cart),
+  .element-button.split-btn--outlined:not(.add-to-cart) .element-text {
+    color: #000000;
+  }
+
+  .element-button.split-btn--black:not(.add-to-cart) {
+    background: #000000;
+    border: 1px solid #000000;
+    &:hover {
+      background: #2b2b2b;
+    }
+  }
+  .element-button.split-btn--black:not(.add-to-cart),
+  .element-button.split-btn--black:not(.add-to-cart) .element-text {
+    color: #ffffff;
+  }
 {% endstylesheet %}
 
 {%- liquid
@@ -274,14 +300,29 @@
                           </div>
                         {%- endunless -%}
                         {%- if block.settings.link_text != blank or block.settings.link_text_2 != blank -%}
+                          {%- liquid
+                            assign class_1 = ''
+                            assign class_2 = ''
+                            if block.settings.button_style_1 != 'pink'
+                              assign class_1 = 'split-btn--' | append: block.settings.button_style_1
+                            endif
+                            if block.settings.button_style_2 != 'pink'
+                              assign class_2 = 'split-btn--' | append: block.settings.button_style_2
+                            endif
+                          -%}
                           {% capture button_content %}
                             {%- if block.settings.link_text != blank -%}
-                              {%- render 'element.button', href: block.settings.link, text: block.settings.link_text -%}
+                              {%- render 'element.button',
+                                href: block.settings.link,
+                                text: block.settings.link_text,
+                                classlist: class_1
+                              -%}
                             {%- endif -%}
                             {%- if block.settings.link_text_2 != blank -%}
                               {%- render 'element.button',
                                 href: block.settings.link_2,
-                                text: block.settings.link_text_2
+                                text: block.settings.link_text_2,
+                                classlist: class_2
                               -%}
                             {%- endif -%}
                           {% endcapture %}
