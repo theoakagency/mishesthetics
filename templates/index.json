@@ -281,24 +281,6 @@
         "column_text_size": 0
       }
     },
-    "1790057253c88c07b7": {
-      "type": "apps",
-      "blocks": {
-        "yotpo_product_reviews_reviews_carousel_w4XXGU": {
-          "type": "shopify://apps/yotpo-product-reviews/blocks/reviews_carousel/eb7dfd7d-db44-4334-bc49-c893b51b36cf",
-          "settings": {
-            "product": "pristine-cysteamine-lift"
-          }
-        }
-      },
-      "block_order": [
-        "yotpo_product_reviews_reviews_carousel_w4XXGU"
-      ],
-      "settings": {
-        "full_width": false,
-        "space_around": true
-      }
-    },
     "17900588409f7f7947": {
       "type": "apps",
       "blocks": {
@@ -338,7 +320,6 @@
     "slideshow_split_FPfRfY",
     "blog_posts_row_PBTJmT",
     "text_columns_JJgDUt",
-    "1790057253c88c07b7",
     "17900588409f7f7947"
   ]
 }
