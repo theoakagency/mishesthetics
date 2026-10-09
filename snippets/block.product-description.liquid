@@ -6,14 +6,93 @@
   @param {object} [block] - Block object
   @param {object} [product] - Product object
   @param {boolean} [is_tab] - Render as collapsible accordion tab, default: true
+  @param {boolean} [preview_enabled] - Show a clipped preview with a Read more button instead of the accordion, default: false
+  @param {number} [preview_lines] - Number of body text lines shown in the preview, default: 4
 
   @example
   {% render 'block.product-description', product: product, is_tab: true %}
+  {% render 'block.product-description', product: product, preview_enabled: true, preview_lines: 4 %}
 {% enddoc %}
+
+{% stylesheet %}
+  .product-description-preview {
+    width: 100%;
+  }
+
+  .product-description-preview__content {
+    position: relative;
+    overflow: hidden;
+    font-size: var(--element-text-font-size--rte-body);
+    line-height: var(--element-text-line-height--rte-body);
+    max-height: calc(var(--preview-lines, 4) * 1.6em);
+    transition: max-height 0.3s ease;
+
+    @supports (height: 1lh) {
+      max-height: calc(var(--preview-lines, 4) * 1lh);
+    }
+
+    & .element-text > :last-child {
+      margin-bottom: 0;
+    }
+
+    /* Fade into the section background (color scheme secondary) */
+    &::after {
+      content: '';
+      position: absolute;
+      inset-inline: 0;
+      bottom: 0;
+      height: 2.5em;
+      background: linear-gradient(
+        to bottom,
+        color-mix(in srgb, var(--color-secondary) 0%, transparent),
+        var(--color-secondary)
+      );
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.3s ease;
+    }
+  }
+
+  .product-description-preview.is-truncated:not(.is-expanded) .product-description-preview__content::after {
+    opacity: 1;
+  }
+
+  .product-description-preview__toggle {
+    display: none;
+    margin-top: 8px;
+    padding: 0;
+    border: 0;
+    background: none;
+    color: inherit;
+    font: inherit;
+    text-decoration: underline;
+    text-underline-offset: 2px;
+    cursor: pointer;
+
+    &:focus-visible {
+      outline: 2px solid var(--color-focus, currentColor);
+      outline-offset: 2px;
+    }
+  }
+
+  .product-description-preview.is-truncated .product-description-preview__toggle {
+    display: inline-block;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .product-description-preview__content,
+    .product-description-preview__content::after {
+      transition: none;
+    }
+  }
+{% endstylesheet %}
 
 {%- liquid
   assign product = section.settings.product | default: product
   assign is_tab = is_tab | default: block.settings.is_tab, allow_false: true | default: true, allow_false: true
+  assign preview_enabled = preview_enabled | default: block.settings.preview_enabled, allow_false: true | default: false, allow_false: true
+  assign preview_lines = preview_lines | default: block.settings.preview_lines | default: 4 | times: 1
+  assign preview_id = 'ProductDescription-' | append: block.id | append: product.id
   assign description = 'info.placeholder_product_description' | t
 
   if product
@@ -29,10 +108,144 @@
 
 <div style="width: 100%;" {{ block.shopify_attributes }}>
   {%- liquid
-    if is_tab
+    if preview_enabled
+      capture label_more
+        render 'utility.translate', key: 'actions.read_more', fallback: 'Read more'
+      endcapture
+      capture label_less
+        render 'utility.translate', key: 'actions.read_less', fallback: 'Read less'
+      endcapture
+    elsif is_tab
       render 'element.accordion', title: accordion_title, slot: description
     else
       render 'element.text', text: description, variant: 'rte'
     endif
   -%}
+
+  {%- if preview_enabled -%}
+    {%- comment -%}
+      The full description is always in the HTML. CSS clips it to the preview height;
+      the script below only measures it and toggles the clip.
+    {%- endcomment -%}
+    <noscript>
+      <style>
+        #{{ preview_id }} {
+          max-height: none !important;
+        }
+        #{{ preview_id }}::after {
+          display: none;
+        }
+      </style>
+    </noscript>
+    <product-description-preview
+      class="product-description-preview"
+      style="--preview-lines: {{ preview_lines }};"
+      data-label-more="{{ label_more | strip | escape }}"
+      data-label-less="{{ label_less | strip | escape }}"
+    >
+      <div class="product-description-preview__content" id="{{ preview_id }}" data-description-content>
+        {%- render 'element.text', text: description, variant: 'rte' -%}
+      </div>
+      <button
+        type="button"
+        class="product-description-preview__toggle"
+        aria-expanded="false"
+        aria-controls="{{ preview_id }}"
+        data-description-toggle
+      >
+        {{- label_more | strip -}}
+      </button>
+    </product-description-preview>
+
+    <script>
+      if (!customElements.get('product-description-preview')) {
+        customElements.define(
+          'product-description-preview',
+          class extends HTMLElement {
+            connectedCallback() {
+              this.content = this.querySelector('[data-description-content]');
+              this.toggle = this.querySelector('[data-description-toggle]');
+              if (!this.content || !this.toggle) return;
+
+              this.expanded = false;
+              this.animating = false;
+              this.toggle.addEventListener('click', () => (this.expanded ? this.collapse() : this.expand()));
+
+              this.measure();
+              if (document.fonts && document.fonts.ready) document.fonts.ready.then(() => this.measure());
+              if ('ResizeObserver' in window) {
+                this.observer = new ResizeObserver(() => this.measure());
+                this.observer.observe(this.content);
+              }
+            }
+
+            disconnectedCallback() {
+              if (this.observer) this.observer.disconnect();
+            }
+
+            measure() {
+              if (this.expanded || this.animating) return;
+              const truncated = this.content.scrollHeight - this.content.clientHeight > 1;
+              this.classList.toggle('is-truncated', truncated);
+            }
+
+            reducedMotion() {
+              return window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+            }
+
+            setLabel(label) {
+              this.toggle.textContent = label;
+            }
+
+            expand() {
+              this.expanded = true;
+              this.animating = true;
+              this.classList.add('is-expanded');
+              this.toggle.setAttribute('aria-expanded', 'true');
+              this.setLabel(this.dataset.labelLess);
+              this.content.style.maxHeight = this.content.scrollHeight + 'px';
+              this.settle(() => {
+                if (this.expanded) this.content.style.maxHeight = 'none';
+              });
+            }
+
+            collapse() {
+              this.expanded = false;
+              this.animating = true;
+              this.toggle.setAttribute('aria-expanded', 'false');
+              this.setLabel(this.dataset.labelMore);
+              this.content.style.maxHeight = this.content.scrollHeight + 'px';
+              this.content.getBoundingClientRect();
+              this.classList.remove('is-expanded');
+              this.content.style.maxHeight = '';
+              this.settle(() => {
+                if (this.getBoundingClientRect().top < 0) this.scrollIntoView({ block: 'start' });
+              });
+            }
+
+            settle(done) {
+              const finish = () => {
+                this.animating = false;
+                done();
+                this.measure();
+              };
+              if (this.reducedMotion()) return finish();
+              let finished = false;
+              const once = () => {
+                if (finished) return;
+                finished = true;
+                this.content.removeEventListener('transitionend', onEnd);
+                finish();
+              };
+              const onEnd = (event) => {
+                if (event.target === this.content && event.propertyName === 'max-height') once();
+              };
+              this.content.addEventListener('transitionend', onEnd);
+              setTimeout(once, 450);
+            }
+          }
+        );
+      }
+    </script>
+  {%- endif -%}
 </div>

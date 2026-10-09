@@ -51,6 +51,8 @@
     "preorder": "Pre-order",
     "previous": "Previous",
     "print": "Print",
+    "read_less": "Read less",
+    "read_more": "Read more",
     "reduce_item_quantity": "Reduce item quantity by one",
     "remove": "Remove",
     "reset_account_password": "Reset account password",

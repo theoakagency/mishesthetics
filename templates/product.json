@@ -75,7 +75,9 @@
         "description_EFnQ69": {
           "type": "description",
           "settings": {
-            "is_tab": true
+            "is_tab": true,
+            "preview_enabled": true,
+            "preview_lines": 4
           }
         },
         "complementary_products_aFYr9K": {
