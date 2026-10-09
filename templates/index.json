@@ -24,7 +24,7 @@
             "link_2": "",
             "link_text_2": "",
             "text_position": "right",
-            "image": "shopify://shop_images/IMG_5018.jpg",
+            "image": "shopify://shop_images/mish-esthetics-lash-lift-training.jpg",
             "indent_image": false,
             "color_scheme": "2"
           }
@@ -124,7 +124,7 @@
       "type": "text-and-image",
       "name": "t:labels.image_with_text",
       "settings": {
-        "image": "shopify://shop_images/Lash_Training_Cover_Photo.jpg",
+        "image": "shopify://shop_images/mish-education-collection.jpg",
         "image_mask": "square",
         "image2_mask": "none",
         "subtitle": "",
