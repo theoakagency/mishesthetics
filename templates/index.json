@@ -159,7 +159,7 @@
             "link_text_2": "Shop Pristine",
             "text_position": "left",
             "image": "shopify://shop_images/mish-subscription-adhesives-pristine.png",
-            "indent_image": true,
+            "indent_image": false,
             "color_scheme": "1"
           }
         }
@@ -169,8 +169,8 @@
       ],
       "name": "t:labels.split_optional_slides",
       "settings": {
-        "full_width": true,
-        "height": 580,
+        "full_width": false,
+        "height": 480,
         "height_mobile": 480,
         "style": "arrows",
         "autoplay": true,

@@ -945,7 +945,9 @@
     "custom_css": [
       ".element-button .element-text,.btn {font-weight: 700;}",
       ".element-button:not(.add-to-cart) {background: #f6c4c0; border-color: #f6c4c0;}",
-      ".element-button:not(.add-to-cart),.element-button:not(.add-to-cart) .element-text {color: #000000;}"
+      ".element-button:not(.add-to-cart),.element-button:not(.add-to-cart) .element-text {color: #000000;}",
+      ".color-scheme-1 .element-button:not(.add-to-cart) {background: color-mix(in srgb, #ffffff var(--_shade-background, 0%), #141414); border: 1px solid #141414;}",
+      ".color-scheme-1 .element-button:not(.add-to-cart),.color-scheme-1 .element-button:not(.add-to-cart) .element-text {color: #ffffff;}"
     ]
   }
 }
