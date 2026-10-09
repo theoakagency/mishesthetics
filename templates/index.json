@@ -116,7 +116,7 @@
         "count": 7,
         "products_per_row": 6,
         "mobile_scrollable": true,
-        "view_all": true,
+        "view_all": false,
         "divider": false
       }
     },
@@ -175,60 +175,6 @@
         "style": "arrows",
         "autoplay": true,
         "autoplay_speed": 7
-      }
-    },
-    "blog_posts_row_PBTJmT": {
-      "type": "blog-posts-row",
-      "name": "t:labels.blog_posts_row",
-      "settings": {
-        "title": "From the blog",
-        "heading_size": "h2",
-        "heading_position": "left",
-        "blog": "news",
-        "count": 4,
-        "posts_per_row": 4,
-        "blog_image_size": "landscape",
-        "view_all": true,
-        "show_date": false,
-        "divider": false
-      }
-    },
-    "newsletter": {
-      "type": "newsletter",
-      "blocks": {
-        "title": {
-          "type": "title",
-          "settings": {
-            "title": "Save 15% on your first purchase",
-            "heading_size": "h2"
-          }
-        },
-        "text": {
-          "type": "text",
-          "settings": {
-            "text": "<p>Sign up today and we'll send you a 15% discount code towards your first purchase.</p>"
-          }
-        },
-        "form": {
-          "type": "form",
-          "settings": {}
-        }
-      },
-      "block_order": [
-        "title",
-        "text",
-        "form"
-      ],
-      "disabled": true,
-      "settings": {
-        "color_scheme": "3",
-        "align_text": "center",
-        "image_width": "33",
-        "image_mask": "none",
-        "image_position": "right",
-        "divider": false,
-        "top_padding": false,
-        "bottom_padding": false
       }
     },
     "text_columns_JJgDUt": {
@@ -312,11 +258,65 @@
         "title": "",
         "align_text": "center",
         "divider": false,
-        "color_scheme": "none",
+        "color_scheme": "2",
         "columns_desktop": 5,
         "columns_mobile": 2,
         "column_heading_size": 14,
         "column_text_size": 0
+      }
+    },
+    "blog_posts_row_PBTJmT": {
+      "type": "blog-posts-row",
+      "name": "t:labels.blog_posts_row",
+      "settings": {
+        "title": "From the blog",
+        "heading_size": "h2",
+        "heading_position": "left",
+        "blog": "news",
+        "count": 4,
+        "posts_per_row": 4,
+        "blog_image_size": "landscape",
+        "view_all": true,
+        "show_date": false,
+        "divider": false
+      }
+    },
+    "newsletter": {
+      "type": "newsletter",
+      "blocks": {
+        "title": {
+          "type": "title",
+          "settings": {
+            "title": "Save 15% on your first purchase",
+            "heading_size": "h2"
+          }
+        },
+        "text": {
+          "type": "text",
+          "settings": {
+            "text": "<p>Sign up today and we'll send you a 15% discount code towards your first purchase.</p>"
+          }
+        },
+        "form": {
+          "type": "form",
+          "settings": {}
+        }
+      },
+      "block_order": [
+        "title",
+        "text",
+        "form"
+      ],
+      "disabled": true,
+      "settings": {
+        "color_scheme": "3",
+        "align_text": "center",
+        "image_width": "33",
+        "image_mask": "none",
+        "image_position": "right",
+        "divider": false,
+        "top_padding": false,
+        "bottom_padding": false
       }
     },
     "1790057253c88c07b7": {
@@ -374,9 +374,9 @@
     "featured-collection",
     "text_and_image_qMJz4B",
     "slideshow_split_FPfRfY",
+    "text_columns_JJgDUt",
     "blog_posts_row_PBTJmT",
     "newsletter",
-    "text_columns_JJgDUt",
     "1790057253c88c07b7",
     "17900588409f7f7947"
   ]

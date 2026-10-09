@@ -33,7 +33,7 @@
     "icon_weight": "3px",
     "icon_linecaps": "round",
     "superscript_decimals": true,
-    "product_save_type": "dollar",
+    "product_save_type": "percent",
     "vendor_enable": false,
     "quick_shop_enable": true,
     "quick_add_enable": true,
