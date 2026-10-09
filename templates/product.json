@@ -38,7 +38,7 @@
           "settings": {
             "variant_labels": true,
             "picker_type": "button",
-            "color_swatches": true,
+            "color_swatches": false,
             "size_chart_option": "",
             "size_chart": ""
           }
