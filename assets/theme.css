@@ -12987,6 +12987,27 @@
     color: #ffffff;
   }
 
+  /* Round each slide's panels, not the whole slideshow. Slides whose scheme matches the page
+     background round the image on all four corners instead, since the text panel is invisible. */
+  .hero--padded .hero--split,
+  .hero--padded .hero--split .slideshow__slide {
+    border-radius: 0;
+  }
+
+  .hero--padded .hero--split .hero__sidebyside {
+    border-radius: var(--roundness);
+    overflow: hidden;
+  }
+
+  .hero--padded .hero--split .hero__sidebyside--blend {
+    border-radius: 0;
+    overflow: visible;
+
+    & .hero__sidebyside-image {
+      border-radius: var(--roundness);
+    }
+  }
+
 /* Source: snippets/section.slideshow.liquid */
   .hero__image-wrapper--no-overlay:before {
     content: none;

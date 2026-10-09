@@ -163,6 +163,27 @@
   .element-button.split-btn--black:not(.add-to-cart) .element-text {
     color: #ffffff;
   }
+
+  /* Round each slide's panels, not the whole slideshow. Slides whose scheme matches the page
+     background round the image on all four corners instead, since the text panel is invisible. */
+  .hero--padded .hero--split,
+  .hero--padded .hero--split .slideshow__slide {
+    border-radius: 0;
+  }
+
+  .hero--padded .hero--split .hero__sidebyside {
+    border-radius: var(--roundness);
+    overflow: hidden;
+  }
+
+  .hero--padded .hero--split .hero__sidebyside--blend {
+    border-radius: 0;
+    overflow: visible;
+
+    & .hero__sidebyside-image {
+      border-radius: var(--roundness);
+    }
+  }
 {% endstylesheet %}
 
 {%- liquid
@@ -231,7 +252,7 @@
 
           <div
             id="Slideshow-{{ section.id }}"
-            class="hero hero--{{ section.id }}{% if section.index == 1 %} loaded{% else %} loading{% endif %} loading--delayed"
+            class="hero hero--split hero--{{ section.id }}{% if section.index == 1 %} loaded{% else %} loading{% endif %} loading--delayed"
             data-autoplay="{{ autoplay }}"
             data-speed="{{ autoplay_speed | times: 1000 }}"
             {% if style == 'arrows' %}
@@ -264,7 +285,19 @@
                   }
                 {%- endstyle -%}
 
-                <div class="hero__sidebyside hero__sidebyside-text--{{ block.settings.text_position }} color-scheme-{{ block.settings.color_scheme }}">
+                {%- liquid
+                  assign blends_with_page = false
+                  if block.settings.color_scheme == 'none'
+                    assign blends_with_page = true
+                  elsif block.settings.color_scheme != blank
+                    assign scheme_index = block.settings.color_scheme | minus: 1
+                    assign scheme_secondary = settings.color_schemes[scheme_index].settings.secondary
+                    if scheme_secondary == settings.color_scheme_root.settings.secondary
+                      assign blends_with_page = true
+                    endif
+                  endif
+                -%}
+                <div class="hero__sidebyside hero__sidebyside-text--{{ block.settings.text_position }} color-scheme-{{ block.settings.color_scheme }}{% if blends_with_page %} hero__sidebyside--blend{% endif %}">
                   {%- render 'utility.color-scheme-texture', color_scheme: block.settings.color_scheme -%}
 
                   <div class="hero__sidebyside-content">
