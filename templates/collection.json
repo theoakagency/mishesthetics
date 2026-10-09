@@ -29,10 +29,6 @@
     "main-collection": {
       "type": "main-collection",
       "blocks": {
-        "collection_description": {
-          "type": "collection_description",
-          "settings": {}
-        },
         "subcollections": {
           "type": "subcollections",
           "settings": {}
@@ -42,6 +38,10 @@
           "settings": {
             "grid_style": "medium"
           }
+        },
+        "collection_description": {
+          "type": "collection_description",
+          "settings": {}
         }
       },
       "block_order": [
