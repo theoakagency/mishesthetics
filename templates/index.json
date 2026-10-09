@@ -21,8 +21,10 @@
             "subheading": "Pristine lift solutions, tools, and training, designed by one Lash Artist for all Lash Artists.",
             "link": "shopify://collections/lash-lift-supplies",
             "link_text": "Shop lash lift",
+            "button_style_1": "pink",
             "link_2": "",
             "link_text_2": "",
+            "button_style_2": "pink",
             "text_position": "right",
             "image": "shopify://shop_images/pristine-lash-lift.jpg",
             "indent_image": false,
@@ -155,12 +157,14 @@
             "subheading": "Subscribe to your go-to lash adhesives or Pristine Cysteamine Lift and save 15% on every order. Choose auto-delivery every 4, 6 or 8 weeks, and your restock shows up before you need it.",
             "link": "shopify://collections/lash-adhesives-liquids",
             "link_text": "Shop Adhesives",
+            "button_style_1": "pink",
             "link_2": "shopify://products/pristine-cysteamine-lift",
             "link_text_2": "Shop Pristine",
+            "button_style_2": "outlined",
             "text_position": "left",
             "image": "shopify://shop_images/mish-subscription-adhesives-pristine.png",
             "indent_image": false,
-            "color_scheme": "1"
+            "color_scheme": "3"
           }
         }
       },
