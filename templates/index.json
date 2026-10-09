@@ -24,7 +24,7 @@
             "link_2": "",
             "link_text_2": "",
             "text_position": "right",
-            "image": "shopify://shop_images/mish-esthetics-lash-lift-training.jpg",
+            "image": "shopify://shop_images/pristine-lash-lift.jpg",
             "indent_image": false,
             "color_scheme": "2"
           }
@@ -124,8 +124,8 @@
       "type": "text-and-image",
       "name": "t:labels.image_with_text",
       "settings": {
-        "image": "shopify://shop_images/mish-education-collection.jpg",
-        "image_mask": "square",
+        "image": "shopify://shop_images/mish-esthetics-lash-lift-training.jpg",
+        "image_mask": "none",
         "image2_mask": "none",
         "subtitle": "",
         "title": "Courses & training",
@@ -135,7 +135,7 @@
         "button_link": "shopify://collections/lash-education",
         "button_style": "primary",
         "align_text": "left",
-        "image_width": "50",
+        "image_width": "66",
         "layout": "left",
         "color_scheme": "2",
         "divider": false,
