@@ -950,7 +950,9 @@
       ".color-scheme-1 .element-button:not(.add-to-cart),.color-scheme-1 .element-button:not(.add-to-cart) .element-text {color: #ffffff;}",
       ".grid-product__actions .quick-product__btn,.grid-product__actions .quick-add-btn .btn {background: #f6c4c0; border-color: #f6c4c0; color: #000000; transition: background-color 0.2s ease;}",
       ".grid-product__actions .quick-product__btn:hover,.grid-product__actions .quick-product__btn:focus-visible,.grid-product__actions .quick-add-btn:hover .btn,.grid-product__actions .quick-add-btn:focus-visible .btn {background: #efbeba; border-color: #efbeba; color: #000000;}",
-      ".grid-product__actions .quick-product__btn svg,.grid-product__actions .quick-add-btn .btn svg {color: #000000;}"
+      ".grid-product__actions .quick-product__btn svg,.grid-product__actions .quick-add-btn .btn svg {color: #000000;}",
+      "[data-grid-style*='gridlines'] .grid-product.grid-product:after {box-shadow: 0 0 0 var(--grid-thickness) #F6C4C0;}",
+      "[data-grid-style*='gridlines'] product-recommendations[data-intent='complementary'] .product-recommendations__slide .grid-product:first-child:after {border-top-color: #F6C4C0;}"
     ]
   }
 }
