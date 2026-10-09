@@ -948,9 +948,9 @@
       ".element-button:not(.add-to-cart),.element-button:not(.add-to-cart) .element-text {color: #000000;}",
       ".color-scheme-1 .element-button:not(.add-to-cart) {background: color-mix(in srgb, #ffffff var(--_shade-background, 0%), #141414); border: 1px solid #141414;}",
       ".color-scheme-1 .element-button:not(.add-to-cart),.color-scheme-1 .element-button:not(.add-to-cart) .element-text {color: #ffffff;}",
-      ".grid-product__actions .quick-product__btn,.grid-product__actions .quick-add-btn .btn {background: #EFBEBA; border-color: #EFBEBA; color: #141414; transition: background-color 0.2s ease;}",
-      ".grid-product__actions .quick-product__btn:hover,.grid-product__actions .quick-product__btn:focus-visible,.grid-product__actions .quick-add-btn:hover .btn,.grid-product__actions .quick-add-btn:focus-visible .btn {background: color-mix(in srgb, #000000 8%, #EFBEBA); border-color: color-mix(in srgb, #000000 8%, #EFBEBA); color: #141414;}",
-      ".grid-product__actions .quick-product__btn svg,.grid-product__actions .quick-add-btn .btn svg {color: #141414;}"
+      ".grid-product__actions .quick-product__btn,.grid-product__actions .quick-add-btn .btn {background: #F6C4C0; border-color: #F6C4C0; color: #000000; transition: background-color 0.2s ease;}",
+      ".grid-product__actions .quick-product__btn:hover,.grid-product__actions .quick-product__btn:focus-visible,.grid-product__actions .quick-add-btn:hover .btn,.grid-product__actions .quick-add-btn:focus-visible .btn {background: #EFBEBA; border-color: #EFBEBA; color: #000000;}",
+      ".grid-product__actions .quick-product__btn svg,.grid-product__actions .quick-add-btn .btn svg {color: #000000;}"
     ]
   }
 }
