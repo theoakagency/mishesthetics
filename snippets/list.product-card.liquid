@@ -474,6 +474,43 @@
     }
   }
 
+  /* Tooltip for the round quick shop / quick add buttons (replaces the native title tooltip) */
+  .quick-product__btn[data-tooltip],
+  .quick-add-btn[data-tooltip] {
+    position: relative;
+  }
+
+  @media (hover: hover) {
+    .quick-product__btn[data-tooltip]::after,
+    .quick-add-btn[data-tooltip]::after {
+      content: attr(data-tooltip);
+      position: absolute;
+      top: 50%;
+      right: calc(100% + 8px);
+      transform: translateY(-50%);
+      padding: 6px 10px;
+      border-radius: var(--roundness);
+      background: #000000;
+      color: #ffffff;
+      font-family: var(--element-text-font-family--body), var(--element-text-font-family-fallback--body);
+      font-size: 13px;
+      font-weight: 700;
+      line-height: 1.2;
+      white-space: nowrap;
+      pointer-events: none;
+      opacity: 0;
+      transition: opacity 0.15s ease;
+      z-index: 4;
+    }
+
+    .quick-product__btn[data-tooltip]:hover::after,
+    .quick-product__btn[data-tooltip]:focus-visible::after,
+    .quick-add-btn[data-tooltip]:hover::after,
+    .quick-add-btn[data-tooltip]:focus-visible::after {
+      opacity: 1;
+    }
+  }
+
   @container product-grid-item (max-width: 235px) {
     .at-add-to-cart__content {
       display: flex;
@@ -573,12 +610,12 @@
     <div class="grid-item__content color-scheme-none">
       {%- unless no_actions -%}
         {%- if quick_add_enable or quick_shop_enable -%}
+          {%- capture quick_shop_label -%}{% render 'utility.translate', key: 'labels.quick_shop', fallback: 'Quick shop' %}{%- endcapture -%}
+          {%- capture quick_add_label -%}{% render 'utility.translate', key: 'actions.add_to_cart', fallback: 'Add to cart' %}{%- endcapture -%}
           <div class="grid-product__actions">
             {%- if quick_shop_enable and type != 'horizontal' and quick_shop_variant_guard_passed -%}
               {%- capture quick_shop_button -%}
-                <button type="button" class="btn btn--circle btn--icon quick-product__btn js-modal-open-quick-modal-{{ product.id }} small--hide" title="
-                  {% render 'utility.translate', key: 'labels.quick_shop', fallback: 'Quick shop' -%}
-                  " data-handle="{{ product.handle }}">
+                <button type="button" class="btn btn--circle btn--icon quick-product__btn js-modal-open-quick-modal-{{ product.id }} small--hide" data-tooltip="{{ quick_shop_label | strip | escape }}" data-handle="{{ product.handle }}">
                   {% render 'element.icon', name: 'search' %}
                   <span class="icon__fallback-text visually-hidden">
                     {% render 'utility.translate', key: 'labels.quick_shop', fallback: 'Quick shop' %}
@@ -601,9 +638,7 @@
               {% endcomment %}
               {%- if product.variants_count > 1 -%}
                 {%- capture quick_add_button %}
-                  <button type="button" class="text-link quick-add-btn js-quick-add-form js-modal-open-quick-add" title="
-                    {% render 'utility.translate', key: 'actions.add_to_cart', fallback: 'Add to cart' -%}
-                    ">
+                  <button type="button" class="text-link quick-add-btn js-quick-add-form js-modal-open-quick-add" data-tooltip="{{ quick_add_label | strip | escape }}">
                     <span class="btn btn--circle btn--icon">
                       {% render 'element.icon', name: 'plus' %}
                       <span class="icon__fallback-text visually-hidden">
@@ -626,9 +661,7 @@
                 {%- capture content -%}
                   <button
                     type="button" class="text-link quick-add-btn"
-                    title="
-                      {% render 'utility.translate', key: 'actions.add_to_cart', fallback: 'Add to cart' -%}
-                    "
+                    data-tooltip="{{ quick_add_label | strip | escape }}"
                     data-id="{{ product.selected_or_first_available_variant.id }}"
                     data-single-variant-quick-add
                   >

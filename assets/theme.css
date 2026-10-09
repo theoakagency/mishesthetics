@@ -6728,6 +6728,43 @@
     }
   }
 
+  /* Tooltip for the round quick shop / quick add buttons (replaces the native title tooltip) */
+  .quick-product__btn[data-tooltip],
+  .quick-add-btn[data-tooltip] {
+    position: relative;
+  }
+
+  @media (hover: hover) {
+    .quick-product__btn[data-tooltip]::after,
+    .quick-add-btn[data-tooltip]::after {
+      content: attr(data-tooltip);
+      position: absolute;
+      top: 50%;
+      right: calc(100% + 8px);
+      transform: translateY(-50%);
+      padding: 6px 10px;
+      border-radius: var(--roundness);
+      background: #000000;
+      color: #ffffff;
+      font-family: var(--element-text-font-family--body), var(--element-text-font-family-fallback--body);
+      font-size: 13px;
+      font-weight: 700;
+      line-height: 1.2;
+      white-space: nowrap;
+      pointer-events: none;
+      opacity: 0;
+      transition: opacity 0.15s ease;
+      z-index: 4;
+    }
+
+    .quick-product__btn[data-tooltip]:hover::after,
+    .quick-product__btn[data-tooltip]:focus-visible::after,
+    .quick-add-btn[data-tooltip]:hover::after,
+    .quick-add-btn[data-tooltip]:focus-visible::after {
+      opacity: 1;
+    }
+  }
+
   @container product-grid-item (max-width: 235px) {
     .at-add-to-cart__content {
       display: flex;
