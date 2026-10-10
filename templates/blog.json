@@ -24,12 +24,19 @@
     "sidebar": {
       "type": "blog-sidebar",
       "blocks": {
+        "product_ANTAaC": {
+          "type": "product",
+          "settings": {
+            "featured_product": "pristine-cysteamine-lift"
+          }
+        },
         "tags": {
           "type": "tags",
           "settings": {}
         }
       },
       "block_order": [
+        "product_ANTAaC",
         "tags"
       ],
       "settings": {}
