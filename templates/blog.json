@@ -11,7 +11,15 @@
   "sections": {
     "main": {
       "type": "blog-template",
-      "settings": {}
+      "settings": {
+        "blog_show_rss": false,
+        "blog_show_tags": true,
+        "blog_show_date": true,
+        "blog_show_comments": true,
+        "blog_show_author": false,
+        "blog_show_excerpt": false,
+        "blog_image_size": "wide"
+      }
     },
     "sidebar": {
       "type": "blog-sidebar",
@@ -26,51 +34,26 @@
       ],
       "settings": {}
     },
-    "featured-collections": {
-      "type": "featured-collections",
-      "blocks": {
-        "collection1": {
-          "type": "collection",
-          "settings": {}
-        },
-        "collection2": {
-          "type": "collection",
-          "settings": {}
-        },
-        "collection3": {
-          "type": "collection",
-          "settings": {}
-        },
-        "collection4": {
-          "type": "collection",
-          "settings": {}
-        },
-        "collection5": {
-          "type": "collection",
-          "settings": {}
-        },
-        "collection6": {
-          "type": "collection",
-          "settings": {}
-        }
-      },
-      "block_order": [
-        "collection1",
-        "collection2",
-        "collection3",
-        "collection4",
-        "collection5",
-        "collection6"
-      ],
+    "featured_collection_BePrKj": {
+      "type": "featured-collection",
+      "name": "t:labels.featured_collection",
       "settings": {
-        "title": "You may also like"
+        "title": "Best Sellers",
+        "heading_size": "h2",
+        "heading_position": "left",
+        "home_featured_products": "best-sellers-home-page",
+        "count": 6,
+        "products_per_row": 6,
+        "mobile_scrollable": true,
+        "view_all": false,
+        "divider": false
       }
     }
   },
   "order": [
     "main",
     "sidebar",
-    "featured-collections"
+    "featured_collection_BePrKj"
   ],
   "wrapper": "div.page-width.page-content.blog-layout"
 }
