@@ -952,7 +952,9 @@
       ".grid-product__actions .quick-product__btn:hover,.grid-product__actions .quick-product__btn:focus-visible,.grid-product__actions .quick-add-btn:hover .btn,.grid-product__actions .quick-add-btn:focus-visible .btn {background: #efbeba; border-color: #efbeba; color: #000000;}",
       ".grid-product__actions .quick-product__btn svg,.grid-product__actions .quick-add-btn .btn svg {color: #000000;}",
       "[data-grid-style*=\"gridlines\"] .grid-product.grid-product:after {box-shadow: 0 0 0 var(--grid-thickness) #f6c4c0;}",
-      "[data-grid-style*=\"gridlines\"] product-recommendations[data-intent=\"complementary\"] .product-recommendations__slide .grid-product:first-child:after {border-top-color: #f6c4c0;}"
+      "[data-grid-style*=\"gridlines\"] product-recommendations[data-intent=\"complementary\"] .product-recommendations__slide .grid-product:first-child:after {border-top-color: #f6c4c0;}",
+      ".slide-nav .slide-nav__image {display: none;}",
+      ".slide-nav .slide-nav__link .slide-nav__image + span {padding-left: 0;}"
     ]
   }
 }

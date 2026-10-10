@@ -58,7 +58,7 @@
         "type_navigation_capitalize": true,
         "hover_menu": true,
         "main_menu_alignment": "left-center",
-        "mega_products": true,
+        "mega_products": false,
         "header_sticky": true,
         "header_footer_menu": true,
         "sticky_index": false,
