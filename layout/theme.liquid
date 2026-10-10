@@ -71,6 +71,7 @@
     {%- render 'head.styles' -%}
     {%- render 'head.styles.kit-tokens' -%}
     {%- render 'utility.stylesheet', name: 'overrides.css', load: 'inline' -%}
+    <link rel="stylesheet" href="{{ 'mish-custom.css' | asset_url }}">
 
     <script src="{{ 'theme.js' | asset_url }}" defer="defer"></script>
 

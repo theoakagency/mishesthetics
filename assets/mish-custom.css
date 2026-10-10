@@ -1,0 +1,71 @@
+/*
+  Mish Esthetics custom styles.
+  Loaded after theme.css and the inline head styles (see layout/theme.liquid), so these rules win on load order.
+*/
+
+/* Buttons: brand style guide. Primary Pink #F6C4C0 with black text, bold labels. */
+.element-button .element-text,
+.btn {
+  font-weight: 700;
+}
+
+.element-button:not(.add-to-cart) {
+  background: #f6c4c0;
+  border-color: #f6c4c0;
+}
+
+.element-button:not(.add-to-cart),
+.element-button:not(.add-to-cart) .element-text {
+  color: #000000;
+}
+
+/* Product card quick view and quick add buttons: Primary Pink, Secondary Pink #EFBEBA on hover/focus. */
+.grid-product__actions .quick-product__btn,
+.grid-product__actions .quick-add-btn .btn {
+  background: #f6c4c0;
+  border-color: #f6c4c0;
+  color: #000000;
+  transition: background-color 0.2s ease;
+}
+
+.grid-product__actions .quick-product__btn:hover,
+.grid-product__actions .quick-product__btn:focus-visible,
+.grid-product__actions .quick-add-btn:hover .btn,
+.grid-product__actions .quick-add-btn:focus-visible .btn {
+  background: #efbeba;
+  border-color: #efbeba;
+  color: #000000;
+}
+
+.grid-product__actions .quick-product__btn svg,
+.grid-product__actions .quick-add-btn .btn svg {
+  color: #000000;
+}
+
+/* Product grid lines: pink, a deliberate exception to the guide's black borders. */
+[data-grid-style*="gridlines"] .grid-product.grid-product:after {
+  box-shadow: 0 0 0 var(--grid-thickness) #f6c4c0;
+}
+
+[data-grid-style*="gridlines"] product-recommendations[data-intent="complementary"] .product-recommendations__slide .grid-product:first-child:after {
+  border-top-color: #f6c4c0;
+}
+
+/* Mobile menu: hide collection thumbnails and keep the text aligned. */
+.slide-nav .slide-nav__image {
+  display: none;
+}
+
+.slide-nav .slide-nav__link .slide-nav__image + span {
+  padding-left: 0;
+}
+
+/* Mobile menu: hide the standalone account icon at the bottom of the menu list (the header icon and footer link stay).
+   The last link then takes over the bottom padding the account item used to provide, so the box doesn't change height. */
+.slide-nav > .slide-nav__item:has(shopify-account) {
+  display: none;
+}
+
+.slide-nav > .slide-nav__item:has(+ .slide-nav__item shopify-account) {
+  padding-bottom: 10px;
+}
