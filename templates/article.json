@@ -11,7 +11,9 @@
   "sections": {
     "main": {
       "type": "article-template",
-      "settings": {}
+      "settings": {
+        "blog_capitalize_first": false
+      }
     },
     "sidebar": {
       "type": "blog-sidebar",
