@@ -101,13 +101,7 @@ Main blog template with tag filtering and article grid.
     <div class="new-grid">
       {% liquid
         for article in blog.articles
-          assign style = 'medium'
-
-          if forloop.first
-            assign style = 'large'
-          endif
-
-          render 'list.article-card', style: style, article: article
+          render 'list.article-card', style: 'medium', article: article
         endfor
       %}
     </div>
