@@ -83,7 +83,7 @@ Main blog template with tag filtering and article grid.
   }
 {% endstylesheet %}
 
-{%- paginate blog.articles by 9 -%}
+{%- paginate blog.articles by 12 -%}
   <div data-section-id="{{ section.id }}" data-section-type="blog">
     <header class="section-header{% if blog_show_tag_filter and blog.tags.size > 0 %} section-header--with-link{% endif %}">
       <h1 class="section-header__title">
