@@ -68,6 +68,26 @@
   else
     assign card_sizes = '(min-width: 769px) calc((100vw - 80px) / 2), calc(100vw - 34px)'
   endif
+
+  # Oak: first-row eager loading. Row size comes from the desktop grid layout (medium = 3 per row,
+  # large = 2, list = 1); mobile rows are smaller, so this count also covers mobile.
+  assign first_row_grid_style = grid_style
+  if first_row_grid_style == blank
+    for block in section.blocks
+      if block.type == 'product_grid'
+        assign first_row_grid_style = block.settings.grid_style
+        break
+      endif
+    endfor
+  endif
+  case first_row_grid_style
+    when 'large'
+      assign first_row_count = 2
+    when 'list'
+      assign first_row_count = 1
+    else
+      assign first_row_count = 3
+  endcase
 -%}
 
 {% capture no_products %}
@@ -86,8 +106,8 @@
     else
       paginate collection.products by paginate_by
         for item in collection.products
-          # Oak: fixed sizes attr
-          render 'list.product-card', product: item, sizes: card_sizes, product_grid_content_align: product_grid_content_align, disabled_high_variants: false
+          # Oak: fixed sizes attr; first-row eager loading via loading_index / eager_count
+          render 'list.product-card', product: item, sizes: card_sizes, loading_index: forloop.index, eager_count: first_row_count, product_grid_content_align: product_grid_content_align, disabled_high_variants: false
         endfor
 
         if paginate.pages > 1

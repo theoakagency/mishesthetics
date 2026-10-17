@@ -11,6 +11,8 @@
   @param {string} [sizes] - Image sizes attribute
   @param {string} [sizeVariable] - Image size variable for calculations
   @param {string} [fallback] - Fallback size when condition not met
+  @param {number} [loading_index] - Oak: 1-based position of the card in its grid (pass forloop.index)
+  @param {number} [eager_count] - Oak: cards with loading_index <= this load eagerly without fade; card 1 gets fetchpriority high
   @param {string} [image_style] - Image shape ('square', 'circle')
   @param {boolean} [quick_add_enable] - Enable quick add functionality
   @param {boolean} [quick_shop_enable] - Enable quick shop functionality
@@ -519,6 +521,23 @@
 {% endstylesheet %}
 
 {%- liquid
+  # Oak: first-row cards (loading_index <= eager_count) load their main image eagerly with no
+  # fade-in; only the first card gets fetchpriority high. Callers that pass neither are unchanged.
+  assign image_loading = nil
+  assign image_animation = nil
+  assign image_fetchpriority = nil
+  if loading_index != blank and eager_count != blank
+    assign loading_index = loading_index | times: 1
+    assign eager_count = eager_count | times: 1
+    if loading_index <= eager_count
+      assign image_loading = 'eager'
+      assign image_animation = 'off'
+      if loading_index == 1
+        assign image_fetchpriority = 'high'
+      endif
+    endif
+  endif
+
   assign sizes = sizes | default: '100%'
   assign quick_add_enable = quick_add_enable | default: settings.quick_add_enable, allow_false: true | default: true, allow_false: true
   assign quick_shop_enable = quick_shop_enable | default: settings.quick_shop_enable, allow_false: true | default: true, allow_false: true
@@ -731,12 +750,16 @@
                   {% unless product_grid_image_fill %} grid__image-contain{% endunless %} image-style--{{ image_style }}
                 {%- endcapture -%}
                 {%- if preview_image != blank -%}
+                  {%- comment -%} Oak: first-row eager loading (loading, animation, fetchpriority) {%- endcomment -%}
                   {%- render 'element.image',
                     img: preview_image,
                     classlist: image_classes,
                     sizes: sizes,
                     sizeVariable: sizeVariable,
                     fallback: fallback,
+                    loading: image_loading,
+                    animation: image_animation,
+                    fetchpriority: image_fetchpriority,
                     widths: '160, 200, 280, 360, 540, 720, 900, 1200, 1600'
                   -%}
                 {%- else -%}
@@ -759,12 +782,16 @@
                 {% endif %}
               >
                 {%- if preview_image != blank -%}
+                  {%- comment -%} Oak: first-row eager loading (loading, animation, fetchpriority) {%- endcomment -%}
                   {%- render 'element.image',
                     img: preview_image,
                     classlist: 'grid-product__image',
                     sizes: sizes,
                     sizeVariable: sizeVariable,
                     fallback: fallback,
+                    loading: image_loading,
+                    animation: image_animation,
+                    fetchpriority: image_fetchpriority,
                     widths: '360, 540, 720, 900, 1200, 1600'
                   -%}
                 {%- else -%}

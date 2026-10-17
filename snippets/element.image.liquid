@@ -10,7 +10,8 @@
   @param {string} [sizes] - image sizes (default: '100vw')
   @param {string} [sizeVariable] - image size variable used in image size calculations
   @param {string} [fallback] - fallback used in image size calculations when first condition is not met
-  @param {string} [animation] - image animation style (default: 'fadein')
+  @param {string} [animation] - image animation style (default: 'fadein'; Oak: 'off' omits data-animate)
+  @param {string} [fetchpriority] - Oak: image fetch priority ('high', 'low', 'auto')
   @param {string} [type] - image type, can be blank, photoswipe, or asset
   @param {string} [widths] - image widths
   @param {string} [img_width] - image width
@@ -87,6 +88,12 @@
 
   assign animation = animation | default: 'fadein'
 
+  # Oak: animation 'off' drops data-animate so the image isn't held at opacity 0 until is-land is ready
+  # (used for above-the-fold collection cards). fetchpriority is only output when passed.
+  if animation == 'off'
+    assign animation = nil
+  endif
+
   # Add a class to the image so we can target theme images
   assign classlist = classlist | append: ' image-element'
 %}
@@ -105,7 +112,8 @@
         if img_tag_height == blank
           assign img_tag_height = img_tag_width | divided_by: img.aspect_ratio
         endif
-        assign img = img | image_url: width: img_width, format: format | image_tag: preload: preload, height: img_tag_height, width: img_tag_width, class: classlist, loading: loading, alt: alt, sizes: sizes, widths: widths, itemprop: itemprop, role: role, aria-hidden: ariaHidden, style: style, data-animate: animation
+        # Oak: added fetchpriority
+        assign img = img | image_url: width: img_width, format: format | image_tag: preload: preload, height: img_tag_height, width: img_tag_width, class: classlist, loading: loading, fetchpriority: fetchpriority, alt: alt, sizes: sizes, widths: widths, itemprop: itemprop, role: role, aria-hidden: ariaHidden, style: style, data-animate: animation
       endif
 
       if widths == blank
@@ -118,7 +126,8 @@
         if img_tag_height == blank
           assign img_tag_height = img_tag_width | divided_by: img.aspect_ratio
         endif
-        assign img = img | image_url: width: img_width, format: format | image_tag: preload: preload, height: img_tag_height, width: img_tag_width, class: classlist, loading: loading, alt: alt, sizes: sizes, itemprop: itemprop, role: role, aria-hidden: ariaHidden, style: style, data-animate: animation
+        # Oak: added fetchpriority
+        assign img = img | image_url: width: img_width, format: format | image_tag: preload: preload, height: img_tag_height, width: img_tag_width, class: classlist, loading: loading, fetchpriority: fetchpriority, alt: alt, sizes: sizes, itemprop: itemprop, role: role, aria-hidden: ariaHidden, style: style, data-animate: animation
       endif
 
       echo img
