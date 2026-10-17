@@ -129,7 +129,22 @@ class ItemGrid extends HTMLElement {
   }
 
   handleViewChange(evt) {
-    this.grid.dataset.view = evt.detail.newView
+    // Oak: look the grid up fresh; ajax filtering replaces #AjaxContent, which left this.grid detached
+    this.grid = this.querySelector(this.selectors.productGrid) || this.grid
+    if (!this.grid) return
+
+    const newView = evt.detail.newView
+    this.grid.dataset.view = newView
+
+    // Oak: swap card image sizes to match the new view (main collection grid only, which carries
+    // data-oak-sizes-*). The browser re-picks from srcset, so larger views load sharper files.
+    const sizesKey = `oakSizes${newView.charAt(0).toUpperCase()}${newView.slice(1)}`
+    const sizes = this.grid.dataset[sizesKey]
+    if (sizes) {
+      this.grid.querySelectorAll('.grid-product__image-wrap img[sizes]').forEach((img) => {
+        img.sizes = sizes
+      })
+    }
   }
 
   initFilters() {

@@ -61,32 +61,42 @@
     assign grid_style = cart.attributes.product_view
   endif
 
-  # Oak: fixed sizes attr (was sizes="100%"). Sized for the 2-per-row "large" view
-  # (1 per row on mobile) so toggling views without a reload never undersizes.
-  if section.settings.enable_sidebar
-    assign card_sizes = '(min-width: 769px) calc((100vw - 80px) * 0.4), calc(100vw - 34px)'
-  else
-    assign card_sizes = '(min-width: 769px) calc((100vw - 80px) / 2), calc(100vw - 34px)'
-  endif
-
-  # Oak: first-row eager loading. Row size comes from the desktop grid layout (medium = 3 per row,
-  # large = 2, list = 1); mobile rows are smaller, so this count also covers mobile.
-  assign first_row_grid_style = grid_style
-  if first_row_grid_style == blank
+  # Oak: the view the visitor will see: their saved choice (cart attribute) or the block's default layout.
+  # Used for the per-view sizes and the first-row eager loading below.
+  assign card_grid_style = grid_style
+  if card_grid_style == blank
     for block in section.blocks
       if block.type == 'product_grid'
-        assign first_row_grid_style = block.settings.grid_style
+        assign card_grid_style = block.settings.grid_style
         break
       endif
     endfor
   endif
-  case first_row_grid_style
+
+  # Oak: fixed sizes attr (was sizes="100%"), one value per view. The grid carries all three as
+  # data-oak-sizes-* so list.filter-grid.js can swap them when the view toggle changes.
+  # medium = 3 per row (2 mobile), large = 2 per row (1 mobile), list = image capped at 200px.
+  if section.settings.enable_sidebar
+    assign card_sizes_medium = '(min-width: 769px) calc((100vw - 80px) * 0.8 / 3), calc((100vw - 34px) / 2)'
+    assign card_sizes_large = '(min-width: 769px) calc((100vw - 80px) * 0.4), calc(100vw - 34px)'
+  else
+    assign card_sizes_medium = '(min-width: 769px) calc((100vw - 80px) / 3), calc((100vw - 34px) / 2)'
+    assign card_sizes_large = '(min-width: 769px) calc((100vw - 80px) / 2), calc(100vw - 34px)'
+  endif
+  assign card_sizes_list = '200px'
+
+  # Oak: first-row eager loading. Row size comes from the desktop grid layout (medium = 3 per row,
+  # large = 2, list = 1); mobile rows are smaller, so this count also covers mobile.
+  case card_grid_style
     when 'large'
       assign first_row_count = 2
+      assign card_sizes = card_sizes_large
     when 'list'
       assign first_row_count = 1
+      assign card_sizes = card_sizes_list
     else
       assign first_row_count = 3
+      assign card_sizes = card_sizes_medium
   endcase
 -%}
 
@@ -158,7 +168,15 @@
             enable_reset_all_filters: enable_reset_all_filters,
             enable_reset_price_filter: enable_reset_price_filter
           -%}
-          <div class="new-grid product-grid collection-grid" data-view="{{ grid_style }}" data-scroll-to>
+          {%- comment -%} Oak: per-view card image sizes, read by list.filter-grid.js on view change {%- endcomment -%}
+          <div
+            class="new-grid product-grid collection-grid"
+            data-view="{{ grid_style }}"
+            data-scroll-to
+            data-oak-sizes-medium="{{ card_sizes_medium }}"
+            data-oak-sizes-large="{{ card_sizes_large }}"
+            data-oak-sizes-list="{{ card_sizes_list }}"
+          >
             {{ product_items }}
           </div>
           {%- assign grid_rendered = true -%}
