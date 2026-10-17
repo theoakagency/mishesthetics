@@ -145,6 +145,18 @@
       endif
     -%}
 
+    {%- comment -%} Oak: fixed sizes attr (grid cards were sizes="100%") {%- endcomment -%}
+    {%- liquid
+      if mobile_scrollable
+        assign card_sizes_mobile = '(min-width: 556px) 45vw, 250px'
+      elsif products_per_row <= 2
+        assign card_sizes_mobile = 'calc(100vw - 34px)'
+      else
+        assign card_sizes_mobile = 'calc((100vw - 34px) / 2)'
+      endif
+      assign card_sizes = '(min-width: 769px) calc((100vw - 80px) / ' | append: products_per_row | append: '), ' | append: card_sizes_mobile
+    -%}
+
     {% if carousel_layout %}
       <div class="page-width page-width--no-right-padding">
         <div class="featured-collection__carousel">
@@ -271,7 +283,8 @@
                   endif
                 endunless
 
-                render 'list.product-card', product: product, collection: collection, classes: item_classes, sizeVariable: products_per_row, fallback: fallback, product_tile_layout: product_tile_layout, product_grid_content_align: product_grid_content_align, disabled_high_variants: false
+                # Oak: fixed sizes attr
+                render 'list.product-card', product: product, collection: collection, classes: item_classes, sizes: card_sizes, sizeVariable: products_per_row, fallback: fallback, product_tile_layout: product_tile_layout, product_grid_content_align: product_grid_content_align, disabled_high_variants: false
               endfor
             -%}
           {%- endif -%}

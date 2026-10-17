@@ -60,6 +60,14 @@
   if cart.attributes.product_view != blank and request.design_mode == false
     assign grid_style = cart.attributes.product_view
   endif
+
+  # Oak: fixed sizes attr (was sizes="100%"). Sized for the 2-per-row "large" view
+  # (1 per row on mobile) so toggling views without a reload never undersizes.
+  if section.settings.enable_sidebar
+    assign card_sizes = '(min-width: 769px) calc((100vw - 80px) * 0.4), calc(100vw - 34px)'
+  else
+    assign card_sizes = '(min-width: 769px) calc((100vw - 80px) / 2), calc(100vw - 34px)'
+  endif
 -%}
 
 {% capture no_products %}
@@ -78,7 +86,8 @@
     else
       paginate collection.products by paginate_by
         for item in collection.products
-          render 'list.product-card', product: item, product_grid_content_align: product_grid_content_align, disabled_high_variants: false
+          # Oak: fixed sizes attr
+          render 'list.product-card', product: item, sizes: card_sizes, product_grid_content_align: product_grid_content_align, disabled_high_variants: false
         endfor
 
         if paginate.pages > 1

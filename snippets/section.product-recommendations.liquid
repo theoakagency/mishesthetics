@@ -25,6 +25,10 @@
   endif
 
   assign number_of_products = related_count
+
+  # Oak: fixed sizes attr (was sizes="100%"). Grid view caps at 5 columns; mobile is a 45% / 250px min scroller.
+  assign card_columns = products_per_row | times: 1 | at_most: 5
+  assign card_sizes = '(min-width: 769px) calc((100vw - 80px) / ' | append: card_columns | append: '), (min-width: 556px) 45vw, 250px'
 -%}
 
 <is-land {{ hydration }}>
@@ -65,7 +69,8 @@
               aria-hidden="true"
               data-view="scrollable"
             >
-              {%- render 'list.product-card', product: product, disabled_high_variants: false -%}
+              {%- comment -%} Oak: fixed sizes attr {%- endcomment -%}
+              {%- render 'list.product-card', product: product, sizes: card_sizes, disabled_high_variants: false -%}
             </div>
           </div>
         {%- endif -%}
@@ -76,6 +81,7 @@
               {%- for product in related_collection.products -%}
                 {%- render 'list.product-card',
                   product: product,
+                  sizes: card_sizes,
                   sizeVariable: products_per_row,
                   fallback: '45vw',
                   product_grid_content_align: product_grid_content_align,

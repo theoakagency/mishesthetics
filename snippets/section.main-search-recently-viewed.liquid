@@ -11,6 +11,10 @@
   capture grid_view
     render 'utility.grid-view-type', products_per_row: settings.recently_viewed_products_per_row
   endcapture
+
+  # Oak: fixed sizes attr (was sizes="100%"). Grid view caps at 5 columns; mobile is a 45% / 250px min scroller.
+  assign card_columns = settings.recently_viewed_products_per_row | default: 3 | times: 1 | at_most: 5
+  assign card_sizes = '(min-width: 769px) calc((100vw - 80px) / ' | append: card_columns | append: '), (min-width: 556px) 45vw, 250px'
 -%}
 
 {%- if search.performed -%}
@@ -18,7 +22,8 @@
     {%- for item in search.results -%}
       {%- if item.object_type == 'product' -%}
         {%- liquid
-          render 'list.product-card', product: item, sizeVariable: settings.recently_viewed_products_per_row, fallback: '45vw', collection: collection, disabled_high_variants: false
+          # Oak: fixed sizes attr
+          render 'list.product-card', product: item, sizes: card_sizes, sizeVariable: settings.recently_viewed_products_per_row, fallback: '45vw', collection: collection, disabled_high_variants: false
         -%}
       {%- endif -%}
     {%- endfor -%}

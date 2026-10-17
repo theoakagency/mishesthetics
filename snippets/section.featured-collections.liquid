@@ -14,11 +14,17 @@
 {%- liquid
   assign columns_desktop = columns_desktop | default: section.settings.columns_desktop | default: 6
   assign columns_mobile = columns_mobile | default: section.settings.columns_mobile | default: 2
+
+  # Oak: fixed sizes attr (was falling back to sizes="100vw"). Subtracts page padding only;
+  # ignoring the 32px / 16px grid gaps is a deliberate slight overestimate so tiles never undersize.
+  assign tile_sizes = '(min-width: 769px) calc((100vw - 80px) / ' | append: columns_desktop | append: '), '
+  assign tile_sizes = tile_sizes | append: 'calc((100vw - 34px) / ' | append: columns_mobile | append: ')'
 -%}
 
 {%- capture cards -%}
   {%- for block in section.blocks -%}
-    {%- render 'list.collection-card', block: block, collection: block.settings.collection, sizeVariable: sizeVariable, fallback: 'variable' -%}
+    {%- comment -%} Oak: fixed sizes attr {%- endcomment -%}
+    {%- render 'list.collection-card', block: block, collection: block.settings.collection, sizes: tile_sizes, sizeVariable: sizeVariable, fallback: 'variable' -%}
   {%- endfor -%}
 {%- endcapture -%}
 

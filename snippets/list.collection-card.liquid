@@ -211,12 +211,13 @@
         </div>
       {%- else -%}
         <div class="collection-image{% if using_collection_image %} collection-image--is-collection{% endif %} image-wrap">
+          {%- comment -%} Oak: added 200/360/540 srcset widths so small tiles can pick a small file (was '720, 900, 1080') {%- endcomment -%}
           {%- render 'element.image',
             img: collection_image,
             sizes: sizes,
             sizeVariable: sizeVariable,
             fallback: fallback,
-            widths: '720, 900, 1080'
+            widths: '200, 360, 540, 720, 900, 1080'
           -%}
         </div>
       {%- endif -%}
