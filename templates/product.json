@@ -89,6 +89,54 @@
             "control_type": "arrows",
             "image_style": "default"
           }
+        },
+        "tab_usage_storage": {
+          "type": "tab",
+          "settings": {
+            "title": "Usage + Storage",
+            "content": "{{ product.metafields.custom.usage_storage | metafield_tag }}",
+            "page": ""
+          }
+        },
+        "tab_specs_ingredients": {
+          "type": "tab",
+          "settings": {
+            "title": "Specs + Ingredients",
+            "content": "{{ product.metafields.custom.specs_ingredients | metafield_tag }}",
+            "page": ""
+          }
+        },
+        "tab_custom_1": {
+          "type": "tab",
+          "settings": {
+            "title": "{{ product.metafields.custom.accordion_1_title.value }}",
+            "content": "{{ product.metafields.custom.accordion_1_content | metafield_tag }}",
+            "page": ""
+          }
+        },
+        "tab_custom_2": {
+          "type": "tab",
+          "settings": {
+            "title": "{{ product.metafields.custom.accordion_2_title.value }}",
+            "content": "{{ product.metafields.custom.accordion_2_content | metafield_tag }}",
+            "page": ""
+          }
+        },
+        "tab_custom_3": {
+          "type": "tab",
+          "settings": {
+            "title": "{{ product.metafields.custom.accordion_3_title.value }}",
+            "content": "{{ product.metafields.custom.accordion_3_content | metafield_tag }}",
+            "page": ""
+          }
+        },
+        "tab_professional_use": {
+          "type": "tab",
+          "settings": {
+            "title": "Professional Use Only",
+            "content": "{{ product.metafields.custom.professional_use.value.content | metafield_tag }}",
+            "page": ""
+          }
         }
       },
       "block_order": [
@@ -102,6 +150,12 @@
         "inventory_status",
         "buy_buttons",
         "description_EFnQ69",
+        "tab_usage_storage",
+        "tab_specs_ingredients",
+        "tab_custom_1",
+        "tab_custom_2",
+        "tab_custom_3",
+        "tab_professional_use",
         "complementary_products_aFYr9K"
       ],
       "settings": {
