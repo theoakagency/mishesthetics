@@ -1,0 +1,43 @@
+{
+  "sections": {
+    "main": {
+      "type": "article-template",
+      "settings": {
+        "blog_capitalize_first": false
+      }
+    },
+    "sidebar": {
+      "type": "blog-sidebar",
+      "blocks": {
+        "recent_articles": {
+          "type": "recent_articles",
+          "settings": {
+            "title": "Recent posts",
+            "count": 6,
+            "show_image": true,
+            "show_date": true
+          }
+        },
+        "tags": {
+          "type": "tags",
+          "settings": {}
+        },
+        "share": {
+          "type": "share",
+          "settings": {}
+        }
+      },
+      "block_order": [
+        "recent_articles",
+        "tags",
+        "share"
+      ],
+      "settings": {}
+    }
+  },
+  "order": [
+    "main",
+    "sidebar"
+  ],
+  "wrapper": "div.page-width.page-content.blog-layout.blog-layout--split"
+}

@@ -1,5 +1,7 @@
 {%- render 'section.blog-sidebar' -%}
 
+{%- comment -%} Oak: added the "Recent posts" (recent_articles) block type to the schema below {%- endcomment -%}
+
 {% schema %}
 {
   "name": "t:labels.blog_sidebar",
@@ -12,6 +14,40 @@
   ],
   "max_blocks": 5,
   "blocks": [
+    {
+      "type": "recent_articles",
+      "name": "Recent posts",
+      "limit": 1,
+      "settings": [
+        {
+          "type": "text",
+          "id": "title",
+          "label": "t:labels.heading",
+          "default": "Recent posts"
+        },
+        {
+          "type": "range",
+          "id": "count",
+          "label": "Number of posts",
+          "min": 2,
+          "max": 10,
+          "step": 1,
+          "default": 6
+        },
+        {
+          "type": "checkbox",
+          "id": "show_image",
+          "label": "Show images",
+          "default": true
+        },
+        {
+          "type": "checkbox",
+          "id": "show_date",
+          "label": "t:actions.show_date",
+          "default": true
+        }
+      ]
+    },
     {
       "type": "article",
       "name": "t:labels.featured_article",

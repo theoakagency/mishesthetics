@@ -131,3 +131,26 @@
     font-size: calc(var(--element-text-font-size--body-md) + 2px);
   }
 }
+
+/* Oak: "two-column" article template (templates/article.two-column.json).
+   60% article / 40% sidebar on desktop, with larger body text for easier reading. */
+.blog-layout--split .blog-layout__main {
+  --element-text-font-size--rte-body: 16px;
+  --element-text-line-height--rte-body: 1.7;
+}
+
+@media only screen and (min-width: 769px) {
+  /* The sidebar keeps the theme's 45px margin + 45px padding + 1px divider on its left,
+     so each column gives up half of the 45px margin to land on a 60/40 split. */
+  .blog-layout--split .blog-layout__main {
+    flex: 0 0 calc(60% - 23px);
+    max-width: calc(60% - 23px);
+    min-width: 0;
+    --element-text-font-size--rte-body: 18px;
+  }
+
+  .blog-layout--split .blog-layout__main + .blog-layout__sidebar {
+    flex: 0 0 calc(40% - 22px);
+    max-width: calc(40% - 22px);
+  }
+}

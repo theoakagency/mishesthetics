@@ -10,6 +10,62 @@
   {% render 'section.blog-sidebar', blog: blog %}
 {% enddoc %}
 
+{% stylesheet %}
+  /* Oak: "Recent posts" sidebar block */
+  .recent-articles {
+    display: grid;
+    gap: 16px;
+    margin: 0;
+  }
+
+  .recent-articles__link {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    text-decoration: none;
+    color: inherit;
+
+    &:hover .recent-articles__title,
+    &:focus-visible .recent-articles__title {
+      text-decoration: underline;
+      text-underline-offset: 2px;
+    }
+  }
+
+  .recent-articles__image {
+    flex: 0 0 80px;
+    width: 80px;
+    aspect-ratio: 1;
+    overflow: hidden;
+    border-radius: var(--roundness, 4px);
+
+    & img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+  }
+
+  .recent-articles__text {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    min-width: 0;
+  }
+
+  .recent-articles__title {
+    font-size: var(--element-text-font-size--body-md);
+    line-height: 1.35;
+  }
+
+  .recent-articles__date {
+    font-size: calc(var(--element-text-font-size--body-md) * 0.85);
+    opacity: 0.7;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+  }
+{% endstylesheet %}
+
 {%- liquid
   assign blog = section.settings.blog | default: blog
   assign article = section.settings.article | default: article
@@ -25,6 +81,52 @@
 
 {%- for block in section.blocks -%}
   {%- case block.type -%}
+    {%- when 'recent_articles' -%}
+      {%- comment -%}
+        Oak: newest posts from this blog, skipping the article being read.
+      {%- endcomment -%}
+      {%- liquid
+        assign recent_count = block.settings.count | default: 6
+        assign recent_scan = recent_count | plus: 1
+        assign recent_shown = 0
+      -%}
+      {%- if blog.articles_count > 1 -%}
+        <div class="theme-block" {{ block.shopify_attributes }}>
+          {%- if block.settings.title != blank -%}
+            <h4>{{ block.settings.title }}</h4>
+          {%- endif -%}
+          <ul class="recent-articles no-bullets">
+            {%- for recent in blog.articles limit: recent_scan -%}
+              {%- if recent.id == article.id or recent_shown >= recent_count -%}
+                {%- continue -%}
+              {%- endif -%}
+              {%- assign recent_shown = recent_shown | plus: 1 -%}
+              <li class="recent-articles__item">
+                <a href="{{ recent.url }}" class="recent-articles__link">
+                  {%- if block.settings.show_image and recent.image -%}
+                    <span class="recent-articles__image">
+                      {%- render 'element.image',
+                        img: recent.image,
+                        sizes: '80px',
+                        widths: '80, 160, 240',
+                        alt: recent.title
+                      -%}
+                    </span>
+                  {%- endif -%}
+                  <span class="recent-articles__text">
+                    <span class="recent-articles__title">{{ recent.title }}</span>
+                    {%- if block.settings.show_date -%}
+                      <span class="recent-articles__date">
+                        {{- recent.published_at | date: format: 'abbreviated_date' -}}
+                      </span>
+                    {%- endif -%}
+                  </span>
+                </a>
+              </li>
+            {%- endfor -%}
+          </ul>
+        </div>
+      {%- endif -%}
     {%- when 'article' -%}
       <div class="theme-block" {{ block.shopify_attributes }}>
         {%- if block.settings.title != blank -%}
