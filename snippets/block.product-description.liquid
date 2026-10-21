@@ -229,6 +229,10 @@
               if (truncated && clipBottom !== null) {
                 const height = Math.ceil(clipBottom) + 'px';
                 if (this.style.getPropertyValue('--preview-height') !== height) this.style.setProperty('--preview-height', height);
+              } else if (blocks.length && !truncated) {
+                // Oak: the text fits within the preview lines, so drop the CSS line cap entirely. The cap
+                // counts lines only, so paragraph and list spacing could still clip a short description.
+                if (this.style.getPropertyValue('--preview-height') !== 'none') this.style.setProperty('--preview-height', 'none');
               } else {
                 this.style.removeProperty('--preview-height');
               }

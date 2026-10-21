@@ -19,6 +19,13 @@
   color: #000000;
 }
 
+/* Oak: keep the search icon button see-through. The pink button rule above painted it over the
+   rounded right end of the search box, so the box looked cut off. */
+.search__input-wrap .element-button--search {
+  background: transparent;
+  border-color: transparent;
+}
+
 /* Product card quick view and quick add buttons: Primary Pink, Secondary Pink #EFBEBA on hover/focus. */
 .grid-product__actions .quick-product__btn,
 .grid-product__actions .quick-add-btn .btn {
