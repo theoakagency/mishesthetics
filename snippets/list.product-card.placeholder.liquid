@@ -51,8 +51,9 @@
   "
 >
   <div class="grid-item__content">
+    {%- comment -%} Oak: link to /products/handle (removed "within: collection") so shared links stay short {%- endcomment -%}
     <a
-      href="{{ product.url | within: collection | default: '#' }}"
+      href="{{ product.url | default: '#' }}"
       class="
         grid-item__link
         {% if settings.color_scheme_product_tiles %}

@@ -716,7 +716,8 @@
 
       {% capture card_content %}
         <div class="grid-item__link">
-          <a href="{{ product.url | within: collection }}" class="grid-item__overlay-link" aria-label="{{ product.title | escape }}"{% if enable_swatches %} tabindex="-1"{% endif %}></a>
+          {%- comment -%} Oak: link to /products/handle (removed "within: collection") so shared links stay short {%- endcomment -%}
+          <a href="{{ product.url }}" class="grid-item__overlay-link" aria-label="{{ product.title | escape }}"{% if enable_swatches %} tabindex="-1"{% endif %}></a>
           <div class="grid-product__image-wrap">
             {%- liquid
               capture product_tags

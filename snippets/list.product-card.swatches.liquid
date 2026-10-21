@@ -69,12 +69,13 @@
               assign value_sold_out = true
             endif
 
+            # Oak: link to /products/handle (removed "within: collection") so shared links stay short
             if variant
-              assign swatch_url = variant.url | within: collection
+              assign swatch_url = variant.url
             elsif value.product_url
               assign swatch_url = value.product_url
             else
-              assign swatch_url = product.url | within: collection
+              assign swatch_url = product.url
               assign option_values_separator = '?'
               if swatch_url contains '?'
                 assign option_values_separator = '&'
