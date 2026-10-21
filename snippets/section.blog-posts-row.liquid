@@ -48,6 +48,14 @@
   .blog-row-card__meta .article__sub-meta {
     margin-top: 4px;
   }
+
+  /* Oak: the gridlines grid style pulls .product-grid 17px past both edges on mobile. The theme
+     clips that only for featured-collection sections, so clip it here too or the page scrolls sideways. */
+  @media only screen and (max-width: 768px) {
+    [data-grid-style*='gridlines'] .blog-posts-row {
+      overflow-x: hidden;
+    }
+  }
 {% endstylesheet %}
 
 {%- liquid
@@ -72,8 +80,10 @@
 
 {%- if divider -%}<div class="section--divider">{%- endif -%}
 
+{%- comment -%} Oak: blog-posts-row class added for the mobile overflow clip {%- endcomment -%}
 <div
   id="BlogPostsRow-{{ section.id }}"
+  class="blog-posts-row"
   data-section-id="{{ section.id }}"
 >
   {%- render 'layout.section-heading', url: blog.url, view_all: view_all, wrapper_class: 'page-width' -%}
