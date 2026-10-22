@@ -146,6 +146,19 @@
   assign show_back_link = section.settings.show_back_link | default: true, allow_false: true
   # Oak: optional "Share this" links right after the article content (off unless turned on)
   assign show_share = section.settings.show_share | default: false, allow_false: true
+  # Oak: optional author box, from the Blog author metaobject whose Name matches the post's author
+  assign show_author_box = section.settings.show_author_box | default: false, allow_false: true
+  assign post_author = nil
+  if show_author_box
+    assign author_key = article.author | strip | downcase
+    for entry in shop.metaobjects.blog_author.values
+      assign entry_key = entry.name.value | strip | downcase
+      if entry_key == author_key
+        assign post_author = entry
+        break
+      endif
+    endfor
+  endif
 
   assign number_of_comments = article.comments_count
 
@@ -246,16 +259,116 @@
 
 {%- if show_share -%}
   {%- comment -%} Oak: "Share this" right under the article content {%- endcomment -%}
+  {%- assign share_url = shop.url | append: article.url -%}
   <div class="article__share">
     <h4>
       {% render 'utility.translate', key: 'actions.share_this', fallback: 'Share this' %}
     </h4>
-    {%- render 'social.sharing',
-      share_title: article.title,
-      share_permalink: article.url,
-      share_image: article.image
-    -%}
+    <div class="article__share-row">
+      {%- comment -%}
+        Oak: Copy link always copies the clean post URL (never tracking parameters like ?srsltid).
+        "Share…" opens the phone's own share menu and only appears where the browser supports it.
+      {%- endcomment -%}
+      <ul class="social-sharing article__share-actions no-bullets">
+        <li>
+          <button type="button" class="social-sharing__link article__share-button" data-copy-link="{{ share_url | escape }}">
+            {%- render 'element.icon', name: 'link' -%}
+            <span class="social-sharing__title" data-copy-link-label>Copy link</span>
+          </button>
+        </li>
+        <li hidden data-native-share-item>
+          <button type="button" class="social-sharing__link article__share-button" data-native-share data-share-title="{{ article.title | escape }}" data-share-url="{{ share_url | escape }}">
+            {%- render 'element.icon', name: 'share' -%}
+            <span class="social-sharing__title">Share…</span>
+          </button>
+        </li>
+      </ul>
+      {%- render 'social.sharing',
+        share_title: article.title,
+        share_permalink: article.url,
+        share_image: article.image
+      -%}
+    </div>
+    <span class="visually-hidden" role="status" aria-live="polite" data-copy-link-status></span>
+    <script>
+      (() => {
+        const box = document.currentScript.closest('.article__share');
+        const copy = box.querySelector('[data-copy-link]');
+        const label = box.querySelector('[data-copy-link-label]');
+        const status = box.querySelector('[data-copy-link-status]');
+        const shareItem = box.querySelector('[data-native-share-item]');
+        const share = box.querySelector('[data-native-share]');
+
+        const fallbackCopy = (text) => {
+          const field = document.createElement('textarea');
+          field.value = text;
+          field.setAttribute('readonly', '');
+          field.style.position = 'fixed';
+          field.style.opacity = '0';
+          document.body.appendChild(field);
+          field.select();
+          const ok = document.execCommand('copy');
+          field.remove();
+          return ok ? Promise.resolve() : Promise.reject();
+        };
+
+        copy.addEventListener('click', () => {
+          const url = copy.dataset.copyLink;
+          const write = navigator.clipboard && window.isSecureContext
+            ? navigator.clipboard.writeText(url).catch(() => fallbackCopy(url))
+            : fallbackCopy(url);
+          write
+            .then(() => {
+              label.textContent = 'Copied!';
+              status.textContent = 'Link copied to clipboard';
+            })
+            .catch(() => {
+              label.textContent = 'Copy failed';
+            })
+            .finally(() => setTimeout(() => { label.textContent = 'Copy link'; status.textContent = ''; }, 2000));
+        });
+
+        if (navigator.share && window.matchMedia('(hover: none)').matches) {
+          shareItem.hidden = false;
+          share.addEventListener('click', () => {
+            navigator.share({ title: share.dataset.shareTitle, url: share.dataset.shareUrl }).catch(() => {});
+          });
+        }
+      })();
+    </script>
   </div>
+{%- endif -%}
+
+{%- if post_author -%}
+  {%- comment -%} Oak: author box (Blog author metaobject matched by the post's author name) {%- endcomment -%}
+  <aside class="article__author" aria-label="About the author">
+    {%- if post_author.photo.value != blank -%}
+      <div class="article__author-photo">
+        {%- render 'element.image',
+          img: post_author.photo.value,
+          sizes: '88px',
+          widths: '88, 176, 264',
+          alt: post_author.name.value
+        -%}
+      </div>
+    {%- endif -%}
+    <div class="article__author-text">
+      <p class="article__author-eyebrow">Written by</p>
+      <p class="article__author-name">
+        {%- if post_author.link.value != blank -%}
+          <a href="{{ post_author.link.value }}">{{ post_author.name.value }}</a>
+        {%- else -%}
+          {{ post_author.name.value }}
+        {%- endif -%}
+      </p>
+      {%- if post_author.role.value != blank -%}
+        <p class="article__author-role">{{ post_author.role.value }}</p>
+      {%- endif -%}
+      {%- if post_author.bio.value != blank -%}
+        <p class="article__author-bio">{{ post_author.bio.value | newline_to_br }}</p>
+      {%- endif -%}
+    </div>
+  </aside>
 {%- endif -%}
 
 {%- if blog.comments_enabled? -%}

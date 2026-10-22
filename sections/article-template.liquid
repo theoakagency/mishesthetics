@@ -1,7 +1,8 @@
 {%- render 'section.article-template' -%}
 
 {%- comment -%}
-  Oak: added show_more_from and show_back_link settings (both default on) and show_share (default off)
+  Oak: added show_more_from and show_back_link settings (both default on), and show_share and
+  show_author_box (both default off)
 {%- endcomment -%}
 
 {% schema %}
@@ -60,6 +61,13 @@
       "type": "checkbox",
       "id": "show_share",
       "label": "Show \"Share this\" links below the article",
+      "default": false
+    },
+    {
+      "type": "checkbox",
+      "id": "show_author_box",
+      "label": "Show author box below the article",
+      "info": "Uses the Blog author entry (Content > Metaobjects) whose Name matches the post's author.",
       "default": false
     }
   ],

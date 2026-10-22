@@ -1,0 +1,19 @@
+<svg
+  xmlns="http://www.w3.org/2000/svg"
+  aria-hidden="true"
+  focusable="false"
+  role="presentation"
+  class="element-icon element-icon-share element-icon--line"
+  viewbox="0 0 24 24"
+  width="20"
+  height="20"
+>
+  <path
+    d="M12 15V3m0 0L7.5 7.5M12 3l4.5 4.5M8 11H6a2 2 0 0 0-2 2v7a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-7a2 2 0 0 0-2-2h-2"
+    fill="none"
+    stroke="currentColor"
+    stroke-width="2"
+    stroke-linecap="round"
+    stroke-linejoin="round"
+  />
+</svg>

@@ -6,7 +6,8 @@
         "blog_capitalize_first": false,
         "show_more_from": false,
         "show_back_link": false,
-        "show_share": true
+        "show_share": true,
+        "show_author_box": true
       }
     },
     "sidebar": {
@@ -15,10 +16,11 @@
         "recent_articles": {
           "type": "recent_articles",
           "settings": {
-            "title": "Recent posts",
+            "title": "Related posts",
             "count": 6,
             "show_image": true,
-            "show_date": true
+            "show_date": true,
+            "match_tags": true
           }
         },
         "tags": {

@@ -206,24 +206,76 @@
   {%- case block.type -%}
     {%- when 'recent_articles' -%}
       {%- comment -%}
-        Oak: newest posts from this blog, skipping the article being read.
+        Oak: posts from this blog, skipping the article being read. With "Prefer posts with the same
+        tag" on, posts sharing a tag with this one come first (newest first), then the newest posts
+        fill any remaining spots. Picks are collected as handles in two groups (tag matches, fill),
+        then rendered in two passes over the blog so tag matches always come first.
       {%- endcomment -%}
       {%- liquid
         assign recent_count = block.settings.count | default: 6
-        assign recent_scan = recent_count | plus: 1
-        assign recent_shown = 0
+        assign picked = '|'
+        assign picked_related = '|'
+        assign picked_count = 0
+
+        if block.settings.match_tags and article.tags.size > 0
+          for candidate in blog.articles limit: 50
+            if picked_count >= recent_count
+              break
+            endif
+            if candidate.id == article.id
+              continue
+            endif
+            assign shares_tag = false
+            for tag in candidate.tags
+              if article.tags contains tag
+                assign shares_tag = true
+                break
+              endif
+            endfor
+            if shares_tag
+              assign picked = picked | append: candidate.handle | append: '|'
+              assign picked_related = picked_related | append: candidate.handle | append: '|'
+              assign picked_count = picked_count | plus: 1
+            endif
+          endfor
+        endif
+
+        for candidate in blog.articles limit: 50
+          if picked_count >= recent_count
+            break
+          endif
+          assign candidate_key = '|' | append: candidate.handle | append: '|'
+          if candidate.id == article.id or picked contains candidate_key
+            continue
+          endif
+          assign picked = picked | append: candidate.handle | append: '|'
+          assign picked_count = picked_count | plus: 1
+        endfor
       -%}
-      {%- if blog.articles_count > 1 -%}
+      {%- if picked_count > 0 -%}
         <div class="theme-block" {{ block.shopify_attributes }}>
           {%- if block.settings.title != blank -%}
             <h4>{{ block.settings.title }}</h4>
           {%- endif -%}
           <ul class="recent-articles no-bullets">
-            {%- for recent in blog.articles limit: recent_scan -%}
-              {%- if recent.id == article.id or recent_shown >= recent_count -%}
+            {%- for pass in (1..2) -%}
+            {%- for recent in blog.articles limit: 50 -%}
+              {%- liquid
+                assign recent_key = '|' | append: recent.handle | append: '|'
+                assign is_picked = false
+                if picked contains recent_key
+                  if pass == 1 and picked_related contains recent_key
+                    assign is_picked = true
+                  elsif pass == 2
+                    unless picked_related contains recent_key
+                      assign is_picked = true
+                    endunless
+                  endif
+                endif
+              -%}
+              {%- unless is_picked -%}
                 {%- continue -%}
-              {%- endif -%}
-              {%- assign recent_shown = recent_shown | plus: 1 -%}
+              {%- endunless -%}
               <li class="recent-articles__item">
                 <a href="{{ recent.url }}" class="recent-articles__link">
                   {%- if block.settings.show_image and recent.image -%}
@@ -246,6 +298,7 @@
                   </span>
                 </a>
               </li>
+            {%- endfor -%}
             {%- endfor -%}
           </ul>
         </div>

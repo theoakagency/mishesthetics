@@ -212,3 +212,113 @@
 .article__share h4 {
   margin-block-end: var(--size-5);
 }
+
+/* Copy link / Share… sit in the same row as the Facebook, X and Pinterest links: both lists are
+   flattened (display: contents) so all links wrap together as one row. */
+.article__share-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 12px 24px;
+}
+
+.article__share-row > ul {
+  display: contents;
+}
+
+.article__share-row .social-sharing__link {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  margin: 0;
+  line-height: 1;
+}
+
+.article__share-actions li[hidden] {
+  display: none;
+}
+
+.article__share-button {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 0;
+  margin: 0;
+  border: 0;
+  background: none;
+  font: inherit;
+  cursor: pointer;
+
+  & .element-icon {
+    width: 18px;
+    height: 18px;
+  }
+}
+
+/* Oak: author box below the article (article section setting "show_author_box") */
+.article__author {
+  display: flex;
+  align-items: flex-start;
+  gap: 20px;
+  margin-top: 32px;
+  padding: 24px;
+  border-radius: var(--roundness, 8px);
+  background: color-mix(in srgb, var(--color-primary) 4%, var(--color-secondary));
+
+  & p {
+    margin: 0;
+  }
+}
+
+.article__author-photo {
+  flex: 0 0 88px;
+  width: 88px;
+  aspect-ratio: 1;
+  border-radius: 50%;
+  overflow: hidden;
+
+  & img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+}
+
+.article__author-text {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 0;
+}
+
+.article__author-eyebrow {
+  font-size: calc(var(--element-text-font-size--body-md) * 0.85);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  opacity: 0.7;
+}
+
+.article__author-name {
+  font-weight: 700;
+  font-size: calc(var(--element-text-font-size--body-md) + 4px);
+
+  & a {
+    color: inherit;
+  }
+}
+
+.article__author-role {
+  opacity: 0.8;
+}
+
+.article__author-bio {
+  margin-top: 8px !important;
+  line-height: 1.6;
+}
+
+@media only screen and (max-width: 480px) {
+  .article__author {
+    flex-direction: column;
+    padding: 20px;
+  }
+}
