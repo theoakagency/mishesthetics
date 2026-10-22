@@ -322,3 +322,51 @@
     padding: 20px;
   }
 }
+
+/* Oak: star ratings on product cards (snippets/list.product-card.liquid).
+   One row of five stars filled to --rating-percent, then the review count. */
+.product-card-rating {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 13px;
+  line-height: 1;
+
+  &.product-card-rating--center {
+    justify-content: center;
+  }
+
+  &.product-card-rating--end {
+    justify-content: flex-end;
+  }
+}
+
+.product-card-rating__stars {
+  position: relative;
+  display: inline-block;
+  white-space: nowrap;
+  letter-spacing: 1px;
+
+  /* Empty stars underneath, filled stars on top cropped to the rating */
+  &::before,
+  &::after {
+    content: '\2605\2605\2605\2605\2605';
+  }
+
+  &::before {
+    color: color-mix(in srgb, currentColor 22%, transparent);
+  }
+
+  &::after {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: var(--rating-percent);
+    overflow: hidden;
+  }
+}
+
+.product-card-rating__count {
+  font-size: 12px;
+  opacity: 0.7;
+}
