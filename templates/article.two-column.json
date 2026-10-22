@@ -5,7 +5,8 @@
       "settings": {
         "blog_capitalize_first": false,
         "show_more_from": false,
-        "show_back_link": false
+        "show_back_link": false,
+        "show_share": true
       }
     },
     "sidebar": {
@@ -26,10 +27,6 @@
             "style": "list"
           }
         },
-        "share": {
-          "type": "share",
-          "settings": {}
-        },
         "featured_collection": {
           "type": "featured_collection",
           "settings": {
@@ -42,8 +39,7 @@
       "block_order": [
         "recent_articles",
         "tags",
-        "featured_collection",
-        "share"
+        "featured_collection"
       ],
       "settings": {}
     }

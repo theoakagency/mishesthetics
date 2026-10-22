@@ -144,6 +144,8 @@
   # Oak: optional "More from" tag line and "Back to blog" button (both shown unless turned off)
   assign show_more_from = section.settings.show_more_from | default: true, allow_false: true
   assign show_back_link = section.settings.show_back_link | default: true, allow_false: true
+  # Oak: optional "Share this" links right after the article content (off unless turned on)
+  assign show_share = section.settings.show_share | default: false, allow_false: true
 
   assign number_of_comments = article.comments_count
 
@@ -241,6 +243,20 @@
   endif
   render 'element.text', text: article.content, variant: 'rte', classlist: rte_class
 -%}
+
+{%- if show_share -%}
+  {%- comment -%} Oak: "Share this" right under the article content {%- endcomment -%}
+  <div class="article__share">
+    <h4>
+      {% render 'utility.translate', key: 'actions.share_this', fallback: 'Share this' %}
+    </h4>
+    {%- render 'social.sharing',
+      share_title: article.title,
+      share_permalink: article.url,
+      share_image: article.image
+    -%}
+  </div>
+{%- endif -%}
 
 {%- if blog.comments_enabled? -%}
   {%- if number_of_comments > 0 -%}

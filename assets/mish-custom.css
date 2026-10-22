@@ -201,3 +201,14 @@
     }
   }
 }
+
+/* Oak: "Share this" below the article content (article section setting "show_share") */
+.article__share {
+  margin-top: 40px;
+  padding-top: 28px;
+  border-top: 1px solid color-mix(in srgb, var(--color-primary) var(--shade-12), var(--color-secondary));
+}
+
+.article__share h4 {
+  margin-block-end: var(--size-5);
+}
