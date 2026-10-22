@@ -153,4 +153,13 @@
     flex: 0 0 calc(40% - 22px);
     max-width: calc(40% - 22px);
   }
+
+  /* Sticky sidebar. --oak-sidebar-top is set by the script in snippets/section.blog-sidebar.liquid:
+     just below the sticky header when the sidebar fits on screen, or negative when it's taller than
+     the screen, so it scrolls until its bottom is in view and then sticks. */
+  .blog-layout--split .blog-layout__sidebar {
+    position: sticky;
+    top: var(--oak-sidebar-top, 24px);
+    align-self: flex-start;
+  }
 }

@@ -64,12 +64,76 @@
     text-transform: uppercase;
     letter-spacing: 0.04em;
   }
+
+  /* Oak: "Featured collection" sidebar block. Mobile: swipe row showing 2.5 cards. */
+  .sidebar-products {
+    --sidebar-products-gap: 12px;
+    display: grid;
+    grid-auto-flow: column;
+    grid-auto-columns: calc((100% - var(--sidebar-products-gap) * 2) / 2.5);
+    gap: var(--sidebar-products-gap);
+    overflow-x: auto;
+    overscroll-behavior-x: contain;
+    scroll-snap-type: x mandatory;
+    scrollbar-width: none;
+
+    &::-webkit-scrollbar {
+      display: none;
+    }
+
+    & > .grid-item {
+      scroll-snap-align: start;
+      flex: none;
+      width: auto;
+      margin: 0;
+      padding: 0;
+    }
+  }
+
+  /* Desktop: 3 per row, wrapping onto more rows */
+  @media only screen and (min-width: 769px) {
+    .sidebar-products {
+      grid-auto-flow: row;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      grid-auto-columns: auto;
+      overflow: visible;
+      scroll-snap-type: none;
+    }
+  }
 {% endstylesheet %}
 
 {%- liquid
   assign blog = section.settings.blog | default: blog
   assign article = section.settings.article | default: article
 -%}
+
+{%- comment -%}
+  Oak: sticky sidebar offset for the two-column article template (.blog-layout--split, desktop).
+  Sticks 24px below the sticky header when it fits on screen; when it's taller than the screen,
+  the offset goes negative so the sidebar scrolls until its bottom is visible, then sticks.
+{%- endcomment -%}
+<script>
+  (() => {
+    const sidebar = document.currentScript.closest('.blog-layout--split > .blog-layout__sidebar');
+    if (!sidebar) return;
+    const gap = 24;
+    const update = () => {
+      if (window.innerWidth < 769) {
+        sidebar.style.removeProperty('--oak-sidebar-top');
+        return;
+      }
+      const header = document.querySelector('.site-header');
+      const headerBottom = header && header.dataset.sticky === 'true' ? Math.max(0, header.getBoundingClientRect().bottom) : 0;
+      const top = Math.min(headerBottom + gap, window.innerHeight - sidebar.offsetHeight - gap);
+      sidebar.style.setProperty('--oak-sidebar-top', Math.round(top) + 'px');
+    };
+    update();
+    window.addEventListener('resize', update);
+    document.addEventListener('headerStickyChange', update);
+    window.addEventListener('load', update);
+    if ('ResizeObserver' in window) new ResizeObserver(update).observe(sidebar);
+  })();
+</script>
 
 {%- if section.blocks.size == 0 -%}
   <style>
@@ -125,6 +189,29 @@
               </li>
             {%- endfor -%}
           </ul>
+        </div>
+      {%- endif -%}
+    {%- when 'featured_collection' -%}
+      {%- comment -%}
+        Oak: product cards from a chosen collection. 3 per row on desktop, a swipeable row
+        showing 2.5 cards on mobile so it's clear there's more to scroll.
+      {%- endcomment -%}
+      {%- assign sidebar_collection = block.settings.collection -%}
+      {%- if sidebar_collection != blank and sidebar_collection.products_count > 0 -%}
+        <div class="theme-block" {{ block.shopify_attributes }}>
+          {%- if block.settings.title != blank -%}
+            <h4>{{ block.settings.title }}</h4>
+          {%- endif -%}
+          <div class="sidebar-products">
+            {%- for product in sidebar_collection.products limit: block.settings.count -%}
+              {%- render 'list.product-card',
+                product: product,
+                sizes: '(min-width: 769px) calc((40vw - 110px) / 3), 40vw',
+                no_actions: true,
+                disabled_high_variants: false
+              -%}
+            {%- endfor -%}
+          </div>
         </div>
       {%- endif -%}
     {%- when 'article' -%}

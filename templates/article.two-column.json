@@ -25,11 +25,20 @@
         "share": {
           "type": "share",
           "settings": {}
+        },
+        "featured_collection": {
+          "type": "featured_collection",
+          "settings": {
+            "title": "Best sellers",
+            "collection": "best-sellers-home-page",
+            "count": 6
+          }
         }
       },
       "block_order": [
         "recent_articles",
         "tags",
+        "featured_collection",
         "share"
       ],
       "settings": {}
