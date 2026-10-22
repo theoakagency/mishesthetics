@@ -19,12 +19,6 @@
             "sku_enable": false
           }
         },
-        "yotpo_product_reviews_star_rating_P3wcNL": {
-          "type": "shopify://apps/yotpo-product-reviews/blocks/star-rating/eb7dfd7d-db44-4334-bc49-c893b51b36cf",
-          "settings": {
-            "product": "{{product}}"
-          }
-        },
         "price": {
           "type": "price",
           "settings": {}
@@ -137,11 +131,15 @@
             "content": "{{ product.metafields.custom.professional_use.value.content | metafield_tag }}",
             "page": ""
           }
+        },
+        "rating": {
+          "type": "rating",
+          "settings": {}
         }
       },
       "block_order": [
         "title_hjUmEr",
-        "yotpo_product_reviews_star_rating_P3wcNL",
+        "rating",
         "price",
         "infinite_options_app_block_Rit69c",
         "variant_picker",

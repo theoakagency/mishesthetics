@@ -939,28 +939,10 @@
               {%- endif -%}
 
               {%- comment -%}
-                Oak: star rating from Shopify's standard review fields (reviews.rating / reviews.rating_count),
-                which Yotpo keeps in sync. Hidden when a product has no reviews. Shown above the price.
+                Oak: star rating (shared with the product page), shown above the price. Hidden when a
+                product has no reviews. See snippets/oak.rating-stars.liquid.
               {%- endcomment -%}
-              {%- liquid
-                assign card_rating = product.metafields.reviews.rating.value
-                assign card_rating_count = product.metafields.reviews.rating_count.value | default: 0 | times: 1
-              -%}
-              {%- if card_rating != blank and card_rating_count > 0 -%}
-                {%- liquid
-                  assign card_rating_value = card_rating.rating | times: 1.0
-                  assign card_rating_max = card_rating.scale_max | times: 1.0 | default: 5.0
-                  # Round to the nearest half star, the same way Yotpo's star widget on the product page does
-                  assign card_rating_stars = card_rating_value | times: 2 | round | divided_by: 2.0
-                  assign card_rating_percent = card_rating_stars | divided_by: card_rating_max | times: 100 | round: 1
-                  assign card_rating_display = card_rating_value | round: 1
-                -%}
-                <div class="product-card-rating product-card-rating--{{ product_grid_content_align }}" style="--rating-percent: {{ card_rating_percent }}%;">
-                  <span class="product-card-rating__stars" aria-hidden="true"></span>
-                  <span class="product-card-rating__count" aria-hidden="true">({{ card_rating_count }})</span>
-                  <span class="visually-hidden">Rated {{ card_rating_display }} out of {{ card_rating_max | round }} stars from {{ card_rating_count }} {% if card_rating_count == 1 %}review{% else %}reviews{% endif %}</span>
-                </div>
-              {%- endif -%}
+              {%- render 'oak.rating-stars', product: product, align: product_grid_content_align -%}
 
               {% capture price_style %}
                 text-align: {{ product_grid_content_align }};

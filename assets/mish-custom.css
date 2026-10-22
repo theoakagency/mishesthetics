@@ -323,7 +323,7 @@
   }
 }
 
-/* Oak: star ratings on product cards (snippets/list.product-card.liquid), shown above the price.
+/* Oak: star ratings on product cards and the product page (snippets/oak.rating-stars.liquid), above the price.
    One row of five stars filled to --rating-percent, then the review count. */
 .product-card-rating {
   display: flex;
@@ -348,8 +348,8 @@
   display: inline-block;
   white-space: nowrap;
   letter-spacing: 1px;
-  /* Same star color as Yotpo's widget on the product page */
-  color: #fec48c;
+  /* Black stars (text color); empty stars are outlines */
+  color: currentColor;
 
   /* Outlined stars underneath (like Yotpo's empty stars), filled stars on top cropped to the rating */
   &::before {
@@ -364,6 +364,31 @@
     width: var(--rating-percent);
     overflow: hidden;
   }
+}
+
+/* Product page version (by the title): a bit larger, links to the Yotpo reviews section */
+.product-card-rating--product {
+  font-size: 16px;
+  color: inherit;
+  text-decoration: none;
+  margin-bottom: 0;
+
+  & .product-card-rating__count {
+    font-size: 14px;
+  }
+
+  &:hover .product-card-rating__count,
+  &:focus-visible .product-card-rating__count {
+    text-decoration: underline;
+    text-underline-offset: 2px;
+  }
+}
+
+/* No reviews yet: a "Write a review" text link */
+.product-card-rating--empty {
+  font-size: 14px;
+  text-decoration: underline;
+  text-underline-offset: 2px;
 }
 
 .product-card-rating__count {

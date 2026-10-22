@@ -38,6 +38,11 @@
           render 'block.product-custom', block: block
         when 'share'
           render 'block.product-share', block: block
+        when 'rating'
+          # Oak: theme-drawn star rating (same as product cards), links to the Yotpo reviews section
+          echo '<div ' | append: block.shopify_attributes | append: '>'
+          render 'oak.rating-stars', product: product, context: 'product'
+          echo '</div>'
       endcase
     endfor
   endcapture
@@ -202,6 +207,17 @@
     }
   ],
   "blocks": [
+    {
+      "type": "rating",
+      "name": "Star rating",
+      "limit": 1,
+      "settings": [
+        {
+          "type": "paragraph",
+          "content": "Stars and review count from Yotpo's synced ratings, drawn the same way as on product cards. Links to the reviews section; shows \"Write a review\" when there are none."
+        }
+      ]
+    },
     {
       "type": "@app"
     },

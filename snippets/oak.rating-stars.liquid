@@ -1,0 +1,96 @@
+{% doc %}
+  Oak: star rating from Shopify's standard product review fields (reviews.rating /
+  reviews.rating_count), which Yotpo keeps in sync. Used on product cards and on the product page,
+  so both always show the same stars. Rounded to the nearest half star like Yotpo's widgets.
+
+  @param {product} product - Product to show the rating for
+  @param {string} [context] - 'card' (default) or 'product'. On the product page the stars link to
+    the Yotpo reviews section, and products without reviews get a "Write a review" link.
+  @param {string} [align] - 'start' (default), 'center' or 'end'
+
+  @example
+  {% render 'oak.rating-stars', product: product, align: product_grid_content_align %}
+  {% render 'oak.rating-stars', product: product, context: 'product' %}
+{% enddoc %}
+
+{%- liquid
+  assign context = context | default: 'card'
+  assign align = align | default: 'start'
+  assign rating = product.metafields.reviews.rating.value
+  assign rating_count = product.metafields.reviews.rating_count.value | default: 0 | times: 1
+  assign has_rating = false
+  if rating != blank and rating_count > 0
+    assign has_rating = true
+    assign rating_value = rating.rating | times: 1.0
+    assign rating_max = rating.scale_max | times: 1.0 | default: 5.0
+    assign rating_stars = rating_value | times: 2 | round | divided_by: 2.0
+    assign rating_percent = rating_stars | divided_by: rating_max | times: 100 | round: 1
+    assign rating_display = rating_value | round: 1
+  endif
+-%}
+
+{%- if has_rating -%}
+  {%- capture rating_inner -%}
+    <span class="product-card-rating__stars" aria-hidden="true"></span>
+    <span class="product-card-rating__count" aria-hidden="true">({{ rating_count }})</span>
+    <span class="visually-hidden">
+      {{- 'Rated ' -}}{{ rating_display }} out of {{ rating_max | round }} stars from {{ rating_count }}
+      {%- if rating_count == 1 %} review{% else %} reviews{% endif -%}
+    </span>
+  {%- endcapture -%}
+
+  {%- if context == 'product' -%}
+    <a
+      href="#reviews"
+      class="product-card-rating product-card-rating--product product-card-rating--{{ align }}"
+      style="--rating-percent: {{ rating_percent }}%;"
+      data-oak-reviews-link
+    >
+      {{- rating_inner -}}
+    </a>
+  {%- else -%}
+    <div class="product-card-rating product-card-rating--{{ align }}" style="--rating-percent: {{ rating_percent }}%;">
+      {{- rating_inner -}}
+    </div>
+  {%- endif -%}
+{%- elsif context == 'product' -%}
+  <a href="#reviews" class="product-card-rating product-card-rating--product product-card-rating--empty" data-oak-reviews-link data-oak-write-review>
+    Write a review
+  </a>
+{%- endif -%}
+
+{%- if context == 'product' -%}
+  <script>
+    (() => {
+      if (window.__oakReviewsLink) return;
+      window.__oakReviewsLink = true;
+
+      // Yotpo's main reviews widget (the one with the review list), wherever the theme places it
+      const findReviews = () =>
+        document.querySelector('.yotpo-reviews-main-widget') ||
+        [...document.querySelectorAll('.yotpo-widget-instance')].find(
+          (el) => el.offsetHeight > 150 && /review/i.test(el.innerText || '')
+        );
+
+      document.addEventListener('click', (event) => {
+        const link = event.target.closest('[data-oak-reviews-link]');
+        if (!link) return;
+        const reviews = findReviews();
+        if (!reviews) return; // fall back to the plain #reviews link
+        event.preventDefault();
+
+        const header = document.querySelector('.site-header');
+        const offset = (header && header.dataset.sticky === 'true' ? header.offsetHeight : 0) + 20;
+        window.scrollTo({ top: reviews.getBoundingClientRect().top + window.scrollY - offset, behavior: 'smooth' });
+
+        // "Write a review": also open Yotpo's review form once the widget is in view
+        if (link.hasAttribute('data-oak-write-review')) {
+          setTimeout(() => {
+            const button = [...reviews.querySelectorAll('button, a')].find((el) => /write a review/i.test(el.textContent || ''));
+            if (button) button.click();
+          }, 600);
+        }
+      });
+    })();
+  </script>
+{%- endif -%}
