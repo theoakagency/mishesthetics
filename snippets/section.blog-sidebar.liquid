@@ -65,7 +65,49 @@
     letter-spacing: 0.04em;
   }
 
-  /* Oak: "Featured collection" sidebar block. Mobile: swipe row showing 2.5 cards. */
+  /* Oak: "Featured collection" sidebar block. A swipe row showing 2.5 cards at every screen size. */
+  .sidebar-products__header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    margin-block-end: var(--size-5);
+
+    & h4 {
+      margin: 0;
+    }
+  }
+
+  .sidebar-products__arrows {
+    display: flex;
+    gap: 4px;
+    margin-inline-start: auto;
+  }
+
+  .sidebar-products__arrow {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 32px;
+    height: 32px;
+    padding: 0;
+    border: 1px solid color-mix(in srgb, var(--color-primary) var(--shade-12), var(--color-secondary));
+    border-radius: 50%;
+    background: transparent;
+    color: inherit;
+    cursor: pointer;
+
+    & svg {
+      width: 14px;
+      height: 14px;
+    }
+
+    &:disabled {
+      opacity: 0.35;
+      cursor: default;
+    }
+  }
+
   .sidebar-products {
     --sidebar-products-gap: 12px;
     display: grid;
@@ -76,6 +118,10 @@
     overscroll-behavior-x: contain;
     scroll-snap-type: x mandatory;
     scrollbar-width: none;
+    /* The gridlines product style draws each card's border just outside the card. A scroll
+       container clips anything outside it, so leave room or the top/bottom lines disappear. */
+    padding: 2px;
+    scroll-padding-inline: 2px;
 
     &::-webkit-scrollbar {
       display: none;
@@ -90,14 +136,27 @@
     }
   }
 
-  /* Desktop: 3 per row, wrapping onto more rows */
-  @media only screen and (min-width: 769px) {
-    .sidebar-products {
-      grid-auto-flow: row;
-      grid-template-columns: repeat(3, minmax(0, 1fr));
-      grid-auto-columns: auto;
-      overflow: visible;
-      scroll-snap-type: none;
+  /* Oak: "List" style for the tags (Explore more) block: one bold text link per row */
+  .tag-list {
+    margin: 0;
+    border-top: 1px solid color-mix(in srgb, var(--color-primary) var(--shade-12), var(--color-secondary));
+  }
+
+  .tag-list__item {
+    border-bottom: 1px solid color-mix(in srgb, var(--color-primary) var(--shade-12), var(--color-secondary));
+  }
+
+  .tag-list__link {
+    display: block;
+    padding: 14px 0;
+    font-weight: 700;
+    text-decoration: none;
+    color: inherit;
+
+    &:hover,
+    &:focus-visible {
+      text-decoration: underline;
+      text-underline-offset: 3px;
     }
   }
 {% endstylesheet %}
@@ -193,25 +252,57 @@
       {%- endif -%}
     {%- when 'featured_collection' -%}
       {%- comment -%}
-        Oak: product cards from a chosen collection. 3 per row on desktop, a swipeable row
-        showing 2.5 cards on mobile so it's clear there's more to scroll.
+        Oak: product cards from a chosen collection, as a swipeable row showing 2.5 cards at every
+        screen size so it's clear there's more. Prev/next arrows let mouse users scroll it too.
       {%- endcomment -%}
       {%- assign sidebar_collection = block.settings.collection -%}
       {%- if sidebar_collection != blank and sidebar_collection.products_count > 0 -%}
         <div class="theme-block" {{ block.shopify_attributes }}>
-          {%- if block.settings.title != blank -%}
-            <h4>{{ block.settings.title }}</h4>
-          {%- endif -%}
-          <div class="sidebar-products">
+          <div class="sidebar-products__header">
+            {%- if block.settings.title != blank -%}
+              <h4>{{ block.settings.title }}</h4>
+            {%- endif -%}
+            <div class="sidebar-products__arrows">
+              <button type="button" class="sidebar-products__arrow" data-sidebar-products-prev aria-label="Previous products" disabled>
+                {%- render 'element.icon', name: 'chevron-left' -%}
+              </button>
+              <button type="button" class="sidebar-products__arrow" data-sidebar-products-next aria-label="Next products">
+                {%- render 'element.icon', name: 'chevron-right' -%}
+              </button>
+            </div>
+          </div>
+          <div class="sidebar-products" data-sidebar-products>
             {%- for product in sidebar_collection.products limit: block.settings.count -%}
               {%- render 'list.product-card',
                 product: product,
-                sizes: '(min-width: 769px) calc((40vw - 110px) / 3), 40vw',
+                sizes: '(min-width: 769px) calc((40vw - 120px) / 2.5), 40vw',
                 no_actions: true,
                 disabled_high_variants: false
               -%}
             {%- endfor -%}
           </div>
+          <script>
+            (() => {
+              const block = document.currentScript.parentElement;
+              const row = block.querySelector('[data-sidebar-products]');
+              const prev = block.querySelector('[data-sidebar-products-prev]');
+              const next = block.querySelector('[data-sidebar-products-next]');
+              if (!row || !prev || !next) return;
+              const step = () => {
+                const card = row.firstElementChild;
+                return card ? card.getBoundingClientRect().width + parseFloat(getComputedStyle(row).columnGap || 0) : row.clientWidth;
+              };
+              const sync = () => {
+                prev.disabled = row.scrollLeft <= 2;
+                next.disabled = row.scrollLeft + row.clientWidth >= row.scrollWidth - 2;
+              };
+              prev.addEventListener('click', () => row.scrollBy({ left: -step(), behavior: 'smooth' }));
+              next.addEventListener('click', () => row.scrollBy({ left: step(), behavior: 'smooth' }));
+              row.addEventListener('scroll', sync, { passive: true });
+              window.addEventListener('resize', sync);
+              sync();
+            })();
+          </script>
         </div>
       {%- endif -%}
     {%- when 'article' -%}
@@ -238,22 +329,33 @@
             {% render 'utility.translate', key: 'actions.explore_more', fallback: 'Explore more' %}
           </h4>
 
-          {%- capture tag_group -%}
-            {%- for tag in blog.all_tags -%}
-              <li>
-                {%- assign tag_link = blog.url | append: '/tagged/' | append: tag.handle -%}
-                {%- render 'element.chip', label: tag, href: tag_link -%}
-              </li>
-            {%- endfor -%}
-          {%- endcapture -%}
+          {%- if block.settings.style == 'list' -%}
+            {%- comment -%} Oak: "List" style, one bold text link per row {%- endcomment -%}
+            <ul class="tag-list no-bullets">
+              {%- for tag in blog.all_tags -%}
+                <li class="tag-list__item">
+                  <a href="{{ blog.url }}/tagged/{{ tag.handle }}" class="tag-list__link">{{ tag }}</a>
+                </li>
+              {%- endfor -%}
+            </ul>
+          {%- else -%}
+            {%- capture tag_group -%}
+              {%- for tag in blog.all_tags -%}
+                <li>
+                  {%- assign tag_link = blog.url | append: '/tagged/' | append: tag.handle -%}
+                  {%- render 'element.chip', label: tag, href: tag_link -%}
+                </li>
+              {%- endfor -%}
+            {%- endcapture -%}
 
-          {% render 'layout.stack',
-            as: 'ul',
-            classlist: 'tag-group no-bullets',
-            slot: tag_group,
-            horizontal: true,
-            gap: 'sm'
-          %}
+            {% render 'layout.stack',
+              as: 'ul',
+              classlist: 'tag-group no-bullets',
+              slot: tag_group,
+              horizontal: true,
+              gap: 'sm'
+            %}
+          {%- endif -%}
         </div>
       {%- endif -%}
     {%- when 'product' -%}

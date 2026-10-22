@@ -3,7 +3,9 @@
     "main": {
       "type": "article-template",
       "settings": {
-        "blog_capitalize_first": false
+        "blog_capitalize_first": false,
+        "show_more_from": false,
+        "show_back_link": false
       }
     },
     "sidebar": {
@@ -20,7 +22,9 @@
         },
         "tags": {
           "type": "tags",
-          "settings": {}
+          "settings": {
+            "style": "list"
+          }
         },
         "share": {
           "type": "share",

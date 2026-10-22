@@ -1,5 +1,7 @@
 {%- render 'section.article-template' -%}
 
+{%- comment -%} Oak: added show_more_from and show_back_link settings (both default on) {%- endcomment -%}
+
 {% schema %}
 {
   "name": "t:labels.article_pages",
@@ -39,6 +41,18 @@
       "type": "checkbox",
       "id": "blog_show_author",
       "label": "t:actions.show_author"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_more_from",
+      "label": "Show \"More from\" tag links below the article",
+      "default": true
+    },
+    {
+      "type": "checkbox",
+      "id": "show_back_link",
+      "label": "Show \"Back to blog\" button",
+      "default": true
     }
   ],
   "disabled_on": {

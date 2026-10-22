@@ -139,6 +139,14 @@
   --element-text-line-height--rte-body: 1.7;
 }
 
+/* Phones: more side margin than the theme's 17px, for both the article and the sidebar below it */
+@media only screen and (max-width: 768px) {
+  .page-width.blog-layout--split {
+    padding-left: 28px;
+    padding-right: 28px;
+  }
+}
+
 @media only screen and (min-width: 769px) {
   /* The sidebar keeps the theme's 45px margin + 45px padding + 1px divider on its left,
      so each column gives up half of the 45px margin to land on a 60/40 split. */

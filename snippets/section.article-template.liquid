@@ -141,6 +141,9 @@
   assign blog_show_date = blog_show_date | default: section.settings.blog_show_date, allow_false: true | default: true, allow_false: true
   assign blog_show_comments = blog_show_comments | default: section.settings.blog_show_comments, allow_false: true | default: true, allow_false: true
   assign blog_show_author = blog_show_author | default: section.settings.blog_show_author, allow_false: true | default: true, allow_false: true
+  # Oak: optional "More from" tag line and "Back to blog" button (both shown unless turned off)
+  assign show_more_from = section.settings.show_more_from | default: true, allow_false: true
+  assign show_back_link = section.settings.show_back_link | default: true, allow_false: true
 
   assign number_of_comments = article.comments_count
 
@@ -398,9 +401,12 @@
   {%- endpaginate -%}
 {%- endif -%}
 
-<hr class="hr--large">
+{%- comment -%} Oak: divider, "More from" and back button are each optional {%- endcomment -%}
+{%- if show_more_from or show_back_link -%}
+  <hr class="hr--large">
+{%- endif -%}
 
-{%- if blog_show_tags and article.tags.size > 0 -%}
+{%- if blog_show_tags and article.tags.size > 0 and show_more_from -%}
   {%- capture more_from_tags -%}
     {%- capture more_from_label -%}
       {% render 'utility.translate', key: 'labels.more_from', fallback: 'More from' %}
@@ -426,15 +432,17 @@
   -%}
 {%- endif -%}
 
-<div class="text-center">
-  {%- render 'element.button',
-    href: blog.url,
-    text: button_return_text,
-    classlist: 'return-link',
-    icon: 'arrow-left',
-    icon_position: 'start'
-  -%}
-</div>
+{%- if show_back_link -%}
+  <div class="text-center">
+    {%- render 'element.button',
+      href: blog.url,
+      text: button_return_text,
+      classlist: 'return-link',
+      icon: 'arrow-left',
+      icon_position: 'start'
+    -%}
+  </div>
+{%- endif -%}
 
 <script type="application/ld+json">
   {

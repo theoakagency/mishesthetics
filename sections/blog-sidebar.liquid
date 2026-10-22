@@ -1,6 +1,9 @@
 {%- render 'section.blog-sidebar' -%}
 
-{%- comment -%} Oak: added the "Recent posts" (recent_articles) and "Featured collection" (featured_collection) block types to the schema below {%- endcomment -%}
+{%- comment -%}
+  Oak: added the "Recent posts" (recent_articles) and "Featured collection" (featured_collection) block types,
+  and a Style setting (pills / list) on the tags block, to the schema below
+{%- endcomment -%}
 
 {% schema %}
 {
@@ -152,7 +155,19 @@
     {
       "type": "tags",
       "name": "t:labels.tags",
-      "limit": 1
+      "limit": 1,
+      "settings": [
+        {
+          "type": "select",
+          "id": "style",
+          "label": "Style",
+          "default": "chips",
+          "options": [
+            { "value": "chips", "label": "Pills" },
+            { "value": "list", "label": "List (one per row)" }
+          ]
+        }
+      ]
     },
     {
       "type": "product",
