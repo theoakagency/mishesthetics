@@ -348,18 +348,16 @@
   display: inline-block;
   white-space: nowrap;
   letter-spacing: 1px;
+  /* Same star color as Yotpo's widget on the product page */
+  color: #fec48c;
 
-  /* Empty stars underneath, filled stars on top cropped to the rating */
-  &::before,
+  /* Outlined stars underneath (like Yotpo's empty stars), filled stars on top cropped to the rating */
+  &::before {
+    content: '\2606\2606\2606\2606\2606';
+  }
+
   &::after {
     content: '\2605\2605\2605\2605\2605';
-  }
-
-  &::before {
-    color: color-mix(in srgb, currentColor 22%, transparent);
-  }
-
-  &::after {
     position: absolute;
     top: 0;
     left: 0;

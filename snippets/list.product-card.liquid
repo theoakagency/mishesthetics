@@ -950,7 +950,9 @@
                 {%- liquid
                   assign card_rating_value = card_rating.rating | times: 1.0
                   assign card_rating_max = card_rating.scale_max | times: 1.0 | default: 5.0
-                  assign card_rating_percent = card_rating_value | divided_by: card_rating_max | times: 100 | round: 1
+                  # Round to the nearest half star, the same way Yotpo's star widget on the product page does
+                  assign card_rating_stars = card_rating_value | times: 2 | round | divided_by: 2.0
+                  assign card_rating_percent = card_rating_stars | divided_by: card_rating_max | times: 100 | round: 1
                   assign card_rating_display = card_rating_value | round: 1
                 -%}
                 <div class="product-card-rating product-card-rating--{{ product_grid_content_align }}" style="--rating-percent: {{ card_rating_percent }}%;">
