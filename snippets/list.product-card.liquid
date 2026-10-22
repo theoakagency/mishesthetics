@@ -938,14 +938,9 @@
                 {% render 'element.text', text: product.vendor, variant: 'body-sm', style: vendor_style %}
               {%- endif -%}
 
-              {% capture price_style %}
-                text-align: {{ product_grid_content_align }};
-              {% endcapture %}
-              {%- render 'layout.stack', slot: product_price, horizontal: true, justify: product_grid_content_align, align: 'baseline', gap: 'xs', style: price_style -%}
-
               {%- comment -%}
                 Oak: star rating from Shopify's standard review fields (reviews.rating / reviews.rating_count),
-                which Yotpo keeps in sync. Hidden when a product has no reviews.
+                which Yotpo keeps in sync. Hidden when a product has no reviews. Shown above the price.
               {%- endcomment -%}
               {%- liquid
                 assign card_rating = product.metafields.reviews.rating.value
@@ -964,6 +959,11 @@
                   <span class="visually-hidden">Rated {{ card_rating_display }} out of {{ card_rating_max | round }} stars from {{ card_rating_count }} {% if card_rating_count == 1 %}review{% else %}reviews{% endif %}</span>
                 </div>
               {%- endif -%}
+
+              {% capture price_style %}
+                text-align: {{ product_grid_content_align }};
+              {% endcapture %}
+              {%- render 'layout.stack', slot: product_price, horizontal: true, justify: product_grid_content_align, align: 'baseline', gap: 'xs', style: price_style -%}
             {% endcapture %}
 
             {% render 'layout.stack', slot: meta_content, gap: 'xs', align: product_grid_content_align %}

@@ -323,7 +323,7 @@
   }
 }
 
-/* Oak: star ratings on product cards (snippets/list.product-card.liquid).
+/* Oak: star ratings on product cards (snippets/list.product-card.liquid), shown above the price.
    One row of five stars filled to --rating-percent, then the review count. */
 .product-card-rating {
   display: flex;
@@ -331,6 +331,8 @@
   gap: 6px;
   font-size: 13px;
   line-height: 1;
+  /* Stars sit above the price; extra space so the price doesn't crowd them */
+  margin-bottom: 6px;
 
   &.product-card-rating--center {
     justify-content: center;
