@@ -163,3 +163,33 @@
     align-self: flex-start;
   }
 }
+
+/* Oak: extra breathing room on wider screens (two-column article template).
+   Percentage padding is measured against the whole two-column area, so:
+   article column is 60% - 23px wide -> 5% of it is about 3% - 1px of the area;
+   sidebar is 40% - 22px wide        -> 5% of it is about 2% - 1px of the area.
+   The sidebar only gets it on its outer edge; the divider side already has 45px + 45px. */
+@media only screen and (min-width: 1024px) {
+  .blog-layout--split .blog-layout__main {
+    padding-inline: calc(3% - 1px);
+  }
+
+  /* Keep lines readable on very wide screens. The article text wrapper (element-text-rte) is
+     display: inline by default, which ignores max-width, so make it a block here. */
+  .blog-layout--split .blog-layout__main > * {
+    max-width: 720px;
+  }
+
+  .blog-layout--split .blog-layout__main > .element-text--rte {
+    display: block;
+  }
+
+  .blog-layout--split .blog-layout__main + .blog-layout__sidebar {
+    padding-right: calc(2% - 1px);
+
+    [dir='rtl'] & {
+      padding-right: 45px;
+      padding-left: calc(2% - 1px);
+    }
+  }
+}
