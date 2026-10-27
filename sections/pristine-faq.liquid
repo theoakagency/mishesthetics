@@ -1,0 +1,110 @@
+{%- comment -%}
+  Oak: two-column FAQ. Heading on the left, the theme's accordion on the right.
+  Built new because the theme FAQ section is single-column and puts every question in its FAQPage schema.
+  This one only includes questions with a real answer: placeholder answers starting with "[" are left out.
+{%- endcomment -%}
+
+<div class="pristine-section pristine-faq">
+  <div class="page-width">
+    <div class="pristine-faq__layout">
+      {%- render 'pristine.section-header',
+        eyebrow: section.settings.eyebrow,
+        heading: section.settings.heading,
+        text: section.settings.text,
+        align: 'left'
+      -%}
+
+      <div class="pristine-faq__list">
+        {%- for block in section.blocks -%}
+          {%- if block.settings.question != blank -%}
+            <div {{ block.shopify_attributes }}>
+              {%- capture answer -%}<div class="pristine-text">{{ block.settings.answer }}</div>{%- endcapture -%}
+              {%- render 'element.accordion', title: block.settings.question, slot: answer -%}
+            </div>
+          {%- endif -%}
+        {%- endfor -%}
+      </div>
+    </div>
+  </div>
+</div>
+
+{%- liquid
+  assign faq_entries = ''
+  for block in section.blocks
+    assign answer_plain = block.settings.answer | strip_html | strip
+    assign first_character = answer_plain | slice: 0
+    if block.settings.question == blank or answer_plain == blank or first_character == '['
+      continue
+    endif
+
+    assign question_json = block.settings.question | json
+    assign answer_json = block.settings.answer | json
+    capture entry
+      echo '{"@type":"Question","name":' | append: question_json
+      echo ',"acceptedAnswer":{"@type":"Answer","text":' | append: answer_json | append: '}}'
+    endcapture
+
+    if faq_entries != blank
+      assign faq_entries = faq_entries | append: ','
+    endif
+    assign faq_entries = faq_entries | append: entry
+  endfor
+-%}
+
+{%- if faq_entries != blank -%}
+  <script type="application/ld+json">
+    {"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{{ faq_entries }}]}
+  </script>
+{%- endif -%}
+
+{% schema %}
+{
+  "name": "Pristine FAQ",
+  "settings": [
+    {
+      "type": "text",
+      "id": "eyebrow",
+      "label": "Eyebrow"
+    },
+    {
+      "type": "text",
+      "id": "heading",
+      "label": "Heading"
+    },
+    {
+      "type": "richtext",
+      "id": "text",
+      "label": "Text"
+    }
+  ],
+  "blocks": [
+    {
+      "type": "question",
+      "name": "Question",
+      "settings": [
+        {
+          "type": "text",
+          "id": "question",
+          "label": "Question"
+        },
+        {
+          "type": "richtext",
+          "id": "answer",
+          "label": "Answer",
+          "info": "Answers starting with \"[\" are treated as placeholders and left out of Google's FAQ data."
+        }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "name": "Pristine FAQ",
+      "blocks": [
+        { "type": "question" },
+        { "type": "question" },
+        { "type": "question" }
+      ]
+    }
+  ]
+}
+{% endschema %}

@@ -1,0 +1,438 @@
+{
+  "sections": {
+    "hero": {
+      "type": "pristine-hero",
+      "settings": {
+        "eyebrow": "PRISTINE KOREAN LASH LIFT SYSTEM",
+        "heading": "Soft, glossy Korean lash lifts, in five steps.",
+        "text": "<p>Pure cysteamine lifting with dedicated balancing, cleansing and conditioning steps, so lashes and brows stay soft and flexible after the service.</p>",
+        "button_1_label": "Shop the Pristine System",
+        "button_1_link": "shopify://products/pristine-lift-system",
+        "button_2_label": "New to KLL? Start with the Student Kit",
+        "button_2_link": "shopify://products/korean-lash-lift-student-kit",
+        "note": ""
+      }
+    },
+    "trust": {
+      "type": "pristine-trust-strip",
+      "blocks": {
+        "card_1": {
+          "type": "item",
+          "settings": {
+            "title": "Cysteamine, not TGA",
+            "text": "No harsh TGA"
+          }
+        },
+        "card_2": {
+          "type": "item",
+          "settings": {
+            "title": "Lashes and brows",
+            "text": "One system for both services"
+          }
+        },
+        "card_3": {
+          "type": "item",
+          "settings": {
+            "title": "Subscribe & Save 15%",
+            "text": "On Pristine Cysteamine Lift refills"
+          }
+        },
+        "card_4": {
+          "type": "item",
+          "settings": {
+            "title": "[Shipping promise]",
+            "text": "[Ships from / delivery time]"
+          }
+        }
+      },
+      "block_order": [
+        "card_1",
+        "card_2",
+        "card_3",
+        "card_4"
+      ],
+      "settings": {}
+    },
+    "benefits": {
+      "type": "pristine-benefits",
+      "blocks": {
+        "card_1": {
+          "type": "card",
+          "settings": {
+            "title": "Pure cysteamine lifting",
+            "text": "Designed to process more evenly, with less surface stress than harsh TGA systems."
+          }
+        },
+        "card_2": {
+          "type": "card",
+          "settings": {
+            "title": "Balance between steps",
+            "text": "Care 1.5 rebalances and hydrates after lifting, so lashes are ready to set."
+          }
+        },
+        "card_3": {
+          "type": "card",
+          "settings": {
+            "title": "A real reset",
+            "text": "Reset 2.5 is a pH 4 to 5 shampoo that cleans away residue and brings hair back to balance."
+          }
+        },
+        "card_4": {
+          "type": "card",
+          "settings": {
+            "title": "Conditioning built in",
+            "text": "Restore 3 finishes with a CMC repair cream for a soft, glossy result."
+          }
+        },
+        "card_5": {
+          "type": "card",
+          "settings": {
+            "title": "Lift and lamination",
+            "text": "The same five steps work for Korean lash lifts and brow laminations."
+          }
+        },
+        "card_6": {
+          "type": "card",
+          "settings": {
+            "title": "Learn it from Mish",
+            "text": "Training online, in person and at Pristine masterclasses."
+          }
+        }
+      },
+      "block_order": [
+        "card_1",
+        "card_2",
+        "card_3",
+        "card_4",
+        "card_5",
+        "card_6"
+      ],
+      "settings": {
+        "eyebrow": "WHY ARTISTS ARE SWITCHING",
+        "heading": "A lift that looks soft, glossy and polished.",
+        "text": "",
+        "columns_desktop": 3
+      }
+    },
+    "results": {
+      "type": "before-after-slider",
+      "blocks": {
+        "comparison_1": {
+          "type": "comparison",
+          "settings": {
+            "label": "",
+            "before_alt": "",
+            "after_alt": ""
+          }
+        },
+        "comparison_2": {
+          "type": "comparison",
+          "settings": {
+            "label": "",
+            "before_alt": "",
+            "after_alt": ""
+          }
+        },
+        "comparison_3": {
+          "type": "comparison",
+          "settings": {
+            "label": "",
+            "before_alt": "",
+            "after_alt": ""
+          }
+        }
+      },
+      "block_order": [
+        "comparison_1",
+        "comparison_2",
+        "comparison_3"
+      ],
+      "settings": {
+        "eyebrow": "REAL CLIENTS, REAL RESULTS",
+        "heading": "See the difference.",
+        "text": "<p>Drag each slider to compare before and after a Pristine lift.</p>",
+        "before_tag": "BEFORE",
+        "after_tag": "AFTER",
+        "slider_label": "Compare before and after",
+        "link_label": "Watch a full Pristine service",
+        "link_url": ""
+      }
+    },
+    "start": {
+      "type": "pristine-compare",
+      "blocks": {
+        "card_system": {
+          "type": "product_card",
+          "settings": {
+            "product": "pristine-lift-system",
+            "eyebrow": "ALREADY LIFTING",
+            "price_override": "",
+            "text": "All five steps, ready for lash lifts and brow laminations.",
+            "button_label": "Shop the System"
+          }
+        },
+        "card_kit": {
+          "type": "product_card",
+          "settings": {
+            "product": "korean-lash-lift-student-kit",
+            "eyebrow": "NEW TO KOREAN LASH LIFT",
+            "price_override": "",
+            "text": "The Pristine system plus rods, shields, tint, brushes and the tools to start from day one.",
+            "button_label": "Shop the Student Kit"
+          }
+        },
+        "row_1": {
+          "type": "row",
+          "settings": {
+            "label": "All 5 Pristine steps",
+            "column_1": "Included",
+            "column_2": "Included (10 duo sachets)"
+          }
+        },
+        "row_2": {
+          "type": "row",
+          "settings": {
+            "label": "Rods and shields",
+            "column_1": "Sold separately",
+            "column_2": "Included"
+          }
+        },
+        "row_3": {
+          "type": "row",
+          "settings": {
+            "label": "Tint, brushes and tools",
+            "column_1": "Sold separately",
+            "column_2": "Included"
+          }
+        },
+        "row_4": {
+          "type": "row",
+          "settings": {
+            "label": "Training",
+            "column_1": "[Course add-on?]",
+            "column_2": "[Confirm what is included]"
+          }
+        },
+        "row_5": {
+          "type": "row",
+          "settings": {
+            "label": "Best for",
+            "column_1": "Trained artists switching systems",
+            "column_2": "Artists adding the service"
+          }
+        }
+      },
+      "block_order": [
+        "card_system",
+        "card_kit",
+        "row_1",
+        "row_2",
+        "row_3",
+        "row_4",
+        "row_5"
+      ],
+      "settings": {
+        "eyebrow": "CHOOSE YOUR STARTING POINT",
+        "heading": "Two ways to bring Pristine into your salon.",
+        "text": "",
+        "anchor_id": "start",
+        "table_caption": "Pristine System and Student Kit compared",
+        "label_heading": "",
+        "column_1_heading": "Pristine System",
+        "column_2_heading": "Student Kit"
+      }
+    },
+    "restock": {
+      "type": "pristine-restock",
+      "blocks": {
+        "card_subscribe": {
+          "type": "card",
+          "settings": {
+            "title": "Cysteamine Lift (Steps 1 + 2)",
+            "text": "<p>$68, or $57.80 with Subscribe & Save</p>",
+            "link_label": "Subscribe & Save",
+            "link_url": "shopify://products/pristine-cysteamine-lift",
+            "link_style": "pink"
+          }
+        },
+        "card_refills": {
+          "type": "card",
+          "settings": {
+            "title": "Restock single steps",
+            "text": "<p>Care 1.5 $55<br/>Reset 2.5 $55<br/>Restore 3 $62</p>",
+            "link_label": "Shop refills",
+            "link_url": "shopify://collections/korean-lash-lift",
+            "link_style": "text"
+          }
+        }
+      },
+      "block_order": [
+        "card_subscribe",
+        "card_refills"
+      ],
+      "settings": {
+        "eyebrow": "ALREADY USING PRISTINE?",
+        "heading": "Never run out of lift.",
+        "text": "<p>Subscribe to Pristine Cysteamine Lift and save 15% on every order, delivered every 4, 6 or 8 weeks.</p>"
+      }
+    },
+    "steps": {
+      "type": "numbered-steps",
+      "blocks": {
+        "step_1": {
+          "type": "step",
+          "settings": {
+            "number": "1",
+            "title": "Lift",
+            "text": "Softens the bonds so lashes or brows can be reshaped.",
+            "link": ""
+          }
+        },
+        "step_2": {
+          "type": "step",
+          "settings": {
+            "number": "1.5",
+            "title": "Care",
+            "text": "pH Balance gel rehydrates and preps for setting.",
+            "link": ""
+          }
+        },
+        "step_3": {
+          "type": "step",
+          "settings": {
+            "number": "2",
+            "title": "Set",
+            "text": "Locks the new shape in place.",
+            "link": ""
+          }
+        },
+        "step_4": {
+          "type": "step",
+          "settings": {
+            "number": "2.5",
+            "title": "Reset",
+            "text": "pH shampoo cleans and rebalances.",
+            "link": ""
+          }
+        },
+        "step_5": {
+          "type": "step",
+          "settings": {
+            "number": "3",
+            "title": "Restore",
+            "text": "CMC repair cream conditions for a glossy finish.",
+            "link": ""
+          }
+        }
+      },
+      "block_order": [
+        "step_1",
+        "step_2",
+        "step_3",
+        "step_4",
+        "step_5"
+      ],
+      "settings": {
+        "eyebrow": "THE PRISTINE METHOD",
+        "heading": "Five steps, each with one job.",
+        "text": ""
+      }
+    },
+    "pristine_train": {
+      "type": "text-and-image",
+      "settings": {
+        "image_mask": "none",
+        "image2_mask": "none",
+        "subtitle": "TRAIN WITH MISH",
+        "title": "Learn the Pristine system from Mish.",
+        "heading_size": "h2",
+        "text": "<p>[Mish's years of experience and students trained: confirm current numbers]</p><ul><li><a href=\"/products/korean-lash-lift-online-course\" title=\"Korean Lash Lift Online Course\">Korean Lash Lift Online Course</a></li><li><a href=\"/products/korean-lash-lift-training-orange-county-ca-deposit-only\" title=\"In-Person Group Training (Orange County)\">In-Person Group Training (Orange County)</a></li><li><a href=\"/products/pristine-masterclass\" title=\"Pristine Masterclass, San Jose, Nov 14\">Pristine Masterclass, San Jose, Nov 14</a></li></ul>",
+        "button_label": "",
+        "button_style": "primary",
+        "align_text": "left",
+        "image_width": "50",
+        "layout": "left",
+        "color_scheme": "none",
+        "divider": false,
+        "top_padding": true,
+        "bottom_padding": true
+      }
+    },
+    "faq": {
+      "type": "pristine-faq",
+      "blocks": {
+        "question_1": {
+          "type": "question",
+          "settings": {
+            "question": "What makes cysteamine different from TGA?",
+            "answer": "<p>[Answer to confirm with Mish]</p>"
+          }
+        },
+        "question_2": {
+          "type": "question",
+          "settings": {
+            "question": "Should I get the System or the Student Kit?",
+            "answer": "<p>[Answer to confirm with Mish]</p>"
+          }
+        },
+        "question_3": {
+          "type": "question",
+          "settings": {
+            "question": "Can I use Pristine for brow lamination?",
+            "answer": "<p>[Answer to confirm with Mish]</p>"
+          }
+        },
+        "question_4": {
+          "type": "question",
+          "settings": {
+            "question": "How many services does one system cover?",
+            "answer": "<p>[Answer to confirm with Mish]</p>"
+          }
+        },
+        "question_5": {
+          "type": "question",
+          "settings": {
+            "question": "How does Subscribe & Save work?",
+            "answer": "<p>[Answer to confirm with Mish]</p>"
+          }
+        }
+      },
+      "block_order": [
+        "question_1",
+        "question_2",
+        "question_3",
+        "question_4",
+        "question_5"
+      ],
+      "settings": {
+        "eyebrow": "QUICK ANSWERS",
+        "heading": "What artists ask before switching.",
+        "text": ""
+      }
+    },
+    "cta": {
+      "type": "pristine-cta",
+      "settings": {
+        "eyebrow": "",
+        "heading": "Give your clients a soft, glossy lift.",
+        "text": "<p>Start with the full system, or the Student Kit if you are new to Korean lash lift.</p>",
+        "button_1_label": "Shop the Pristine System",
+        "button_1_link": "shopify://products/pristine-lift-system",
+        "button_2_label": "Shop the Student Kit",
+        "button_2_link": "shopify://products/korean-lash-lift-student-kit"
+      }
+    }
+  },
+  "order": [
+    "hero",
+    "trust",
+    "benefits",
+    "results",
+    "start",
+    "restock",
+    "steps",
+    "pristine_train",
+    "faq",
+    "cta"
+  ]
+}

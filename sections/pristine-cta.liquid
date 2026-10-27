@@ -1,0 +1,79 @@
+{%- comment -%}
+  Oak: centered closing call to action on a pink panel. Black button plus outlined button, all text #000 on the pink.
+{%- endcomment -%}
+
+<div class="pristine-section pristine-cta">
+  <div class="page-width">
+    <div class="pristine-cta__panel">
+      {%- render 'pristine.section-header',
+        eyebrow: section.settings.eyebrow,
+        heading: section.settings.heading,
+        text: section.settings.text
+      -%}
+
+      {%- if section.settings.button_1_label != blank or section.settings.button_2_label != blank -%}
+        <div class="pristine-buttons pristine-buttons--center">
+          {%- if section.settings.button_1_label != blank -%}
+            <a class="pristine-btn pristine-btn--primary" href="{{ section.settings.button_1_link | default: '#' }}">
+              {{- section.settings.button_1_label | escape -}}
+            </a>
+          {%- endif -%}
+          {%- if section.settings.button_2_label != blank -%}
+            <a class="pristine-btn pristine-btn--secondary" href="{{ section.settings.button_2_link | default: '#' }}">
+              {{- section.settings.button_2_label | escape -}}
+            </a>
+          {%- endif -%}
+        </div>
+      {%- endif -%}
+    </div>
+  </div>
+</div>
+
+{% schema %}
+{
+  "name": "Pristine closing CTA",
+  "settings": [
+    {
+      "type": "text",
+      "id": "eyebrow",
+      "label": "Eyebrow"
+    },
+    {
+      "type": "text",
+      "id": "heading",
+      "label": "Heading"
+    },
+    {
+      "type": "richtext",
+      "id": "text",
+      "label": "Text"
+    },
+    {
+      "type": "text",
+      "id": "button_1_label",
+      "label": "Button 1 label (black)"
+    },
+    {
+      "type": "url",
+      "id": "button_1_link",
+      "label": "Button 1 link",
+      "info": "Link to #start to jump to the \"Two ways to start\" section."
+    },
+    {
+      "type": "text",
+      "id": "button_2_label",
+      "label": "Button 2 label (outlined)"
+    },
+    {
+      "type": "url",
+      "id": "button_2_link",
+      "label": "Button 2 link"
+    }
+  ],
+  "presets": [
+    {
+      "name": "Pristine closing CTA"
+    }
+  ]
+}
+{% endschema %}

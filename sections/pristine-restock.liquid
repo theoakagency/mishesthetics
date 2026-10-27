@@ -1,0 +1,122 @@
+{%- comment -%}
+  Oak: nude restock band. Heading and text on the left, white cards with a button or text link on the right.
+{%- endcomment -%}
+
+<div class="pristine-section pristine-restock">
+  <div class="page-width">
+    <div class="pristine-restock__panel">
+      {%- render 'pristine.section-header',
+        eyebrow: section.settings.eyebrow,
+        heading: section.settings.heading,
+        text: section.settings.text,
+        align: 'left'
+      -%}
+
+      {%- if section.blocks.size > 0 -%}
+        <ul class="pristine-restock__cards" role="list">
+          {%- for block in section.blocks -%}
+            <li class="pristine-card pristine-card--white pristine-restock__card" {{ block.shopify_attributes }}>
+              {%- if block.settings.title != blank -%}
+                <h3 class="pristine-card__title">{{ block.settings.title | escape }}</h3>
+              {%- endif -%}
+              {%- if block.settings.text != blank -%}
+                <div class="pristine-text pristine-restock__text">{{ block.settings.text }}</div>
+              {%- endif -%}
+              {%- if block.settings.link_label != blank and block.settings.link_url != blank -%}
+                {%- liquid
+                  case block.settings.link_style
+                    when 'text'
+                      assign link_class = 'pristine-link'
+                    when 'primary'
+                      assign link_class = 'pristine-btn pristine-btn--primary'
+                    when 'secondary'
+                      assign link_class = 'pristine-btn pristine-btn--secondary'
+                    else
+                      assign link_class = 'pristine-btn pristine-btn--pink'
+                  endcase
+                -%}
+                <a class="{{ link_class }} pristine-restock__link" href="{{ block.settings.link_url }}">
+                  {{- block.settings.link_label | escape -}}
+                </a>
+              {%- endif -%}
+            </li>
+          {%- endfor -%}
+        </ul>
+      {%- endif -%}
+    </div>
+  </div>
+</div>
+
+{% schema %}
+{
+  "name": "Pristine restock",
+  "max_blocks": 3,
+  "settings": [
+    {
+      "type": "text",
+      "id": "eyebrow",
+      "label": "Eyebrow"
+    },
+    {
+      "type": "text",
+      "id": "heading",
+      "label": "Heading"
+    },
+    {
+      "type": "richtext",
+      "id": "text",
+      "label": "Text"
+    }
+  ],
+  "blocks": [
+    {
+      "type": "card",
+      "name": "Card",
+      "settings": [
+        {
+          "type": "text",
+          "id": "title",
+          "label": "Title"
+        },
+        {
+          "type": "richtext",
+          "id": "text",
+          "label": "Text",
+          "info": "Prices here are plain text. Update them when product prices change."
+        },
+        {
+          "type": "text",
+          "id": "link_label",
+          "label": "Link label"
+        },
+        {
+          "type": "url",
+          "id": "link_url",
+          "label": "Link"
+        },
+        {
+          "type": "select",
+          "id": "link_style",
+          "label": "Link style",
+          "default": "pink",
+          "options": [
+            { "value": "pink", "label": "Pink button (Subscribe & Save)" },
+            { "value": "primary", "label": "Black button" },
+            { "value": "secondary", "label": "Outlined button" },
+            { "value": "text", "label": "Text link" }
+          ]
+        }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "name": "Pristine restock",
+      "blocks": [
+        { "type": "card" },
+        { "type": "card" }
+      ]
+    }
+  ]
+}
+{% endschema %}

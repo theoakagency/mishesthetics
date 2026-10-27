@@ -1,0 +1,239 @@
+{%- comment -%}
+  Oak: grid of before/after comparison sliders. Each slider is a <before-after-slider> element
+  (assets/before-after-slider.js, loaded only by this section). The range input overlay gives keyboard
+  and screen reader control; mouse and touch dragging is handled on the frame by the script.
+  A block without both images is skipped on the live site and shows a placeholder in the theme editor.
+{%- endcomment -%}
+
+{%- liquid
+  assign visible_count = 0
+  for block in section.blocks
+    if block.settings.before_image != blank and block.settings.after_image != blank
+      assign visible_count = visible_count | plus: 1
+    endif
+  endfor
+  if request.design_mode
+    assign visible_count = section.blocks.size
+  endif
+-%}
+
+{%- if visible_count > 0 -%}
+  <div class="pristine-section pristine-ba">
+    <div class="page-width">
+      {%- render 'pristine.section-header',
+        eyebrow: section.settings.eyebrow,
+        heading: section.settings.heading,
+        text: section.settings.text
+      -%}
+
+      <ul class="pristine-ba__grid" role="list">
+        {%- for block in section.blocks -%}
+          {%- liquid
+            assign before_image = block.settings.before_image
+            assign after_image = block.settings.after_image
+            assign has_images = false
+            if before_image != blank and after_image != blank
+              assign has_images = true
+            endif
+            unless has_images or request.design_mode
+              continue
+            endunless
+
+            assign ratio = 0.8
+            if after_image != blank
+              assign ratio = after_image.aspect_ratio
+            elsif before_image != blank
+              assign ratio = before_image.aspect_ratio
+            endif
+
+            assign before_alt = block.settings.before_alt | default: before_image.alt
+            assign after_alt = block.settings.after_alt | default: after_image.alt
+          -%}
+          <li class="pristine-ba__item" {{ block.shopify_attributes }}>
+            <before-after-slider class="ba-slider" style="--ba-pos: 50%;">
+              <div class="ba-slider__frame" style="aspect-ratio: {{ ratio }};">
+                {%- if after_image != blank -%}
+                  {{
+                    after_image
+                    | image_url: width: 1000
+                    | image_tag:
+                      widths: '360, 540, 720, 900, 1000',
+                      sizes: '(min-width: 990px) 30vw, (min-width: 769px) 45vw, 100vw',
+                      loading: 'lazy',
+                      alt: after_alt,
+                      class: 'ba-slider__image',
+                      draggable: 'false'
+                  }}
+                {%- else -%}
+                  {{ 'image' | placeholder_svg_tag: 'ba-slider__image pristine-placeholder' }}
+                {%- endif -%}
+
+                <div class="ba-slider__before">
+                  {%- if before_image != blank -%}
+                    {{
+                      before_image
+                      | image_url: width: 1000
+                      | image_tag:
+                        widths: '360, 540, 720, 900, 1000',
+                        sizes: '(min-width: 990px) 30vw, (min-width: 769px) 45vw, 100vw',
+                        loading: 'lazy',
+                        alt: before_alt,
+                        class: 'ba-slider__image',
+                        draggable: 'false'
+                    }}
+                  {%- else -%}
+                    {{ 'image' | placeholder_svg_tag: 'ba-slider__image pristine-placeholder pristine-placeholder--dark' }}
+                  {%- endif -%}
+                </div>
+
+                {%- if section.settings.before_tag != blank -%}
+                  <span class="ba-slider__tag ba-slider__tag--before" aria-hidden="true">
+                    {{- section.settings.before_tag | escape -}}
+                  </span>
+                {%- endif -%}
+                {%- if section.settings.after_tag != blank -%}
+                  <span class="ba-slider__tag ba-slider__tag--after" aria-hidden="true">
+                    {{- section.settings.after_tag | escape -}}
+                  </span>
+                {%- endif -%}
+
+                <span class="ba-slider__handle" aria-hidden="true">
+                  <span class="ba-slider__knob">
+                    <svg viewBox="0 0 24 24" width="20" height="20" focusable="false">
+                      <path d="M9 6l-6 6 6 6M15 6l6 6-6 6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                  </span>
+                </span>
+
+                <input
+                  class="ba-slider__range"
+                  type="range"
+                  min="0"
+                  max="100"
+                  step="1"
+                  value="50"
+                  aria-label="{{ section.settings.slider_label | escape }}"
+                >
+              </div>
+            </before-after-slider>
+
+            {%- if block.settings.label != blank -%}
+              <p class="pristine-ba__label">{{ block.settings.label | escape }}</p>
+            {%- endif -%}
+          </li>
+        {%- endfor -%}
+      </ul>
+
+      {%- if section.settings.link_url != blank and section.settings.link_label != blank -%}
+        <p class="pristine-ba__footer">
+          <a class="pristine-link" href="{{ section.settings.link_url }}">{{ section.settings.link_label | escape }}</a>
+        </p>
+      {%- endif -%}
+    </div>
+  </div>
+
+  <script src="{{ 'before-after-slider.js' | asset_url }}" defer="defer"></script>
+{%- endif -%}
+
+{% schema %}
+{
+  "name": "Before/after slider",
+  "max_blocks": 6,
+  "settings": [
+    {
+      "type": "text",
+      "id": "eyebrow",
+      "label": "Eyebrow"
+    },
+    {
+      "type": "text",
+      "id": "heading",
+      "label": "Heading"
+    },
+    {
+      "type": "richtext",
+      "id": "text",
+      "label": "Text"
+    },
+    {
+      "type": "header",
+      "content": "Slider"
+    },
+    {
+      "type": "text",
+      "id": "before_tag",
+      "label": "Before tag"
+    },
+    {
+      "type": "text",
+      "id": "after_tag",
+      "label": "After tag"
+    },
+    {
+      "type": "text",
+      "id": "slider_label",
+      "label": "Slider label for screen readers"
+    },
+    {
+      "type": "header",
+      "content": "Link under the grid"
+    },
+    {
+      "type": "text",
+      "id": "link_label",
+      "label": "Link text"
+    },
+    {
+      "type": "url",
+      "id": "link_url",
+      "label": "Link",
+      "info": "The link is hidden when this is blank."
+    }
+  ],
+  "blocks": [
+    {
+      "type": "comparison",
+      "name": "Comparison",
+      "settings": [
+        {
+          "type": "image_picker",
+          "id": "before_image",
+          "label": "Before image"
+        },
+        {
+          "type": "text",
+          "id": "before_alt",
+          "label": "Before image alt text",
+          "info": "Describe the image for screen readers. Uses the image's own alt text when blank."
+        },
+        {
+          "type": "image_picker",
+          "id": "after_image",
+          "label": "After image",
+          "info": "Use the same size and framing as the before image."
+        },
+        {
+          "type": "text",
+          "id": "after_alt",
+          "label": "After image alt text"
+        },
+        {
+          "type": "text",
+          "id": "label",
+          "label": "Label (optional)"
+        }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "name": "Before/after slider",
+      "blocks": [
+        { "type": "comparison" },
+        { "type": "comparison" },
+        { "type": "comparison" }
+      ]
+    }
+  ]
+}
+{% endschema %}

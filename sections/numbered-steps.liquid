@@ -1,0 +1,105 @@
+{%- comment -%}
+  Oak: numbered step cards (large number, bold name, one line). All in one row on desktop, 2 per row on mobile.
+  A card with a link becomes a link to that step's product.
+{%- endcomment -%}
+
+<div class="pristine-section pristine-steps">
+  <div class="page-width">
+    {%- render 'pristine.section-header',
+      eyebrow: section.settings.eyebrow,
+      heading: section.settings.heading,
+      text: section.settings.text
+    -%}
+
+    {%- if section.blocks.size > 0 -%}
+      <ol class="pristine-steps__grid" role="list">
+        {%- for block in section.blocks -%}
+          <li class="pristine-steps__item" {{ block.shopify_attributes }}>
+            {%- if block.settings.link != blank -%}
+              <a class="pristine-card pristine-card--white pristine-steps__card pristine-steps__card--link" href="{{ block.settings.link }}">
+            {%- else -%}
+              <div class="pristine-card pristine-card--white pristine-steps__card">
+            {%- endif -%}
+              {%- if block.settings.number != blank -%}
+                <span class="pristine-steps__number">{{ block.settings.number | escape }}</span>
+              {%- endif -%}
+              {%- if block.settings.title != blank -%}
+                <h3 class="pristine-card__title">{{ block.settings.title | escape }}</h3>
+              {%- endif -%}
+              {%- if block.settings.text != blank -%}
+                <p class="pristine-card__text">{{ block.settings.text | escape }}</p>
+              {%- endif -%}
+            {%- if block.settings.link != blank -%}
+              </a>
+            {%- else -%}
+              </div>
+            {%- endif -%}
+          </li>
+        {%- endfor -%}
+      </ol>
+    {%- endif -%}
+  </div>
+</div>
+
+{% schema %}
+{
+  "name": "Numbered steps",
+  "max_blocks": 8,
+  "settings": [
+    {
+      "type": "text",
+      "id": "eyebrow",
+      "label": "Eyebrow"
+    },
+    {
+      "type": "text",
+      "id": "heading",
+      "label": "Heading"
+    },
+    {
+      "type": "richtext",
+      "id": "text",
+      "label": "Text"
+    }
+  ],
+  "blocks": [
+    {
+      "type": "step",
+      "name": "Step",
+      "settings": [
+        {
+          "type": "text",
+          "id": "number",
+          "label": "Number"
+        },
+        {
+          "type": "text",
+          "id": "title",
+          "label": "Name"
+        },
+        {
+          "type": "text",
+          "id": "text",
+          "label": "Text"
+        },
+        {
+          "type": "url",
+          "id": "link",
+          "label": "Link (optional)",
+          "info": "Makes the whole card link to this step's product."
+        }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "name": "Numbered steps",
+      "blocks": [
+        { "type": "step" },
+        { "type": "step" },
+        { "type": "step" }
+      ]
+    }
+  ]
+}
+{% endschema %}

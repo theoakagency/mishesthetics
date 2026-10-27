@@ -1,0 +1,110 @@
+{%- comment -%}
+  Oak: benefit cards on the light #FBF5F2 background, each with an optional image.
+  Built new because Text columns with images has no eyebrow and can't be styled as cards without changing it everywhere.
+{%- endcomment -%}
+
+<div class="pristine-section pristine-benefits">
+  <div class="page-width">
+    {%- render 'pristine.section-header',
+      eyebrow: section.settings.eyebrow,
+      heading: section.settings.heading,
+      text: section.settings.text
+    -%}
+
+    {%- if section.blocks.size > 0 -%}
+      <ul
+        class="pristine-benefits__grid"
+        role="list"
+        style="--pristine-columns: {{ section.settings.columns_desktop }};"
+      >
+        {%- for block in section.blocks -%}
+          <li class="pristine-card pristine-benefits__card" {{ block.shopify_attributes }}>
+            {%- if block.settings.image != blank -%}
+              {{
+                block.settings.image
+                | image_url: width: 900
+                | image_tag:
+                  widths: '300, 450, 600, 750, 900',
+                  sizes: '(min-width: 990px) 30vw, (min-width: 769px) 45vw, 100vw',
+                  loading: 'lazy',
+                  class: 'pristine-benefits__image'
+              }}
+            {%- endif -%}
+            {%- if block.settings.title != blank -%}
+              <h3 class="pristine-card__title">{{ block.settings.title | escape }}</h3>
+            {%- endif -%}
+            {%- if block.settings.text != blank -%}
+              <p class="pristine-card__text">{{ block.settings.text | escape }}</p>
+            {%- endif -%}
+          </li>
+        {%- endfor -%}
+      </ul>
+    {%- endif -%}
+  </div>
+</div>
+
+{% schema %}
+{
+  "name": "Pristine benefits",
+  "max_blocks": 12,
+  "settings": [
+    {
+      "type": "text",
+      "id": "eyebrow",
+      "label": "Eyebrow"
+    },
+    {
+      "type": "text",
+      "id": "heading",
+      "label": "Heading"
+    },
+    {
+      "type": "richtext",
+      "id": "text",
+      "label": "Text"
+    },
+    {
+      "type": "range",
+      "id": "columns_desktop",
+      "label": "Cards per row on desktop",
+      "min": 2,
+      "max": 4,
+      "step": 1,
+      "default": 3
+    }
+  ],
+  "blocks": [
+    {
+      "type": "card",
+      "name": "Card",
+      "settings": [
+        {
+          "type": "image_picker",
+          "id": "image",
+          "label": "Image (optional)"
+        },
+        {
+          "type": "text",
+          "id": "title",
+          "label": "Title"
+        },
+        {
+          "type": "textarea",
+          "id": "text",
+          "label": "Text"
+        }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "name": "Pristine benefits",
+      "blocks": [
+        { "type": "card" },
+        { "type": "card" },
+        { "type": "card" }
+      ]
+    }
+  ]
+}
+{% endschema %}

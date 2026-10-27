@@ -1,0 +1,28 @@
+{% doc %}
+  Oak: eyebrow, H2 and intro text shared by the Pristine landing page sections (templates/page.pristine.json).
+  Renders nothing when all three are blank.
+
+  @param {string} [eyebrow] - Small uppercase line above the heading
+  @param {string} [heading] - Section heading, output as an H2
+  @param {string} [text] - Rich text under the heading
+  @param {string} [align] - ('left'|'center') Text alignment, defaults to center
+
+  @example
+  {% render 'pristine.section-header', eyebrow: section.settings.eyebrow, heading: section.settings.heading %}
+{% enddoc %}
+
+{%- assign align = align | default: 'center' -%}
+
+{%- if eyebrow != blank or heading != blank or text != blank -%}
+  <header class="pristine-header pristine-header--{{ align }}">
+    {%- if eyebrow != blank -%}
+      <p class="pristine-eyebrow">{{ eyebrow | escape }}</p>
+    {%- endif -%}
+    {%- if heading != blank -%}
+      <h2 class="pristine-heading">{{ heading | escape }}</h2>
+    {%- endif -%}
+    {%- if text != blank -%}
+      <div class="pristine-text">{{ text }}</div>
+    {%- endif -%}
+  </header>
+{%- endif -%}

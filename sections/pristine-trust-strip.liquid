@@ -1,0 +1,60 @@
+{%- comment -%}
+  Oak: row of small bordered cards (bold title, one line) under the Pristine hero.
+  2 per row on mobile, all in one row on desktop.
+{%- endcomment -%}
+
+{%- if section.blocks.size > 0 -%}
+  <div class="pristine-section pristine-section--tight pristine-trust">
+    <div class="page-width">
+      <ul class="pristine-trust__grid" role="list">
+        {%- for block in section.blocks -%}
+          <li class="pristine-card pristine-card--white pristine-trust__card" {{ block.shopify_attributes }}>
+            {%- if block.settings.title != blank -%}
+              <p class="pristine-card__title">{{ block.settings.title | escape }}</p>
+            {%- endif -%}
+            {%- if block.settings.text != blank -%}
+              <p class="pristine-card__text">{{ block.settings.text | escape }}</p>
+            {%- endif -%}
+          </li>
+        {%- endfor -%}
+      </ul>
+    </div>
+  </div>
+{%- endif -%}
+
+{% schema %}
+{
+  "name": "Pristine trust strip",
+  "max_blocks": 4,
+  "settings": [],
+  "blocks": [
+    {
+      "type": "item",
+      "name": "Card",
+      "settings": [
+        {
+          "type": "text",
+          "id": "title",
+          "label": "Title"
+        },
+        {
+          "type": "text",
+          "id": "text",
+          "label": "Text"
+        }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "name": "Pristine trust strip",
+      "blocks": [
+        { "type": "item" },
+        { "type": "item" },
+        { "type": "item" },
+        { "type": "item" }
+      ]
+    }
+  ]
+}
+{% endschema %}
