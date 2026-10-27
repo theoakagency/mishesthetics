@@ -100,6 +100,10 @@
             "page": ""
           }
         },
+        "guide": {
+          "type": "guide",
+          "settings": {}
+        },
         "tab_custom_1": {
           "type": "tab",
           "settings": {
@@ -150,6 +154,7 @@
         "description_EFnQ69",
         "tab_usage_storage",
         "tab_specs_ingredients",
+        "guide",
         "tab_custom_1",
         "tab_custom_2",
         "tab_custom_3",

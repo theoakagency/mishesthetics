@@ -30,6 +30,18 @@
           render 'block.product-trust-badge', block: block
         when 'tab'
           render 'block.product-tab', block: block
+        when 'guide'
+          # Oak: accordion from the custom.guide metaobject. Its content is raw HTML (tables), which a richtext tab setting can't hold
+          assign guide = product.metafields.custom.guide.value
+          if guide != blank
+            capture guide_content
+              echo '<div class="rte oak-guide">'
+              echo guide.content.value
+              echo '</div>'
+            endcapture
+            assign guide_title = guide.title.value | default: 'Guide'
+            render 'block.product-tab', block: block, title: guide_title, tab_content: guide_content
+          endif
         when 'separator'
           render 'block.product-separator', block: block
         when 'contact'
@@ -566,6 +578,17 @@
           "type": "page",
           "id": "page",
           "label": "t:labels.tab_content_from"
+        }
+      ]
+    },
+    {
+      "type": "guide",
+      "name": "Guide",
+      "limit": 1,
+      "settings": [
+        {
+          "type": "paragraph",
+          "content": "Shows the product's Guide metafield (custom.guide) as an accordion. Hidden when the product has no guide."
         }
       ]
     },
