@@ -396,6 +396,93 @@
   opacity: 0.7;
 }
 
+/* Oak: product page title and price on one row (sections/main-product.liquid wraps both blocks).
+   Long titles wrap in their own column; the price keeps its width and never wraps under the title */
+.oak-title-price {
+  display: flex;
+  align-items: baseline;
+  gap: 16px;
+
+  & > :first-child {
+    flex: 1 1 auto;
+    min-width: 0;
+    overflow-wrap: break-word;
+  }
+
+  & > block-price {
+    flex: 0 1 auto;
+    max-width: 50%;
+    white-space: nowrap;
+  }
+
+  /* Sale prices: if the row is tight (tablet widths), "Save x%" drops under the prices instead of squeezing the title */
+  & > block-price layout-stack {
+    flex-wrap: wrap;
+    justify-content: flex-end;
+    row-gap: 4px;
+  }
+
+  & h1.element-text {
+    font-size: 23px;
+  }
+
+  & .element-price {
+    font-size: 18px;
+  }
+
+  @media only screen and (min-width: 769px) {
+    & .element-price {
+      font-size: 20px;
+    }
+  }
+
+  /* The info column is too narrow for 30px titles until 1024px (long words broke mid-word) */
+  @media only screen and (min-width: 1024px) {
+    & h1.element-text {
+      font-size: 30px;
+    }
+  }
+}
+
+/* Product page: blocks with nothing to show (Infinite Options with no options, the variant picker on
+   single-variant products) still take a gap in the stack. Hide them so the price sits one gap above the next block */
+.product-single__meta {
+  & > .shopify-app-block:has(> #infiniteoptions-container):not(:has(> #infiniteoptions-container > *)),
+  & > div:not([class]):not(:has(> :not(script))) {
+    display: none;
+  }
+}
+
+/* Yotpo reviews summary on phones: the star breakdown sat beside the average and pushed the page
+   sideways on products with reviews. Wrap it under the average instead */
+@media only screen and (max-width: 768px) {
+  .yotpo-reviews-main-widget {
+    & .yotpo-summary-section {
+      flex-wrap: wrap;
+      row-gap: 16px;
+    }
+
+    & .yotpo-star-distribution {
+      margin-left: 0 !important;
+      padding-left: 0 !important;
+    }
+  }
+}
+
+/* Product page gallery on phones: images sit right under the header, and the slider cards touch.
+   The -1px margin overlaps neighbouring card borders so they read as one 1px line */
+@media only screen and (max-width: 768px) {
+  .page-content--product {
+    & .product__photos {
+      margin-top: 0;
+    }
+
+    & .grid--product-images--partial .flickity-slider .product-main-slide {
+      margin-right: -1px;
+    }
+  }
+}
+
 /* Product page Guide accordion (custom.guide metaobject). Expanse has no global .rte styles,
    so the comparison table is styled here and scrolls sideways on small screens */
 .oak-guide {

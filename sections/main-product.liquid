@@ -1,20 +1,34 @@
 {%- liquid
+  assign title_block = section.blocks | where: 'type', 'title' | first
+  assign price_block = section.blocks | where: 'type', 'price' | first
+
   capture blocks
     for block in section.blocks
       case block.type
         when '@app'
           render block
         when 'title'
-          render 'block.product-title', block: block
+          # Oak: title and price share one row (title left, price right). The price block renders here, not in its own slot
+          if price_block
+            echo '<div class="oak-title-price">'
+            render 'block.product-title', block: block
+            render 'block.product-price', block: price_block, show_label: false
+            echo '</div>'
+          else
+            render 'block.product-title', block: block
+          endif
         when 'description'
           # Oak: the description tab is open on page load; the other tabs stay closed
           render 'block.product-description', block: block, open: true
         when 'variant_picker'
           render 'block.product-variant-picker', block: block
         when 'buy_buttons'
-          render 'block.product-buy-buttons', block: block
+          # Oak: no "Shipping calculated at checkout" line on the product page
+          render 'block.product-buy-buttons', block: block, show_policies: false
         when 'price'
-          render 'block.product-price', block: block
+          unless title_block
+            render 'block.product-price', block: block, show_label: false
+          endunless
         when 'quantity_selector'
           render 'block.product-quantity-selector', block: block
         when 'inventory_status'

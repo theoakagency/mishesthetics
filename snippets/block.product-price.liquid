@@ -6,6 +6,7 @@
   @param {object} [block] - Block object
   @param {object} [product] - Product object
   @param {boolean} [use_variant] - Use first available variant instead of product price, default: false
+  @param {boolean} [show_label] - Show the visible "Price" label above the price, default: true
 
   @example
   {% render 'block.product-price', product: product, use_variant: true %}
@@ -47,6 +48,7 @@
 {%- liquid
   assign product = section.settings.product | default: product
   assign use_variant = use_variant | default: true, allow_false: true
+  assign show_label = show_label | default: true, allow_false: true
   assign target = product
 
   if use_variant
@@ -84,7 +86,9 @@
   {{ price_attributes }}
   {{ block.shopify_attributes }}
 >
-  {%- render 'element.text', locale: 'labels.price', text: 'Price', classlist: 'label variant__label' -%}
+  {%- if show_label -%}
+    {%- render 'element.text', locale: 'labels.price', text: 'Price', classlist: 'label variant__label' -%}
+  {%- endif -%}
 
   {%- capture price -%}
     <div class="block-price__regular">

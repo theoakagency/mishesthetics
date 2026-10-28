@@ -37,27 +37,6 @@
             "size_chart": ""
           }
         },
-        "sales_point": {
-          "type": "sales_point",
-          "settings": {
-            "icon": "package",
-            "text": "Free domestic shipping on orders over $150"
-          }
-        },
-        "sales_point2": {
-          "type": "sales_point",
-          "settings": {
-            "icon": "heart",
-            "text": "Designed by one Lash Artist for all Lash Artists"
-          }
-        },
-        "inventory_status": {
-          "type": "inventory_status",
-          "settings": {
-            "inventory_threshold": 10,
-            "inventory_transfers_enable": true
-          }
-        },
         "buy_buttons": {
           "type": "buy_buttons",
           "settings": {
@@ -141,13 +120,10 @@
       },
       "block_order": [
         "title_hjUmEr",
-        "rating",
         "price",
+        "rating",
         "infinite_options_app_block_Rit69c",
         "variant_picker",
-        "sales_point",
-        "sales_point2",
-        "inventory_status",
         "buy_buttons",
         "description_EFnQ69",
         "tab_usage_storage",
