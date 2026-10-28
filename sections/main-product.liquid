@@ -7,7 +7,8 @@
         when 'title'
           render 'block.product-title', block: block
         when 'description'
-          render 'block.product-description', block: block
+          # Oak: the description tab is open on page load; the other tabs stay closed
+          render 'block.product-description', block: block, open: true
         when 'variant_picker'
           render 'block.product-variant-picker', block: block
         when 'buy_buttons'
@@ -305,21 +306,6 @@
           "type": "checkbox",
           "id": "is_tab",
           "label": "t:actions.show_as_tab"
-        },
-        {
-          "type": "checkbox",
-          "id": "preview_enabled",
-          "label": "t:actions.show_description_preview",
-          "default": false
-        },
-        {
-          "type": "range",
-          "id": "preview_lines",
-          "label": "t:labels.preview_lines",
-          "default": 8,
-          "min": 3,
-          "max": 15,
-          "step": 1
         }
       ]
     },

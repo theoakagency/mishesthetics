@@ -8,6 +8,7 @@
   @param {string} [title] - Tab heading text
   @param {string} [tab_content] - Rich text content for the tab
   @param {string} [page_content] - Page content to display in tab
+  @param {boolean} [open] - Whether the tab is open on page load, default: false
 
   @example
   {% render 'block.product-tab', title: 'Shipping Info', tab_content: shipping_details %}
@@ -29,6 +30,6 @@
 
 {%- if title != blank and accordion_content != blank -%}
   <div {{ block.shopify_attributes }}>
-    {%- render 'element.accordion', title: title, slot: accordion_content, group: tab_group -%}
+    {%- render 'element.accordion', title: title, slot: accordion_content, group: tab_group, open: open -%}
   </div>
 {%- endif -%}
