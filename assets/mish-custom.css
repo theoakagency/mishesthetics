@@ -483,6 +483,52 @@
   }
 }
 
+/* Oak: headings inside product page accordions (Description, tabs, Guide) render as subheadings,
+   not at full page heading sizes. Montserrat 600 is loaded in snippets/head.styles.settings-font-face.liquid */
+.product-single__meta .element-accordion__content {
+  & :is(h1, h2, h3, h4, h5, h6) {
+    font-weight: 600;
+    line-height: 1.3;
+    letter-spacing: normal;
+    margin: 1.25em 0 0.5em;
+  }
+
+  & :is(h1, h2) {
+    font-size: 18px;
+  }
+
+  & h3 {
+    font-size: 16px;
+  }
+
+  & :is(h4, h5, h6) {
+    font-size: 16px;
+  }
+
+  /* No gap above the first thing in the accordion (content is sometimes wrapped in a div) */
+  & > :first-child,
+  & > :first-child > :first-child {
+    margin-top: 0;
+  }
+
+  @media only screen and (min-width: 769px) {
+    & :is(h1, h2) {
+      font-size: 20px;
+    }
+
+    & h3 {
+      font-size: 18px;
+    }
+  }
+
+  /* Phones: the theme's 30px list indent is wide in a narrow column */
+  @media only screen and (max-width: 768px) {
+    & :is(ul, ol) {
+      margin-left: 1.25em;
+    }
+  }
+}
+
 /* Product page Guide accordion (custom.guide metaobject). Expanse has no global .rte styles,
    so the comparison table is styled here and scrolls sideways on small screens */
 .oak-guide {

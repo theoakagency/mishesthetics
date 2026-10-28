@@ -27,6 +27,12 @@
       if heading_font_italic
         echo heading_font_italic | font_face: font_display: 'fallback'
       endif
+
+      # Oak: semibold heading face for subheadings in product page accordions (mish-custom.css). Only downloaded where used
+      assign heading_font_semibold = heading_font | font_modify: 'weight', '600'
+      if heading_font_semibold
+        echo heading_font_semibold | font_face: font_display: 'fallback'
+      endif
     endif
 
     if body_font
