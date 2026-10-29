@@ -570,6 +570,19 @@
       min-width: 840px;
     }
 
+    /* Right-edge shade while there's more table to scroll to. The first layer (page colour) scrolls with
+       the content and covers the shade once the end is reached, or when the table fits */
+    & .table-wrapper {
+      background:
+        linear-gradient(to left, var(--color-secondary, #fff), var(--color-secondary, #fff)) right / 28px 100% no-repeat local,
+        linear-gradient(to left, rgb(0 0 0 / 0.14), rgb(0 0 0 / 0)) right / 24px 100% no-repeat scroll;
+    }
+
+    /* The theme paints cells white (same as the page), which hid the shade; let it show through */
+    & td {
+      background-color: transparent;
+    }
+
     & th,
     & td {
       padding: 6px 8px;
