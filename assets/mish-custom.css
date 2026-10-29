@@ -483,6 +483,21 @@
   }
 }
 
+/* Oak: product subtitle (custom.subtitle) under the rating. The stack gap is 16px; pull it 4px up so it
+   sits 12px under the stars and keeps the usual 16px above the purchase options */
+.product-single__meta > .product-single__subtitle {
+  margin: -4px 0 0;
+  font-family: var(--element-text-font-family--body), var(--element-text-font-family-fallback--body);
+  font-size: 15px;
+  font-weight: 400;
+  line-height: 1.5;
+  color: var(--color-primary);
+
+  @media only screen and (min-width: 769px) {
+    font-size: 14px;
+  }
+}
+
 /* Product page: blocks with nothing to show (Infinite Options with no options, the variant picker on
    single-variant products) still take a gap in the stack. Hide them so the price sits one gap above the next block */
 .product-single__meta {

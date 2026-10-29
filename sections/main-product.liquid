@@ -71,6 +71,12 @@
           echo '<div ' | append: block.shopify_attributes | append: '>'
           render 'oak.rating-stars', product: product, context: 'product'
           echo '</div>'
+
+          # Oak: optional subtitle (custom.subtitle metafield) right below the rating
+          assign subtitle = product.metafields.custom.subtitle.value | strip | escape
+          if subtitle != blank
+            echo '<p class="product-single__subtitle">' | append: subtitle | append: '</p>'
+          endif
       endcase
     endfor
   endcapture
