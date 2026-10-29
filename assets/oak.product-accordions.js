@@ -1,6 +1,8 @@
 // Oak: keep a product page accordion header where it was tapped while the accordion opens or closes.
-// The accordions animate their height (element.accordion: 200ms size, then 200ms fade), so the scroll
-// is corrected every frame until the layout settles. Scroll changes are instant, never smooth.
+// The tabs share one <details name> group, so opening one also closes the open one (often above it,
+// which would pull the page up). Both height animations start on the same tap (element.accordion:
+// 200ms size, then 200ms fade), so the scroll is corrected every frame until the layout settles.
+// Scroll changes are instant, never smooth.
 const SETTLE_MS = 700
 const IDLE_FRAMES = 6
 
@@ -23,7 +25,7 @@ function track(summary) {
     if (!summary.isConnected) return stop()
 
     const delta = summary.getBoundingClientRect().top - startTop
-    if (Math.abs(delta) >= 1) {
+    if (Math.abs(delta) >= 0.5) {
       window.scrollBy({ top: delta, behavior: 'instant' })
       idle = 0
     } else {

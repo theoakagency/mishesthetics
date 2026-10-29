@@ -7,7 +7,6 @@
   @param {object} [product] - Product object
   @param {boolean} [is_tab] - Render as collapsible accordion tab, default: true
   @param {boolean} [open] - Whether the description tab is open on page load, default: false
-  @param {boolean} [exclusive] - Share the accordion group with the other product tabs, default: true
 
   @example
   {% render 'block.product-description', product: product, is_tab: true %}
@@ -18,7 +17,6 @@
   assign product = section.settings.product | default: product
   assign is_tab = is_tab | default: block.settings.is_tab, allow_false: true | default: true, allow_false: true
   assign open = open | default: false, allow_false: true
-  assign exclusive = exclusive | default: true, allow_false: true
   assign description = 'info.placeholder_product_description' | t
 
   if product
@@ -33,7 +31,7 @@
     endcapture
 
     # Oak: render through the product tab snippet so the description uses the same markup and accordion group as the tabs below it
-    render 'block.product-tab', block: block, title: accordion_title, tab_content: description, open: open, exclusive: exclusive
+    render 'block.product-tab', block: block, title: accordion_title, tab_content: description, open: open
   -%}
 {%- else -%}
   <div style="width: 100%;" {{ block.shopify_attributes }}>

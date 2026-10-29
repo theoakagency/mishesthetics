@@ -9,7 +9,6 @@
   @param {string} [tab_content] - Rich text content for the tab
   @param {string} [page_content] - Page content to display in tab
   @param {boolean} [open] - Whether the tab is open on page load, default: false
-  @param {boolean} [exclusive] - Share one accordion group with the section's other tabs (opening one closes the rest), default: true
 
   @example
   {% render 'block.product-tab', title: 'Shipping Info', tab_content: shipping_details %}
@@ -26,11 +25,7 @@
     echo page_content
   endcapture
 
-  assign exclusive = exclusive | default: true, allow_false: true
-  assign tab_group = ''
-  if exclusive
-    assign tab_group = 'product-tabs-' | append: section.id
-  endif
+  assign tab_group = 'product-tabs-' | append: section.id
 -%}
 
 {%- if title != blank and accordion_content != blank -%}
