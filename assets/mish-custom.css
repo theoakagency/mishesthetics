@@ -396,6 +396,45 @@
   opacity: 0.7;
 }
 
+/* Oak: product page Add to cart button. Uppercase via CSS so the label text and translations stay as is.
+   Same button in its sold-out (disabled) and loading (.btn--loading) states, so the label never changes size */
+.product-single__meta block-buy-buttons .add-to-cart {
+  min-height: 52px;
+  padding-block: 0;
+
+  &,
+  & .element-text {
+    font-family: var(--element-text-font-family--body);
+    font-size: 15px;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+  }
+
+  @media only screen and (min-width: 769px) {
+    &,
+    & .element-text {
+      font-size: 16px;
+    }
+  }
+}
+
+/* Subscription widget (Seal Subscriptions) above Add to cart: its padding and margin under the
+   "Subscription details" link added ~36px on top of the form's 10px gap. Trim it to 16px in total */
+.product-single__meta block-buy-buttons {
+  & .sealsubs-container {
+    margin-bottom: 6px;
+  }
+
+  & .sls-more-info-container {
+    padding-bottom: 0;
+  }
+
+  & .sls-more-info-text {
+    padding-bottom: 0;
+  }
+}
+
 /* Oak: product page title and price on one row (sections/main-product.liquid wraps both blocks).
    Long titles wrap in their own column; the price keeps its width and never wraps under the title */
 .oak-title-price {
