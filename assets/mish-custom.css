@@ -497,8 +497,9 @@
     font-size: 18px;
   }
 
+  /* 17px, not 16px: next to 15px body text a 16px h3 barely read as a heading */
   & h3 {
-    font-size: 16px;
+    font-size: 17px;
   }
 
   & :is(h4, h5, h6) {
@@ -521,10 +522,15 @@
     }
   }
 
-  /* Phones: the theme's 30px list indent is wide in a narrow column */
+  /* Phones: the theme's 30px list indent is wide in a narrow column, and its 12px body text is too small */
   @media only screen and (max-width: 768px) {
     & :is(ul, ol) {
       margin-left: 1.25em;
+    }
+
+    & :is(p, li, td, th) {
+      font-size: 15px;
+      line-height: 1.5;
     }
   }
 }
@@ -559,6 +565,11 @@
   }
 
   @media only screen and (max-width: 768px) {
+    /* Wider on phones for the 15px accordion text, so cells don't wrap word by word (the wrapper scrolls sideways) */
+    & table {
+      min-width: 840px;
+    }
+
     & th,
     & td {
       padding: 6px 8px;
