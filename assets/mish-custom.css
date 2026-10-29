@@ -522,6 +522,64 @@
   }
 }
 
+/* Oak: product page accordions get a thin plus/minus instead of the chevrons. Two pseudo-element strokes,
+   so the vertical one can turn and fade on open. Dividers stay one light 1px line: the theme's hover
+   darkening is pinned to the resting colour (on phones hover sticks to the last tapped accordion,
+   which read as a heavier line), and the first accordion gets the same line on top */
+.product-single__meta {
+  & .element-accordion {
+    --element-accordion-shade-border-hover: var(--element-accordion-shade-border);
+  }
+
+  & > :has(> accordion-toggle) .element-accordion {
+    border-block-start: 1px solid color-mix(in srgb, var(--color-primary) var(--element-accordion-shade-border), transparent);
+  }
+
+  & > :has(> accordion-toggle) ~ :has(> accordion-toggle) .element-accordion {
+    border-block-start: 0;
+  }
+
+  & .element-accordion__toggle {
+    position: relative;
+    padding-inline-end: 28px;
+
+    & .element-accordion__toggle-open,
+    & .element-accordion__toggle-close {
+      display: none;
+    }
+
+    &::before,
+    &::after {
+      content: '';
+      position: absolute;
+      top: 50%;
+      right: 2px;
+      width: 12px;
+      height: 1.25px;
+      margin-top: -0.625px;
+      background: currentColor;
+      transition: transform 200ms ease-in-out, opacity 200ms ease-in-out;
+    }
+
+    /* Vertical stroke of the "+" */
+    &::after {
+      transform: rotate(90deg);
+    }
+  }
+
+  & details[open] > .element-accordion__toggle::after {
+    transform: rotate(0deg);
+    opacity: 0;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    & .element-accordion__toggle::before,
+    & .element-accordion__toggle::after {
+      transition: none;
+    }
+  }
+}
+
 /* Oak: headings inside product page accordions (Description, tabs, Guide) render as subheadings,
    not at full page heading sizes. Montserrat 600 is loaded in snippets/head.styles.settings-font-face.liquid */
 .product-single__meta .element-accordion__content {
