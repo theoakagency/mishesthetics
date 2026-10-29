@@ -18,8 +18,9 @@
             render 'block.product-title', block: block
           endif
         when 'description'
-          # Oak: the description tab is open on page load; the other tabs stay closed
-          render 'block.product-description', block: block, open: true
+          # Oak: the description tab is open on page load; the other tabs stay closed.
+          # Product page tabs open and close independently (exclusive: false): closing Description when another tab opened made the page jump
+          render 'block.product-description', block: block, open: true, exclusive: false
         when 'variant_picker'
           render 'block.product-variant-picker', block: block
         when 'buy_buttons'
@@ -44,7 +45,7 @@
         when 'trust_badge'
           render 'block.product-trust-badge', block: block
         when 'tab'
-          render 'block.product-tab', block: block
+          render 'block.product-tab', block: block, exclusive: false
         when 'guide'
           # Oak: accordion from the custom.guide metaobject. Its content is raw HTML (tables), which a richtext tab setting can't hold
           assign guide = product.metafields.custom.guide.value
@@ -55,7 +56,7 @@
               echo '</div>'
             endcapture
             assign guide_title = guide.title.value | default: 'Guide'
-            render 'block.product-tab', block: block, title: guide_title, tab_content: guide_content
+            render 'block.product-tab', block: block, title: guide_title, tab_content: guide_content, exclusive: false
           endif
         when 'separator'
           render 'block.product-separator', block: block
@@ -76,6 +77,8 @@
 -%}
 
 {% render 'section.main-product', slot: blocks %}
+
+<script src="{{ 'oak.product-accordions.js' | asset_url }}" defer></script>
 
 {% schema %}
 {
